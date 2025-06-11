@@ -1,20 +1,25 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 
-// ✅ props: v-modelとしてFile型を受け取る
+// ✅ props: v-modelとしてFile[]を受け取る
 const props = defineProps<{
-  modelValue: File | null
+  modelValue: File[]
   labelBeforeText?: string
   labelAfterText?: string
+  maxCount?: number
 }>()
 
-// ✅ emits: File型のデータを親に渡す
+// ✅ emits: File[] を親に渡す
 const emit = defineEmits<{
-  (e: 'update:modelValue', value: File | null): void
+  (e: 'update:modelValue', value: File[]): void
 }>()
 
-const imagePreviewUrl = ref<string | null>(null)
+const imagePreviewUrls = ref<string[]>([])
 const fileInputRef = ref<HTMLInputElement | null>(null)
+const MAX_IMAGES =
+  props.maxCount && props.maxCount > 0 && props.maxCount <= 10
+    ? props.maxCount
+    : 1
 
 // ファイル処理用関数
 const handleFile = (file: File) => {
@@ -25,19 +30,27 @@ const handleFile = (file: File) => {
 
   const reader = new FileReader()
   reader.onload = () => {
-    imagePreviewUrl.value = reader.result as string
+    if (imagePreviewUrls.value.length >= MAX_IMAGES) {
+      alert(`画像は最大${MAX_IMAGES}枚までよッ！`)
+      return
+    }
+
+    imagePreviewUrls.value.push(reader.result as string)
+    emit('update:modelValue', [...props.modelValue, file])
   }
   reader.readAsDataURL(file)
-
-  emit('update:modelValue', file)
 }
 
 // ドロップエリア
 const onDrop = (event: DragEvent) => {
   event.preventDefault()
   const files = event.dataTransfer?.files
-  if (files && files.length > 0) {
-    handleFile(files[0])
+  if (files) {
+    Array.from(files)
+      .slice(0, MAX_IMAGES - props.modelValue.length)
+      .forEach(file => {
+        handleFile(file)
+      })
   }
 }
 
@@ -45,26 +58,27 @@ const onDragOver = (event: DragEvent) => {
   event.preventDefault()
 }
 
-const clearImage = () => {
-  imagePreviewUrl.value = null
-  emit('update:modelValue', null)
+const clearImage = (index: number) => {
+  imagePreviewUrls.value.splice(index, 1)
+  const updated = [...props.modelValue]
+  updated.splice(index, 1)
+  emit('update:modelValue', updated)
 }
 
 // 親 → 子への反映（プレビューのみ）
 watch(
   () => props.modelValue,
-  newFile => {
-    if (!newFile) {
-      imagePreviewUrl.value = null
-      return
-    }
-
-    const reader = new FileReader()
-    reader.onload = () => {
-      imagePreviewUrl.value = reader.result as string
-    }
-    reader.readAsDataURL(newFile)
+  newFiles => {
+    imagePreviewUrls.value = []
+    newFiles.forEach(file => {
+      const reader = new FileReader()
+      reader.onload = () => {
+        imagePreviewUrls.value.push(reader.result as string)
+      }
+      reader.readAsDataURL(file)
+    })
   },
+  { immediate: true },
 )
 </script>
 
@@ -72,30 +86,35 @@ watch(
   <div class="image-upload">
     <label for="image">
       {{
-        imagePreviewUrl
+        imagePreviewUrls.length > 0
           ? props.labelAfterText || '投稿画像：'
           : props.labelBeforeText || '画像をアップロード：'
       }}
     </label>
 
-    <!-- ドロップエリア -->
-    <!-- ドロップエリア -->
     <div class="drop-area" @dragover="onDragOver" @drop="onDrop">
       <input
         ref="fileInputRef"
         type="file"
         accept="image/*"
+        multiple
         style="display: none"
         @change="
           e => {
             const files = (e.target as HTMLInputElement).files
-            if (files && files[0]) handleFile(files[0])
+            if (files) {
+              Array.from(files)
+                .slice(0, MAX_IMAGES - props.modelValue.length)
+                .forEach(file => {
+                  handleFile(file)
+                })
+            }
           }
         "
       />
 
       <label
-        v-if="!imagePreviewUrl"
+        v-if="imagePreviewUrls.length === 0"
         class="click-area"
         @click="fileInputRef?.click()"
       >
@@ -103,14 +122,15 @@ watch(
         もしくはクリックして選択♡
       </label>
 
-      <!-- 🆕 プレビュー＋×削除ボタン -->
-      <div v-if="imagePreviewUrl" class="image-preview-wrapper">
-        <img
-          :src="imagePreviewUrl"
-          class="thumb"
-          @click="fileInputRef?.click()"
-        />
-        <button class="remove-button" @click="clearImage">×</button>
+      <div v-else class="preview-scroll">
+        <div
+          v-for="(url, index) in imagePreviewUrls"
+          :key="index"
+          class="image-preview-wrapper"
+        >
+          <img :src="url" class="thumb" @click="fileInputRef?.click()" />
+          <button class="remove-button" @click="clearImage(index)">×</button>
+        </div>
       </div>
     </div>
   </div>
@@ -126,32 +146,28 @@ watch(
 .drop-area {
   border: 2px dashed #999;
   padding: 20px;
-  height: 200px;
   text-align: center;
   background: #f9f9f9;
-  cursor: pointer;
   transition: 0.2s ease;
-
-  /* 🌟 追加：中央寄せ用Flexbox */
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
+
 .drop-area:hover {
   border-color: #333;
   background: #eee;
 }
 
+.preview-scroll {
+  display: flex;
+  overflow-x: auto;
+  gap: 10px;
+  padding: 10px 0;
+}
+
 .thumb {
-  /* drop-areaの高さに揃える！ */
   height: 200px;
-
-  /* 縦横比保ったままフィットさせる */
   object-fit: contain;
-
-  /* 他の装飾 */
   border: 1px solid #ccc;
-  max-width: 100%; /* 横幅は親に合わせて */
+  max-width: 100%;
 }
 
 .click-area {

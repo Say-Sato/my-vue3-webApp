@@ -1,15 +1,15 @@
 <script lang="ts">
 import { watch, defineComponent, ref, computed, onMounted } from 'vue'
-import { useRoute } from 'vue-router' // ← これ追加！
+import { useRoute } from 'vue-router'
 import TextInput from '@/basics/TextInput.vue'
 import RadioInput from '@/basics/RadioInput.vue'
-import PhotoDragDrop from '@/basics/PhotoDragDrop.vue' // 追加
+import PhotoDragDrop from '@/basics/PhotoDragDrop.vue'
 
 export default defineComponent({
   components: {
     TextInput,
     RadioInput,
-    PhotoDragDrop, // 追加
+    PhotoDragDrop,
   },
   props: {
     title: String,
@@ -17,7 +17,7 @@ export default defineComponent({
     body: String,
     publish: String,
     adultsOnly: String,
-    image: Object as () => File | null, // 変更
+    images: Array as () => File[],
   },
   emits: [
     'submit',
@@ -26,10 +26,10 @@ export default defineComponent({
     'update:body',
     'update:publish',
     'update:adultsOnly',
-    'update:image', // 追加
+    'update:images',
   ],
   setup(props, { emit }) {
-    const route = useRoute() // ← ルート取得！
+    const route = useRoute()
 
     const hideEdit = computed(() => {
       return !route.path.startsWith('/about')
@@ -55,9 +55,9 @@ export default defineComponent({
       set: newValue => emit('update:adultsOnly', newValue),
     })
 
-    const localImage = computed<File | null>({
-      get: () => props.image ?? null,
-      set: newValue => emit('update:image', newValue),
+    const localImages = computed<File[]>({
+      get: () => props.images ?? [],
+      set: newValue => emit('update:images', newValue),
     })
 
     const tagInput = ref('')
@@ -121,14 +121,14 @@ export default defineComponent({
       localBody,
       localPublish,
       localAdultsOnly,
-      localImage,
+      localImages,
       tagInput,
       tagList,
       errorMessage,
       addTag,
       removeTag,
       handleSubmit,
-      hideEdit, // ← これテンプレートに渡す！
+      hideEdit,
     }
   },
 })
@@ -136,9 +136,9 @@ export default defineComponent({
 
 <template>
   <form @submit.prevent="handleSubmit">
-    <div v-if="hideEdit">
+    <div>
       <label for="image">画像:</label>
-      <PhotoDragDrop v-model="localImage" />
+      <PhotoDragDrop v-model="localImages" :maxCount="10" />
     </div>
 
     <div>

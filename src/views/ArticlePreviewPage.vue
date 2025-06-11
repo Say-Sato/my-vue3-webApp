@@ -1,5 +1,5 @@
 <script lang="ts">
-import { defineComponent, ref, watch } from 'vue'
+import { defineComponent, ref } from 'vue'
 import type { PropType } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -9,9 +9,10 @@ export default defineComponent({
     title: { type: String, required: true },
     tags: { type: String, required: true },
     body: { type: String, required: true },
-    image: {
-      type: Object as PropType<File | null>, // ← ここがポイント💥
-      required: false,
+    images: {
+      type: Array as PropType<File[]>,
+      required: true,
+      default: () => [],
     },
     publish: { type: String, required: true },
     adultsOnly: { type: String, required: true },
@@ -26,26 +27,36 @@ export default defineComponent({
     const formBody = ref(props.body)
     const formPublish = ref(props.publish)
     const formAdultsOnly = ref(props.adultsOnly)
-    const imageFile = ref<File | null>(props.image || null)
+    const imageFiles = ref<File[]>(props.images || [])
 
-    const previewUrl = ref<string>('')
+    const previewUrls = ref<string[]>([])
 
-    // ファイルが変更されたらプレビューURLを更新
-    watch(
-      () => imageFile.value,
-      newFile => {
-        if (newFile) {
-          previewUrl.value = URL.createObjectURL(newFile)
-        }
-      },
-      { immediate: true },
-    )
+    // 🔍 デバッグログ
+    console.log('props.images:', props.images)
+    console.log('imageFiles (before preview gen):', imageFiles.value)
+
+    // プレビュー画像生成＋チェック
+    previewUrls.value = imageFiles.value.map((file, i) => {
+      if (!(file instanceof File)) {
+        console.warn(`⚠️ imageFiles[${i}] は File 型じゃないよ：`, file)
+      }
+      try {
+        return URL.createObjectURL(file)
+      } catch (e) {
+        console.error(`❌ createObjectURL 失敗 at index ${i}:`, e)
+        return ''
+      }
+    })
+
+    console.log('previewUrls:', previewUrls.value)
 
     const handleSubmit = async () => {
       const formData = new FormData()
-      if (imageFile.value) {
-        formData.append('image', imageFile.value)
-      }
+
+      imageFiles.value.forEach(file => {
+        formData.append('image[]', file)
+      })
+
       formData.append('userid', formUserId.value)
       formData.append('title', formTitle.value)
       formData.append('tags', formTags.value)
@@ -86,8 +97,8 @@ export default defineComponent({
       formBody,
       formPublish,
       formAdultsOnly,
-      imageFile,
-      previewUrl,
+      imageFiles,
+      previewUrls,
     }
   },
 })
@@ -104,11 +115,20 @@ export default defineComponent({
       <p>publish:{{ formPublish }}</p>
       <p>adultsOnly:{{ formAdultsOnly }}</p>
 
-      <!-- 画像プレビュー -->
-      <div v-if="previewUrl">
-        <img :src="previewUrl" alt="プレビュー画像" width="200" />
+      <!-- 画像プレビュースライダー -->
+      <div class="image-preview-wrapper" v-if="previewUrls.length">
+        <div class="image-row">
+          <img
+            v-for="(url, index) in previewUrls"
+            :key="index"
+            :src="url"
+            alt="プレビュー画像"
+            class="preview-image"
+          />
+        </div>
       </div>
     </div>
+
     <form @submit.prevent="handleSubmit">
       <button type="submit">送信</button>
     </form>
@@ -122,13 +142,25 @@ export default defineComponent({
   padding: 20px;
   margin-top: 20px;
   border-radius: 5px;
-  width: 90%; /* コンテンツの幅を90%に設定 */
+  width: 90%;
   height: 80%;
-  margin: 0 auto; /* 中央に配置 */
+  margin: 0 auto;
 }
 
-.preview img {
-  max-width: 100%;
-  height: auto;
+.image-preview-wrapper {
+  overflow-x: auto;
+  white-space: nowrap;
+  padding-bottom: 10px;
+  margin-top: 10px;
+}
+
+.image-row {
+  display: flex;
+  gap: 10px;
+}
+
+.preview-image {
+  max-height: 150px;
+  border-radius: 5px;
 }
 </style>

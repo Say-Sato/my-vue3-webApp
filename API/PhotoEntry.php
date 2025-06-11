@@ -89,20 +89,11 @@ foreach ($fileArray as $file) {
     // 保存成功したファイル情報を配列に追加
     $domainName = 'yellowokapi2.sakura.ne.jp';
     $imageUrl = "http://$domainName/$subFolder/$uniqueFileName";
-    $savedFiles[] = [
-        'url' => $imageUrl,
-        'filename' => $uniqueFileName,
-    ];
+    $savedFiles[] = $imageUrl;
 }
 
 if (count($savedFiles) === 0) {
     echo json_encode(["error" => "ファイルの保存に失敗しました。"], JSON_UNESCAPED_UNICODE);
     exit;
 }
-
-// 成功レスポンスを配列で返す
-echo json_encode([
-    "success" => true,
-    "files" => $savedFiles,
-], JSON_UNESCAPED_UNICODE);
 ?>

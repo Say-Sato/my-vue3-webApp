@@ -35,22 +35,32 @@ try {
         $R18 = (int) $adultsOnly;
         $public = (int) $publish;
 
-        // パラメータをバインド
+        // illustテーブルにINSERT（$savedFiles[0] を使用）
         $data = [
-        ':p_id' => $p_id,
-        ':title' => $title,
-        ':url' => $imageUrl,
-        ':body' => $body,
-        ':R18' => $R18,
-        ':public' => $public,
-        ':s_url' => $imageUrl
+            ':p_id' => $p_id,
+            ':title' => $title,
+            ':url' => $savedFiles[0],
+            ':body' => $body,
+            ':R18' => $R18,
+            ':public' => $public,
+            ':s_url' => $savedFiles[0]
         ];
-
-        // クエリを実行
         $dataList = $stmt->execute($data);
 
-        // 作成した記事のIDを取得する
+        // illust.id を取得
         $illust_id = intval($dbh->lastInsertId());
+
+        // imagesテーブルへ保存
+        $imageInsertQuery = "INSERT INTO images (post_id, url, sort_order) VALUES (:post_id, :url, :sort_order)";
+        $imageStmt = $dbh->prepare($imageInsertQuery);
+
+        foreach ($savedFiles as $index => $imgUrl) {
+            $imageStmt->execute([
+                ':post_id' => $illust_id,
+                ':url' => $imgUrl,
+                ':sort_order' => $index
+            ]);
+        }
 
         // 既存のタグを結びつけ新規のタグを作成し、illust_tagsテーブルに登録する
         include('./TagsInsert.php');

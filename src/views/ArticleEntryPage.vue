@@ -16,15 +16,15 @@ export default defineComponent({
     const body = ref('')
     const publish = ref('')
     const adultsOnly = ref('')
-    const image = ref<File | null>(null) // ← 画像ファイル型
+    const images = ref<File[]>([]) // ← 配列に変更
     const submitted = ref(false)
     const tagList = ref<string[]>([])
     const userStore = useUserStore()
 
     id.value = userStore.id ?? '3'
 
-    const handleImageChange = (newFile: File) => {
-      image.value = newFile
+    const handleImagesChange = (newFiles: File[]) => {
+      images.value = newFiles
     }
 
     const updateTags = (newTags: string): void => {
@@ -47,9 +47,9 @@ export default defineComponent({
       body,
       publish,
       adultsOnly,
-      image,
+      images,
       submitted,
-      handleImageChange,
+      handleImagesChange,
       handleSubmit,
       handleReset,
       updateTags,
@@ -68,13 +68,13 @@ export default defineComponent({
       :body="body"
       :publish="publish"
       :adultsOnly="adultsOnly"
-      :image="image"
+      :images="images"
       @update:title="title = $event"
       @update:tags="updateTags"
       @update:body="body = $event"
       @update:publish="publish = $event"
       @update:adultsOnly="adultsOnly = $event"
-      @update:image="handleImageChange"
+      @update:images="handleImagesChange"
       @submit="handleSubmit"
     />
 
@@ -85,7 +85,7 @@ export default defineComponent({
       :title="title"
       :tags="tags"
       :body="body"
-      :image="image"
+      :images="images"
       :publish="publish"
       :adultsOnly="adultsOnly"
       @reset="handleReset"

@@ -1,199 +1,91 @@
-<script setup lang="ts">
-import { ref, watch } from 'vue'
+<?php
+// DB接続
+header('Content-Type: application/json; charset=utf-8');
+include('./BlogPDO.php');
 
-// ✅ props: v-modelとしてFile型を受け取る
-const props = defineProps<{
-  modelValue: File | null
-  labelBeforeText?: string
-  labelAfterText?: string
-}>()
+try {
+    $dbh = new PDO($dsn, $user, $password);
+    $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-// ✅ emits: File型のデータを親に渡す
-const emit = defineEmits<{
-  (e: 'update:modelValue', value: File | null): void
-}>()
+    $query = "INSERT INTO illust (p_id, title, url, body, R18, public, s_url) 
+                VALUES (:p_id, :title, :url, :body, :R18, :public, :s_url)";
+    $stmt = $dbh->prepare($query);
 
-const imagePreviewUrl = ref<string | null>(null)
-const fileInputRef = ref<HTMLInputElement | null>(null)
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
-// ファイル処理用関数
-const handleFile = (file: File) => {
-  if (!file.type.startsWith('image/')) {
-    alert('画像ファイルを選んでね♡')
-    return
-  }
+        // 動的パスを指定し画像をURLへ変換
+        $subFolder = 'Blog/mypage/portfolio/photo';
+        include('./PhotoEntry.php');
+        // 入力内容を取得
+        $userid = isset($_POST['userid']) ? htmlspecialchars($_POST['userid']) : '未指定';
+        $title = isset($_POST['title']) ? htmlspecialchars($_POST['title']) : '未指定';
+        $tags = isset($_POST['tags']) ? htmlspecialchars($_POST['tags']) : '未指定';
+        $body = isset($_POST['body']) ? htmlspecialchars($_POST['body']) : '';
+        $publish = isset($_POST['publish']) ? htmlspecialchars($_POST['publish']) : '未指定';
+        $adultsOnly = isset($_POST['adultsOnly']) ? htmlspecialchars($_POST['adultsOnly']) : '未指定';
 
-  const reader = new FileReader()
-  reader.onload = () => {
-    imagePreviewUrl.value = reader.result as string
-  }
-  reader.readAsDataURL(file)
+        //Int型としてDBへ格納
+        if($userid){
+            $p_id = intval($userid);
+        } else {
+            echo json_encode(["error" => "投稿するにはログインしてください。"], JSON_UNESCAPED_UNICODE);
+            die();
+        }
 
-  emit('update:modelValue', file)
-}
+        $R18 = (int) $adultsOnly;
+        $public = (int) $publish;
 
-// ドロップエリア
-const onDrop = (event: DragEvent) => {
-  event.preventDefault()
-  const files = event.dataTransfer?.files
-  if (files && files.length > 0) {
-    handleFile(files[0])
-  }
-}
+        // パラメータをバインド
+        $data = [
+        ':p_id' => $p_id,
+        ':title' => $title,
+        ':url' => $imageUrl,
+        ':body' => $body,
+        ':R18' => $R18,
+        ':public' => $public,
+        ':s_url' => $imageUrl
+        ];
 
-const onDragOver = (event: DragEvent) => {
-  event.preventDefault()
-}
+        // クエリを実行
+        $dataList = $stmt->execute($data);
 
-const clearImage = () => {
-  imagePreviewUrl.value = null
-  emit('update:modelValue', null)
-}
+        // 作成した記事のIDを取得する
+        $illust_id = intval($dbh->lastInsertId());
 
-// 親 → 子への反映（プレビューのみ）
-watch(
-  () => props.modelValue,
-  newFile => {
-    if (!newFile) {
-      imagePreviewUrl.value = null
-      return
+        // 既存のタグを結びつけ新規のタグを作成し、illust_tagsテーブルに登録する
+        include('./TagsInsert.php');
+
+        // 成功レスポンス
+        echo json_encode([
+            "success" => "データの挿入が完了しました。",
+            "タグ名称" => $tagList,
+            "タグのID" => $tagIds
+        ], JSON_UNESCAPED_UNICODE);
+
+    } else {
+        echo json_encode(["error" => "POSTリクエストを送信してください。"], JSON_UNESCAPED_UNICODE);
+        die();
     }
 
-    const reader = new FileReader()
-    reader.onload = () => {
-      imagePreviewUrl.value = reader.result as string
-    }
-    reader.readAsDataURL(newFile)
-  },
-)
-</script>
-
-<template>
-  <div class="image-upload">
-    <label for="image">
-      {{
-        imagePreviewUrl
-          ? props.labelAfterText || '投稿画像：'
-          : props.labelBeforeText || '画像をアップロード：'
-      }}
-    </label>
-
-    <!-- ドロップエリア -->
-    <!-- ドロップエリア -->
-    <div class="drop-area" @dragover="onDragOver" @drop="onDrop">
-      <input
-        ref="fileInputRef"
-        type="file"
-        accept="image/*"
-        style="display: none"
-        @change="
-          e => {
-            const files = (e.target as HTMLInputElement).files
-            if (files && files[0]) handleFile(files[0])
-          }
-        "
-      />
-
-      <label
-        v-if="!imagePreviewUrl"
-        class="click-area"
-        @click="fileInputRef?.click()"
-      >
-        ここに画像をドラッグ＆ドロップ！<br />
-        もしくはクリックして選択♡
-      </label>
-
-      <!-- 🆕 プレビュー＋×削除ボタン -->
-      <div v-if="imagePreviewUrl" class="image-preview-wrapper">
-        <img
-          :src="imagePreviewUrl"
-          class="thumb"
-          @click="fileInputRef?.click()"
-        />
-        <button class="remove-button" @click="clearImage">×</button>
-      </div>
-    </div>
-  </div>
-</template>
-
-<style scoped>
-.image-upload {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+} catch (PDOException $e) {
+    echo json_encode(["error" => "データベースエラー: " . $e->getMessage()
+    ], JSON_UNESCAPED_UNICODE);
+    die();
 }
 
-.drop-area {
-  border: 2px dashed #999;
-  padding: 20px;
-  height: 200px;
-  text-align: center;
-  background: #f9f9f9;
-  cursor: pointer;
-  transition: 0.2s ease;
+// 接続を閉じる
+$dbh = null;
+?>
 
-  /* 🌟 追加：中央寄せ用Flexbox */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.drop-area:hover {
-  border-color: #333;
-  background: #eee;
-}
 
-.thumb {
-  /* drop-areaの高さに揃える！ */
-  height: 200px;
-
-  /* 縦横比保ったままフィットさせる */
-  object-fit: contain;
-
-  /* 他の装飾 */
-  border: 1px solid #ccc;
-  max-width: 100%; /* 横幅は親に合わせて */
-}
-
-.click-area {
-  cursor: pointer;
-  display: inline-block;
-  padding: 10px;
-  border: 1px dashed #aaa;
-  border-radius: 8px;
-  background-color: #fff;
-  transition: background-color 0.3s ease;
-}
-
-.click-area:hover {
-  background-color: #f0f0f0;
-}
-
-.image-preview-wrapper {
-  position: relative;
-  display: inline-block;
-}
-
-.remove-button {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  background-color: rgba(255, 255, 255, 0.8);
-  border: 1px solid #aaa;
-  border-radius: 50%;
-  font-weight: bold;
-  cursor: pointer;
-  width: 24px;
-  height: 24px;
-  text-align: center;
-  line-height: 22px;
-  padding: 0;
-  font-size: 16px;
-  color: #333;
-  transition: background-color 0.2s ease;
-}
-
-.remove-button:hover {
-  background-color: #f88;
-  color: white;
-}
-</style>
+上記について、下記要件を満たす改修を加えてください。前提として、取得したimagesは下記に添付のコードによって配列    $savedFiles[] = [ 
+        'url' => $imageUrl,
+        'filename' => $uniqueFileName,
+    ];に格納されています。
+ // 動的パスを指定し画像をURLへ変換
+        $subFolder = 'Blog/mypage/portfolio/photo';
+        include('./PhotoEntry.php');
+↓要件
+・images（画像）に関連する部分のみ変更する
+・INSERTするクエリについて、下記を満たすよう変更する。
+1．illustテーブルにINSERT処理を行う。なおurl,s_urlについては、

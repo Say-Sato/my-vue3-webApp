@@ -31,7 +31,7 @@ const handleFile = (file: File) => {
   const reader = new FileReader()
   reader.onload = () => {
     if (imagePreviewUrls.value.length >= MAX_IMAGES) {
-      alert(`画像は最大${MAX_IMAGES}枚までよッ！`)
+      alert('画像は最大${MAX_IMAGES}枚までよッ！')
       return
     }
 
@@ -146,6 +146,7 @@ watch(
 .drop-area {
   border: 2px dashed #999;
   padding: 20px;
+  height: 200px; /* ← 明示的に縦幅を指定 */
   text-align: center;
   background: #f9f9f9;
   transition: 0.2s ease;
@@ -158,16 +159,10 @@ watch(
 
 .preview-scroll {
   display: flex;
+  flex-direction: row; /* 横並び */
   overflow-x: auto;
   gap: 10px;
   padding: 10px 0;
-}
-
-.thumb {
-  height: 200px;
-  object-fit: contain;
-  border: 1px solid #ccc;
-  max-width: 100%;
 }
 
 .click-area {
@@ -186,7 +181,21 @@ watch(
 
 .image-preview-wrapper {
   position: relative;
-  display: inline-block;
+  height: 180px; /* drop-area の高さと合わせて */
+  display: flex;
+  align-items: center; /* ← これで縦方向中央揃え */
+  justify-content: center; /* 横方向も中央揃え（必要なら） */
+  padding: 0; /* 念のため余白なしに */
+  box-sizing: border-box; /* 枠のサイズにpaddingが含まれるように */
+}
+
+.thumb {
+  height: auto;
+  max-height: 100%; /* 枠内に収まる最大高さ */
+  width: auto;
+  object-fit: contain;
+  border: 1px solid #ccc;
+  flex-shrink: 0;
 }
 
 .remove-button {

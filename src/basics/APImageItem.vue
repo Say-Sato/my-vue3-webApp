@@ -20,12 +20,12 @@ const props = defineProps({
 </script>
 
 <template>
-  <li :key="post.id" class="image-item">
-    <router-link :to="`/about/${post.id}`">
+  <li :key="props.post.id" class="image-item">
+    <router-link :to="`/about/${props.post.id}`">
       <div class="box3">
         <div class="image-wrapper">
-          <img :src="post.url" :alt="post.title" class="image" />
-          <div v-if="post.R18" class="blur-overlay">R18</div>
+          <img :src="props.post.url" :alt="props.post.title" class="image" />
+          <div v-if="props.post.R18" class="blur-overlay">R18</div>
         </div>
       </div>
     </router-link>

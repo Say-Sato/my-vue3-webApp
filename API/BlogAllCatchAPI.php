@@ -50,6 +50,26 @@ if ($id !== null) {
                 "p_name" => $row['p_name'],
                 "p_photo" => $row['p_photo'],
             ]; // データを連想配列として格納
+
+            // 画像をすべて取得するクエリ
+            $imgQuery = "SELECT url AS image_url, id AS image_id, sort_order
+                        FROM images
+                        WHERE post_id = :id
+                        ORDER BY sort_order ASC";
+            $imgStmt = $dbh->prepare($imgQuery);
+            $imgStmt->bindParam(':id', $id, PDO::PARAM_INT);
+            $imgStmt->execute();
+            $images = $imgStmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // data に images 配列を追加（sort_orderと一緒に）
+            $data['images'] = [];
+            foreach ($images as $img) {
+                $data['images'][] = [
+                    'image_id'   => (int)$img['image_id'],
+                    'image_url'  => $img['image_url'],
+                    'sort_order' => (int)$img['sort_order'],
+                ];
+            }
         } else {
             // IDが見つからない場合
         http_response_code(404);
@@ -75,37 +95,62 @@ if ($id !== null) {
     try {
     $dbh = new PDO($dsn, $user, $password);
     
-    // クエリ
+    // illust + profile + tags を一括取得
     $query = "SELECT illust.*, profile.name AS p_name,
-    profile.profile_photo AS p_photo,
-    GROUP_CONCAT(illust_tags.t_id) AS tag_ids 
-    FROM illust 
-    JOIN profile ON illust.p_id = profile.id 
-    LEFT JOIN illust_tags ON illust.id = illust_tags.i_id 
-    WHERE public = 0 
-    GROUP BY illust.id
-    ORDER BY created DESC;";
-
+                     profile.profile_photo AS p_photo,
+                     GROUP_CONCAT(illust_tags.t_id) AS tag_ids
+              FROM illust
+              JOIN profile ON illust.p_id = profile.id
+              LEFT JOIN illust_tags ON illust.id = illust_tags.i_id
+              WHERE public = 0
+              GROUP BY illust.id
+              ORDER BY created DESC";
     $stmt = $dbh->prepare($query);
-    
-    // クエリを実行
     $stmt->execute();
+
+    $data = [];
     
-    // すべての行をループしてカラムの値をオブジェクトとして配列に格納
+    // メインループで各イラストごとの配列を作成
     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $data[] = [
-            "id" => $row['id'],
-            "p_id" => $row['p_id'],
+        $item = [
+            "id" => (int)$row['id'],
+            "p_id" => (int)$row['p_id'],
             "title" => $row['title'],
-            "tags" => $row['tag_ids'],
+            "tags" => $row['tag_ids'] ? array_map('intval', explode(',', $row['tag_ids'])) : [],
             "url" => $row['url'],
             "body" => $row['body'],
-            "R18" => $row['R18'],
-            "public" => $row['public'],
+            "R18" => (bool)$row['R18'],
+            "public" => (bool)$row['public'],
             "s_url" => $row['s_url'],
             "p_name" => $row['p_name'],
             "p_photo" => $row['p_photo'],
-        ]; // オブジェクトとして格納
+            "images" => [], // ← ここに画像リスト入れる
+        ];
+
+        // 各イラストに紐づく images を取得
+        $imgQuery = "SELECT post_id,
+                            url AS image_url,
+                            id AS image_id,
+                            sort_order
+                     FROM images
+                     WHERE post_id = :post_id
+                     ORDER BY sort_order ASC";
+        $imgStmt = $dbh->prepare($imgQuery);
+        $imgStmt->bindValue(':post_id', $item['id'], PDO::PARAM_INT);
+        $imgStmt->execute();
+
+        $images = $imgStmt->fetchAll(PDO::FETCH_ASSOC);
+        // :contentReference[oaicite:1]{index=1}
+
+        foreach ($images as $img) {
+            $item['images'][] = [
+                'image_id' => (int)$img['image_id'],
+                'image_url' => $img['image_url'],
+                'sort_order' => (int)$img['sort_order'],
+            ];
+        }
+
+        $data[] = $item;
     }
 
     // JSON形式で返す

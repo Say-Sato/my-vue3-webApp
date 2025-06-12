@@ -1,26 +1,33 @@
 <script setup lang="ts">
 import { defineProps } from 'vue'
 
+export type Image = {
+  image_id: number
+  image_url: string
+  sort_order: number
+}
+
 export type PostResponse = {
   id: number
-  p_id: string
+  p_id: number
   title: string
-  tag: string
+  tags: number[]
   url: string
   body: string
   R18: number
   s_url: string
   p_name: string
   p_photo: string
+  images: Image[]
 }
 
-// 親から受け取る `posts` の型を定義
+// props に tags, images を含むように型定義
 const props = defineProps<{ posts: PostResponse[] }>()
 </script>
 
 <template>
   <ul class="image-gallery">
-    <li v-for="post in posts" :key="post.id" class="image-item">
+    <li v-for="post in props.posts" :key="post.id" class="image-item">
       <router-link :to="`/article/${post.id}`">
         <div class="box3">
           <div class="image-wrapper">
@@ -28,18 +35,19 @@ const props = defineProps<{ posts: PostResponse[] }>()
               :src="post.s_url"
               :alt="post.title"
               class="image"
-              :class="{ blurred: post.R18 === 1 }"
+              :class="{ blurred: post.R18 }"
             />
-            <div v-if="post.R18 === 1" class="blur-overlay">
+            <div v-if="post.R18" class="blur-overlay">
               <span class="overlay-text">R18コンテンツ</span>
             </div>
           </div>
         </div>
       </router-link>
+
       <div class="p-container">
         <h3 class="image-title">
           {{
-            post.title.length > 9 ? post.title.slice(0, 9) + '…' : post.title
+            post.title.length > 9 ? post.title.slice(0, 11) + '…' : post.title
           }}
         </h3>
         <router-link :to="`/article/${post.id}`">

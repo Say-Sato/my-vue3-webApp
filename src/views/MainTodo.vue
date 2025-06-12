@@ -2,36 +2,42 @@
 import { onMounted, ref } from 'vue'
 import ImageGallery from '../components/MTPostList.vue'
 
+export type Image = {
+  image_id: number
+  image_url: string
+  sort_order: number
+}
+
 export type PostResponse = {
   id: number
-  p_id: string
+  p_id: number
   title: string
-  tag: string
+  tags: number[]
   url: string
   body: string
   R18: number
   s_url: string
   p_name: string
   p_photo: string
+  images: Image[]
 }
 
 const posts = ref<PostResponse[]>([])
-const topFourPosts = ref<PostResponse[]>([]) // 追加
+const topFourPosts = ref<PostResponse[]>([])
 
 const fetchData = async () => {
   try {
     const response = await fetch(
       'https://yellowokapi2.sakura.ne.jp/Vue/api/BlogAllCatchAPI.php',
     )
-    posts.value = await response.json()
+    const data = (await response.json()) as PostResponse[]
+    posts.value = data
 
-    //上から４つの新着イラストのみ表示するよう制御
     topFourPosts.value = posts.value.slice(0, 4)
   } catch (error) {
     console.error('Error fetching data:', error)
   }
 }
-
 onMounted(fetchData)
 
 // 表示する投稿（最大4件に制限）

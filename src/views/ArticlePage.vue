@@ -3,6 +3,7 @@ import { onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import ArticleTags from '@/basics/ArticleTags.vue'
 import Favorite from '@/components/FavoriteIcon.vue'
+import ImageList from '@/components/ArticleImageList.vue'
 
 export type Image = {
   image_id: number
@@ -28,19 +29,9 @@ const fetchData = async () => {
   )
   const data = await response.json()
 
-  // デバッグ出力：取得した画像一覧
-  console.log('取得したImages（ソート前）:', data.Images)
-
   // sort_orderでソートして格納
   data.images.sort((a: Image, b: Image) => a.sort_order - b.sort_order)
-
-  // デバッグ出力：ソート後の画像一覧
-  console.log('ソート後のImages:', data.Images)
-
   post.value = data
-
-  // デバッグ出力：post全体
-  console.log('postの中身:', post.value)
 }
 
 onMounted(fetchData)
@@ -48,14 +39,8 @@ onMounted(fetchData)
 
 <template>
   <div class="container">
-    <!-- 複数画像を順に表示 -->
-    <div
-      v-for="image in post?.images ?? []"
-      :key="image.image_id"
-      class="image-container"
-    >
-      <img :src="image.image_url" alt="記事画像" class="image" />
-    </div>
+    <!-- コンポーネントに分離！ -->
+    <ImageList :images="post?.images ?? []" />
 
     <h1 class="title">{{ post?.title }}</h1>
     <div class="dtl">{{ post?.body || '本文が入っていません' }}</div>

@@ -3,9 +3,15 @@ import { onMounted, ref, computed } from 'vue'
 import ImageGallery from '../components/APImageGallery.vue'
 import { useUserStore } from '@/stores/user'
 
+export type Image = {
+  image_id: number
+  image_url: string
+  sort_order: number
+}
+
 export type PostResponse = {
   id: number
-  p_id: string
+  p_id: number
   title: string
   tags: number[]
   url: string
@@ -14,6 +20,7 @@ export type PostResponse = {
   s_url: string
   p_name: string
   p_photo: string
+  images: Image[]
 }
 
 const posts = ref<PostResponse[]>([])

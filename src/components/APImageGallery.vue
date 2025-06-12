@@ -12,17 +12,13 @@ type Post = {
   p_photo: string
 }
 
-const props = defineProps({
-  posts: {
-    type: Array as () => Post[],
-    required: true,
-  },
-})
+// props を型付きで定義して、props.posts にアクセスできるようにする
+const props = defineProps<{ posts: Post[] }>()
 </script>
 
 <template>
   <ul class="image-gallery">
-    <ImageItem v-for="post in posts" :key="post.id" :post="post" />
+    <ImageItem v-for="post in props.posts" :key="post.id" :post="post" />
   </ul>
 </template>
 

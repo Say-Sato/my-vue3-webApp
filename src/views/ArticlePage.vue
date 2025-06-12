@@ -3,23 +3,44 @@ import { onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import ArticleTags from '@/basics/ArticleTags.vue'
 import Favorite from '@/components/FavoriteIcon.vue'
-import type { PostResponse } from '@/views/ArticleCatchPage.vue'
+
+export type Image = {
+  image_id: number
+  image_url: string
+  sort_order: number
+}
+
+export interface PostResponse {
+  id: number
+  title: string
+  body: string
+  tags: number[]
+  images: Image[]
+}
 
 const route = useRoute()
 const id = route.params.id
 const post = ref<PostResponse>()
 
-// データを取得する非同期関数
 const fetchData = async () => {
   const response = await fetch(
     `https://yellowokapi2.sakura.ne.jp/Vue/api/BlogAllCatchAPI.php/${id}`,
   )
-
-  // APIレスポンスのデータをログに表示
   const data = await response.json()
 
-  // postにデータを格納
+  // デバッグ出力：取得した画像一覧
+  console.log('取得したImages（ソート前）:', data.Images)
+
+  // sort_orderでソートして格納
+  data.images.sort((a: Image, b: Image) => a.sort_order - b.sort_order)
+
+  // デバッグ出力：ソート後の画像一覧
+  console.log('ソート後のImages:', data.Images)
+
   post.value = data
+
+  // デバッグ出力：post全体
+  console.log('postの中身:', post.value)
 }
 
 onMounted(fetchData)
@@ -27,12 +48,18 @@ onMounted(fetchData)
 
 <template>
   <div class="container">
-    <div class="image-container">
-      <img :src="`${post?.url}`" alt="Sample Image" class="image" />
+    <!-- 複数画像を順に表示 -->
+    <div
+      v-for="image in post?.images ?? []"
+      :key="image.image_id"
+      class="image-container"
+    >
+      <img :src="image.image_url" alt="記事画像" class="image" />
     </div>
+
     <h1 class="title">{{ post?.title }}</h1>
     <div class="dtl">{{ post?.body || '本文が入っていません' }}</div>
-    <ArticleTags :tagsMsg="post?.tags ?? []"></ArticleTags>
+    <ArticleTags :tagsMsg="post?.tags ?? []" />
     <span class="favorite">
       <Favorite :i_id="post?.id ?? 0" />
     </span>
@@ -52,13 +79,13 @@ onMounted(fetchData)
 }
 
 .image-container {
-  position: relative; /* 親要素に相対位置を指定 */
+  position: relative;
   width: 95%;
   height: 600px;
   display: block;
   overflow: hidden;
   background-color: #f0f0f0;
-  margin: 0 auto;
+  margin: 0 auto 24px;
 }
 
 .image {
@@ -69,8 +96,9 @@ onMounted(fetchData)
 }
 
 .favorite {
-  position: absolute;
-  top: 630px;
-  right: 40px;
+  position: relative;
+  display: block;
+  text-align: right;
+  margin: 12px 40px 0 0;
 }
 </style>

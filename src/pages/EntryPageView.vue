@@ -32,7 +32,7 @@ export default defineComponent({
     const route = useRoute()
 
     const hideEdit = computed(() => {
-      return !route.path.startsWith('/about')
+      return !route.path.startsWith('/edit')
     })
 
     const localTitle = computed<string>({
@@ -136,7 +136,7 @@ export default defineComponent({
 
 <template>
   <form @submit.prevent="handleSubmit">
-    <div>
+    <div v-if="hideEdit">
       <label for="image">画像:</label>
       <PhotoDragDrop v-model="localImages" :maxCount="10" />
     </div>

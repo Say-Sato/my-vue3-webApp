@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
-import About from '@/views/AboutPage.vue'
 import ArticleCatch from '@/views/ArticleCatchPage.vue'
 import Login from '@/views/LoginPage.vue'
 import Publish from '@/views/ArticleEntryPage.vue'
@@ -26,15 +25,6 @@ const router = createRouter({
       component: Publish,
     },
     {
-      path: '/about',
-      redirect: '/about/0', // 最初にアクセスしたときに、IDが0のAboutPageにリダイレクトする
-    },
-    {
-      path: '/about/:id',
-      name: 'about',
-      component: About,
-    },
-    {
       path: '/article',
       name: 'article',
       component: ArticleCatch,
@@ -57,6 +47,10 @@ const router = createRouter({
     },
     {
       path: '/edit',
+      redirect: '/edit/0', // 最初にアクセスしたときに、IDが0のAboutPageにリダイレクトする
+    },
+    {
+      path: '/edit/:id',
       name: 'edit',
       component: Edit,
     },

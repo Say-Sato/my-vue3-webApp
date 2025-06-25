@@ -35,8 +35,8 @@ export default {
 
     // 現在のURLから記事IDを取得
     onMounted(() => {
-      const path = route.path // 例: "/about/25"
-      const idMatch = path.match(/\/about\/(\d+)$/) // 正規表現で末尾の数字を取得
+      const path = route.path // 例: "/edit/25"
+      const idMatch = path.match(/\/edit\/(\d+)$/) // 正規表現で末尾の数字を取得
       if (idMatch) {
         articleId.value = idMatch[1] // 記事IDを格納
       } else {

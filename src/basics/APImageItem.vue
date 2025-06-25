@@ -21,7 +21,7 @@ const props = defineProps({
 
 <template>
   <li :key="props.post.id" class="image-item">
-    <router-link :to="`/about/${props.post.id}`">
+    <router-link :to="`/edit/${props.post.id}`">
       <div class="box3">
         <div class="image-wrapper">
           <img :src="props.post.url" :alt="props.post.title" class="image" />

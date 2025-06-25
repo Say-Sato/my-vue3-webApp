@@ -41,19 +41,34 @@ export default defineComponent({
             throw new Error('データの取得に失敗しました')
           } else {
             const data = await response.json()
-            console.log('取得データ:', data) // ← ここ追加！
-            formData.value = {
-              title: data.title || '',
-              tags: data.tag || '',
-              body: data.body || '',
-              publish: String(data.public ?? '0'),
-              adultsOnly: String(data.R18 ?? '0'),
-              imageBase64: data.url || '', // ここで初期値を設定
-              images: data.images || [], // ← 配列があれば追加！
+
+            if (data.tags) {
+              // tagsをString型へ変換する
+              const tagsString = data.tags.join(',')
+              const tagsResponse = await fetch(
+                `https://yellowokapi2.sakura.ne.jp/Vue/api/TagResolverAPI.php/${tagsString}`,
+              )
+
+              if (!tagsResponse.ok) {
+                throw new Error('タグNameの取得に失敗しました')
+              } else {
+                const tagData = await tagsResponse.json()
+
+                // tagsにtagData.tagNameを設定
+                formData.value = {
+                  title: data.title || '',
+                  tags: tagData.tagName || '', // tagNameをここに代入
+                  body: data.body || '',
+                  publish: String(data.public ?? '0'),
+                  adultsOnly: String(data.R18 ?? '0'),
+                  imageBase64: data.url || '', // ここで初期値を設定
+                  images: data.images || [], // ← 配列があれば追加！
+                }
+              }
             }
-            console.log('格納後のformData.images:', formData.value.images) // ← 追加
+
             // 初期状態で画像が存在すれば FileReader を呼び出し
-            if (formData.value.imageBase64) {
+            if (formData.value && formData.value.imageBase64) {
               handleImagePreview(formData.value.imageBase64)
             }
           }
@@ -132,8 +147,8 @@ export default defineComponent({
     }
 
     onMounted(() => {
-      const path = route.path // 例: "/about/25"
-      const idMatch = path.match(/\/about\/(\d+)$/) // 正規表現で末尾の数字を取得
+      const path = route.path // 例: "/edit/25"
+      const idMatch = path.match(/\/edit\/(\d+)$/) // 正規表現で末尾の数字を取得
       if (idMatch) {
         articleId.value = idMatch[1] // 記事IDを格納
       } else {
@@ -156,7 +171,7 @@ export default defineComponent({
     <h2>投稿編集</h2>
 
     <!-- ページ最上部に画像を表示 -->
-    <div>
+    <div v-if="formData && formData.images">
       <ImageList :images="formData?.images ?? []" :Edit="true" />
     </div>
 
@@ -191,15 +206,6 @@ export default defineComponent({
 </template>
 
 <style scoped>
-.image-container {
-  width: 95%; /* 画面全体の80%の幅 */
-  height: 600px; /* 高さは固定（必要に応じて変更可） */
-  display: block; /* ブロック要素として設定 */
-  overflow: hidden; /* 画像が領域を超えた場合に隠す */
-  background-color: #f0f0f0; /* 背景色を指定（オプション） */
-  margin: 0 auto; /* 左右のマージンを自動で設定（中央寄せ） */
-}
-
 .image {
   width: 100%;
   height: 100%;

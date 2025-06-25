@@ -32,7 +32,7 @@ export default defineComponent({
     const route = useRoute()
 
     const hideEdit = computed(() => {
-      return !route.path.startsWith('/about')
+      return !route.path.startsWith('/edit')
     })
 
     const localTitle = computed<string>({

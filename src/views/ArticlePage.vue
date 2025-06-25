@@ -39,51 +39,37 @@ onMounted(fetchData)
 
 <template>
   <div class="container">
-    <!-- コンポーネントに分離！ -->
     <ImageList :images="post?.images ?? []" />
 
-    <h1 class="title">{{ post?.title }}</h1>
+    <div class="title-row">
+      <h1 class="title">{{ post?.title }}</h1>
+      <span class="favorite">
+        <Favorite :i_id="post?.id ?? 0" />
+      </span>
+    </div>
+
     <div class="dtl">{{ post?.body || '本文が入っていません' }}</div>
     <ArticleTags :tagsMsg="post?.tags ?? []" />
-    <span class="favorite">
-      <Favorite :i_id="post?.id ?? 0" />
-    </span>
   </div>
 </template>
 
 <style scoped>
+.title-row {
+  position: relative;
+  margin-top: 10px;
+  display: flex;
+  justify-content: center; /* ← h1 を中央揃え */
+  align-items: center; /* ← 高さを揃える */
+}
+
 .title {
-  margin: 12px;
   font-size: 20px;
   font-weight: bold;
-  text-align: center;
-}
-
-.dtl {
-  line-height: 1.5;
-}
-
-.image-container {
-  position: relative;
-  width: 95%;
-  height: 600px;
-  display: block;
-  overflow: hidden;
-  background-color: #f0f0f0;
-  margin: 0 auto 24px;
-}
-
-.image {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  object-position: center;
+  margin: 0;
 }
 
 .favorite {
-  position: relative;
-  display: block;
-  text-align: right;
-  margin: 12px 40px 0 0;
+  position: absolute;
+  right: 40px;
 }
 </style>

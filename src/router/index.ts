@@ -57,6 +57,10 @@ const router = createRouter({
     },
     {
       path: '/edit',
+      redirect: '/edit/0', // 最初にアクセスしたときに、IDが0のAboutPageにリダイレクトする
+    },
+    {
+      path: '/edit/:id',
       name: 'edit',
       component: Edit,
     },

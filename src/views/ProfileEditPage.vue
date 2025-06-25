@@ -1,5 +1,6 @@
 <script lang="ts">
 import { defineComponent, ref, watch } from 'vue'
+import type { PropType } from 'vue'
 import TextInput from '@/basics/TextInput.vue'
 import RadioInput from '@/basics/RadioInput.vue'
 import BirthDate from '@/basics/BirthDate.vue'
@@ -16,7 +17,7 @@ export default defineComponent({
     userName: String,
     certificate18: String,
     profilePhoto: {
-      type: File,
+      type: Array as PropType<File[]>,
       required: false,
     },
 
@@ -39,7 +40,7 @@ export default defineComponent({
     const localCertificate18 = ref(props.certificate18 ?? '0')
     const localBody = ref(props.body ?? '')
     const localBirthDate = ref(props.birthDate ?? '')
-    const localProfilePhoto = ref<File | null>(null)
+    const localProfilePhoto = ref<File[]>([])
 
     // propsが変わった時にローカル反映
     watch(
@@ -75,8 +76,9 @@ export default defineComponent({
     watch(
       () => props.profilePhoto,
       val => {
-        localProfilePhoto.value = val ?? null
+        localProfilePhoto.value = val ?? []
       },
+      { immediate: true },
     )
 
     const errorMessage = ref<string>('')
@@ -207,6 +209,7 @@ export default defineComponent({
         v-model="localProfilePhoto"
         labelBeforeText="プロフィール画像編集："
         labelAfterText="新規プロフィール画像："
+        :maxCount="1"
       />
     </div>
 

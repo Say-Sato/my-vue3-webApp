@@ -1,13 +1,16 @@
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import type { Image } from '@/views/ArticleCatchPage.vue' // 型定義の場所に合わせてね
 import EditForm from '@/pages/EntryPageView.vue'
 import DeleteButton from '@/basics/ArticleDeleteButton.vue'
+import ImageList from '@/components/ArticleImageList.vue'
 
 export default defineComponent({
   components: {
     EditForm,
     DeleteButton,
+    ImageList,
   },
   setup() {
     const route = useRoute() // 現在のルート情報を取得
@@ -22,6 +25,7 @@ export default defineComponent({
       publish: string
       adultsOnly: string
       imageBase64: string
+      images?: Image[] // ← ここ追加！
     }>(null)
 
     const fetchInitialData = async () => {
@@ -37,6 +41,7 @@ export default defineComponent({
             throw new Error('データの取得に失敗しました')
           } else {
             const data = await response.json()
+            console.log('取得データ:', data) // ← ここ追加！
             formData.value = {
               title: data.title || '',
               tags: data.tag || '',
@@ -44,8 +49,9 @@ export default defineComponent({
               publish: String(data.public ?? '0'),
               adultsOnly: String(data.R18 ?? '0'),
               imageBase64: data.url || '', // ここで初期値を設定
+              images: data.images || [], // ← 配列があれば追加！
             }
-
+            console.log('格納後のformData.images:', formData.value.images) // ← 追加
             // 初期状態で画像が存在すれば FileReader を呼び出し
             if (formData.value.imageBase64) {
               handleImagePreview(formData.value.imageBase64)
@@ -150,8 +156,8 @@ export default defineComponent({
     <h2>投稿編集</h2>
 
     <!-- ページ最上部に画像を表示 -->
-    <div v-if="formData && formData.imageBase64" class="image-container">
-      <img :src="formData.imageBase64" alt="記事の画像" class="image" />
+    <div>
+      <ImageList :images="formData?.images ?? []" :Edit="true" />
     </div>
 
     <EditForm

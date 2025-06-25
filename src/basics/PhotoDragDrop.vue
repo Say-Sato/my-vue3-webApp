@@ -68,72 +68,71 @@ const clearImage = (index: number) => {
 // 親 → 子への反映（プレビューのみ）
 watch(
   () => props.modelValue,
-  newFiles => {
-    imagePreviewUrls.value = []
-    newFiles.forEach(file => {
-      const reader = new FileReader()
-      reader.onload = () => {
-        imagePreviewUrls.value.push(reader.result as string)
-      }
-      reader.readAsDataURL(file)
-    })
+  async newFiles => {
+    const urls: string[] = []
+
+    for (const file of newFiles) {
+      const dataUrl = await new Promise<string>(resolve => {
+        const reader = new FileReader()
+        reader.onload = () => resolve(reader.result as string)
+        reader.readAsDataURL(file)
+      })
+      urls.push(dataUrl)
+    }
+
+    imagePreviewUrls.value = urls
   },
   { immediate: true },
 )
 </script>
 
 <template>
-  <div class="image-upload">
-    <label for="image">
-      {{
-        imagePreviewUrls.length > 0
-          ? props.labelAfterText || '投稿画像：'
-          : props.labelBeforeText || '画像をアップロード：'
-      }}
-    </label>
-
-    <div class="drop-area" @dragover="onDragOver" @drop="onDrop">
-      <input
-        ref="fileInputRef"
-        type="file"
-        accept="image/*"
-        multiple
-        style="display: none"
-        @change="
-          e => {
-            const files = (e.target as HTMLInputElement).files
-            if (files) {
-              Array.from(files)
-                .slice(0, MAX_IMAGES - props.modelValue.length)
-                .forEach(file => {
-                  handleFile(file)
-                })
-            }
+  <div class="drop-area" @dragover="onDragOver" @drop="onDrop">
+    <input
+      ref="fileInputRef"
+      type="file"
+      accept="image/*"
+      multiple
+      style="display: none"
+      @change="
+        e => {
+          const input = e.target as HTMLInputElement
+          const files = input.files
+          if (files) {
+            Array.from(files)
+              .slice(0, MAX_IMAGES - props.modelValue.length)
+              .forEach(file => {
+                handleFile(file)
+              })
           }
-        "
-      />
+          input.value = '' // ← ここ追加！！
+        }
+      "
+    />
 
+    <!-- 1枚以上あるとき -->
+    <div class="preview-scroll">
+      <!-- 画像がmaxCount未満なら先頭に追加ボタン -->
       <label
-        v-if="imagePreviewUrls.length === 0"
-        class="click-area"
+        v-if="imagePreviewUrls.length < MAX_IMAGES"
+        class="click-area image-button"
         @click="fileInputRef?.click()"
       >
-        ここに画像をドラッグ＆ドロップ！<br />
-        もしくはクリックして選択♡
+        画像を追加
       </label>
 
-      <div v-else class="preview-scroll">
-        <div
-          v-for="(url, index) in imagePreviewUrls"
-          :key="index"
-          class="image-preview-wrapper"
-        >
-          <img :src="url" class="thumb" @click="fileInputRef?.click()" />
-          <button class="remove-button" @click="clearImage(index)">×</button>
-        </div>
+      <div
+        v-for="(url, index) in imagePreviewUrls"
+        :key="index"
+        class="image-preview-wrapper"
+      >
+        <img :src="url" class="thumb" />
+        <button class="remove-button" @click="clearImage(index)">×</button>
       </div>
     </div>
   </div>
+
+  <p>登録画像数: {{ imagePreviewUrls.length }}/{{ MAX_IMAGES }}</p>
 </template>
 
 <style scoped>
@@ -159,10 +158,29 @@ watch(
 
 .preview-scroll {
   display: flex;
-  flex-direction: row; /* 横並び */
+  align-items: center;
+  justify-content: flex-start; /* 横方向の初期位置は先頭にしておく */
+  flex-direction: row;
   overflow-x: auto;
+  overflow-y: hidden; /* 👈 これで縦スクロール禁止ッ！ */
   gap: 10px;
   padding: 10px 0;
+  height: 180px; /* 👈 高さを固定して、画像あり・なしで同じ見た目にする！ */
+}
+
+.image-button {
+  width: 100px;
+  height: 100px;
+  min-width: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: pre-line;
+  font-weight: bold;
+  font-size: 14px;
+  text-align: center;
+  color: #555;
+  line-height: 6;
 }
 
 .click-area {

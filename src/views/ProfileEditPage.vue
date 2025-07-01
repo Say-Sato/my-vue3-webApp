@@ -1,5 +1,6 @@
 <script lang="ts">
-import { defineComponent, ref, watch } from 'vue'
+import { defineComponent, ref, watch, onMounted } from 'vue'
+import { useUserStore } from '@/stores/user'
 import type { PropType } from 'vue'
 import TextInput from '@/basics/TextInput.vue'
 import RadioInput from '@/basics/RadioInput.vue'
@@ -73,17 +74,16 @@ export default defineComponent({
         localBirthDate.value = val ?? ''
       },
     )
-    watch(
-      () => props.profilePhoto,
-      val => {
-        localProfilePhoto.value = val ?? []
-      },
-      { immediate: true },
-    )
 
     const errorMessage = ref<string>('')
-    const id = ref('4')
+    const userStore = useUserStore()
+    const id = ref(userStore.id)
 
+    const originalUserName = ref('')
+    const originalPassword = ref('')
+    const originalBirthDate = ref('')
+    const originalCertificate18 = ref('')
+    const originalBody = ref('')
     const isEditingUserName = ref(false)
     const isEditedUserName = ref(false)
     const isEditingCertificate18 = ref(false)
@@ -99,23 +99,51 @@ export default defineComponent({
     const toggleEdit = (field: string) => {
       switch (field) {
         case 'userName':
+          if (!isEditingUserName.value) {
+            originalUserName.value = localUserName.value // 編集開始時に記録
+          } else {
+            isEditedUserName.value =
+              localUserName.value !== originalUserName.value
+          }
           isEditingUserName.value = !isEditingUserName.value
-          isEditedUserName.value = true
           break
         case 'password':
-          isEditingPassword.value = !isEditingPassword.value
-          isEditedPassword.value = true
           if (!isEditingPassword.value) {
-            passwordHide.value = true
+            originalPassword.value = localPassword.value
+          } else {
+            isEditedPassword.value =
+              localPassword.value !== originalPassword.value
+            if (!isEditingPassword.value) {
+              passwordHide.value = true
+            }
           }
+          isEditingPassword.value = !isEditingPassword.value
           break
         case 'birthDate':
+          if (!isEditingBirthDate.value) {
+            originalBirthDate.value = localBirthDate.value
+          } else {
+            isEditedBirthDate.value =
+              localBirthDate.value !== originalBirthDate.value
+          }
           isEditingBirthDate.value = !isEditingBirthDate.value
-          isEditedBirthDate.value = true
           break
         case 'body':
+          if (!isEditingBody.value) {
+            originalBody.value = localBody.value
+          } else {
+            isEditedBody.value = localBody.value !== originalBody.value
+          }
           isEditingBody.value = !isEditingBody.value
-          isEditedBody.value = true
+          break
+        case 'certificate18':
+          if (!isEditingCertificate18.value) {
+            originalCertificate18.value = localCertificate18.value
+          } else {
+            isEditedCertificate18.value =
+              localCertificate18.value !== originalCertificate18.value
+          }
+          isEditingCertificate18.value = !isEditingCertificate18.value
           break
       }
     }
@@ -143,8 +171,8 @@ export default defineComponent({
         if (edited) formData.append(key, value)
       }
 
-      if (localProfilePhoto.value instanceof File) {
-        formData.append('profilePhoto', localProfilePhoto.value)
+      if (localProfilePhoto.value.length > 0) {
+        formData.append('profilePhoto', localProfilePhoto.value[0])
       }
 
       try {
@@ -176,6 +204,41 @@ export default defineComponent({
       }
     }
 
+    onMounted(async () => {
+      try {
+        const response = await fetch(
+          `https://yellowokapi2.sakura.ne.jp/Vue/api/ProfileAllCatchAPI.php/${id.value}`,
+        )
+        const contentType = response.headers.get('Content-Type') || ''
+        if (!contentType.includes('application/json')) {
+          throw new Error('JSONとして受け取れませんでした。')
+        }
+
+        const data = await response.json()
+
+        // サーバーのプロパティ名に合わせて代入
+        localUserName.value = data.name ?? ''
+        localPassword.value = data.password ?? ''
+        localBody.value = data.body ?? ''
+        localBirthDate.value = data.birthDate ?? '' // birthDateも必要なら
+        // profilePhoto はとりあえず未対応。File化には変換が必要なので今回はスルー
+        // localProfilePhoto.value = [...]
+
+        // 18禁表示設定（未登録なら "0" に）
+        localCertificate18.value = String(data.certificate18 ?? '0')
+
+        // 比較用にAPIから取得したデータを代入
+        originalUserName.value = data.name ?? ''
+        originalPassword.value = data.password ?? ''
+        originalBody.value = data.body ?? ''
+        originalBirthDate.value = data.birthDate ?? '' // birthDateも必要なら
+        originalCertificate18.value = String(data.certificate18 ?? '0')
+      } catch (error) {
+        console.error('初期データの取得に失敗:', error)
+        errorMessage.value = '初期データの取得に失敗しました。'
+      }
+    })
+
     return {
       localUserName,
       localPassword,
@@ -205,17 +268,16 @@ export default defineComponent({
     </div>
 
     <div>
-      <PhotoDragDrop
-        v-model="localProfilePhoto"
-        labelBeforeText="プロフィール画像編集："
-        labelAfterText="新規プロフィール画像："
-        :maxCount="1"
-      />
+      <label for="image">プロフィール画像:</label>
+      <PhotoDragDrop v-model="localProfilePhoto" :maxCount="1" />
     </div>
 
     <!-- 生年月日 -->
     <div>
-      <h2>選択された生年月日: {{ localBirthDate }}</h2>
+      <p>
+        【生年月日】<br />
+        {{ localBirthDate ? localBirthDate : 'なし' }}
+      </p>
       <template v-if="isEditingBirthDate">
         <BirthDate v-model="localBirthDate" />
       </template>
@@ -226,7 +288,7 @@ export default defineComponent({
 
     <!-- 名前 -->
     <div>
-      <label for="userName">名前</label>
+      <br /><label for="userName">【名前】</label>
       <template v-if="isEditingUserName">
         <TextInput
           id="userName"
@@ -245,7 +307,7 @@ export default defineComponent({
     </div>
 
     <div>
-      <label for="body">プロフィール本文</label>
+      <br /><label for="body">【プロフィール本文】</label>
       <template v-if="isEditingBody">
         <TextInput
           id="body"
@@ -265,7 +327,7 @@ export default defineComponent({
 
     <!-- パスワード -->
     <div>
-      <label for="password">パスワード</label>
+      <br /><label for="password">【パスワード】</label>
 
       <!-- 編集中で表示状態：パスワード入力欄 -->
       <template v-if="isEditingPassword">
@@ -300,7 +362,8 @@ export default defineComponent({
     </div>
 
     <!-- 年齢制限表示設定 -->
-    <p>年齢制限ありの画像を表示する</p>
+    <br />
+    <p>【年齢制限ありの画像を表示する】</p>
     <div class="radio-buttons">
       <span class="radio">
         <RadioInput
@@ -309,7 +372,6 @@ export default defineComponent({
           value="1"
           label="表示"
           v-model="localCertificate18"
-          required
         />
       </span>
       <span class="radio">
@@ -319,7 +381,6 @@ export default defineComponent({
           value="0"
           label="非表示"
           v-model="localCertificate18"
-          required
         />
       </span>
     </div>

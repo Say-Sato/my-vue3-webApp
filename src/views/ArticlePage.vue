@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
+
 import ArticleTags from '@/basics/ArticleTags.vue'
 import Favorite from '@/components/FavoriteIcon.vue'
 import ImageList from '@/components/ArticleImageList.vue'
+import PrevNextButtons from '@/components/PrevNextButtons.vue'
 
 export type Image = {
   image_id: number
@@ -17,17 +19,19 @@ export interface PostResponse {
   body: string
   tags: number[]
   images: Image[]
+  prev_id: number
+  next_id: number
 }
 
 const route = useRoute()
-const id = route.params.id
 const post = ref<PostResponse>()
 
 const fetchData = async () => {
+  const id = ref(route.params.id)
   const response = await fetch(
-    `https://yellowokapi2.sakura.ne.jp/Vue/api/BlogAllCatchAPI.php/${id}`,
+    `https://yellowokapi2.sakura.ne.jp/Vue/api/BlogAllCatchAPI.php/${id.value}`,
   )
-  const data = await response.json()
+  const data: PostResponse = await response.json()
 
   // sort_orderでソートして格納
   data.images.sort((a: Image, b: Image) => a.sort_order - b.sort_order)
@@ -35,6 +39,14 @@ const fetchData = async () => {
 }
 
 onMounted(fetchData)
+
+// IDの変化を監視して再取得
+watch(
+  () => route.params.id,
+  () => {
+    fetchData()
+  },
+)
 </script>
 
 <template>
@@ -48,6 +60,13 @@ onMounted(fetchData)
     <span class="favorite">
       <Favorite :i_id="post?.id ?? 0" />
     </span>
+  </div>
+
+  <div v-if="post">
+    <PrevNextButtons
+      :prevId="post?.prev_id ?? 0"
+      :nextId="post?.next_id ?? 0"
+    />
   </div>
 </template>
 

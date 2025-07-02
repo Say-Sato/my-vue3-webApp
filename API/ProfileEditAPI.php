@@ -91,7 +91,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
 
         // 🔍★ここで SQL とパラメータを出力（デバッグ用）
-        echo json_encode([
+        /*echo json_encode([
             "debug" => "SQLクエリとバインド変数のデバッグ出力",
             "sql" => $sql,
             "bound_sql" => $interpolatedSql,
@@ -100,15 +100,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             "image" => $imageUrl,
             "insertImage" => $insertImage
         ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-        exit;
+        exit;*/
 
-        // 実行処理（↑exitしなければここへ）
+        // 実行処理
         $stmt = $dbh->prepare($sql);
         $stmt->execute($params);
 
-        echo json_encode(["message" => "プロフィールを更新しました。"], JSON_UNESCAPED_UNICODE);
+        echo json_encode(["message" => "プロフィールを更新しました。"], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
     } else {
-        echo json_encode(["error" => "更新対象がありません。"], JSON_UNESCAPED_UNICODE);
+        echo json_encode(["error" => "更新対象がありません。"], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
     }
 }
 ?>

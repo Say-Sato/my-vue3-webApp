@@ -1,7 +1,8 @@
 <script lang="ts">
-import { defineComponent, ref, watch, onMounted } from 'vue'
+import { defineComponent, ref, watch, onMounted, computed } from 'vue'
 import { useUserStore } from '@/stores/user'
 import type { PropType } from 'vue'
+
 import TextInput from '@/basics/TextInput.vue'
 import RadioInput from '@/basics/RadioInput.vue'
 import BirthDate from '@/basics/BirthDate.vue'
@@ -21,7 +22,6 @@ export default defineComponent({
       type: Array as PropType<File[]>,
       required: false,
     },
-
     password: String,
     body: String,
     birthDate: String,
@@ -36,6 +36,7 @@ export default defineComponent({
     'update:birthDate',
   ],
   setup(props, { emit }) {
+    // ローカルの状態を定義（フォーム入力用）
     const localUserName = ref(props.userName ?? '')
     const localPassword = ref(props.password ?? '')
     const localCertificate18 = ref(props.certificate18 ?? '0')
@@ -43,118 +44,129 @@ export default defineComponent({
     const localBirthDate = ref(props.birthDate ?? '')
     const localProfilePhoto = ref<File[]>([])
 
-    // propsが変わった時にローカル反映
-    watch(
-      () => props.userName,
-      val => {
-        localUserName.value = val ?? ''
-      },
-    )
-    watch(
-      () => props.password,
-      val => {
-        localPassword.value = val ?? ''
-      },
-    )
-    watch(
-      () => props.certificate18,
-      val => {
-        localCertificate18.value = val ?? ''
-      },
-    )
-    watch(
-      () => props.body,
-      val => {
-        localBody.value = val ?? ''
-      },
-    )
-    watch(
-      () => props.birthDate,
-      val => {
-        localBirthDate.value = val ?? ''
-      },
-    )
-
-    const errorMessage = ref<string>('')
-    const userStore = useUserStore()
-    const id = ref(userStore.id)
-
+    // 編集前の元の値を保持（変更検知用）
     const originalUserName = ref('')
     const originalPassword = ref('')
     const originalBirthDate = ref('')
     const originalCertificate18 = ref('')
     const originalBody = ref('')
+
+    // 編集モードや変更済みフラグ
     const isEditingUserName = ref(false)
     const isEditedUserName = ref(false)
-    const isEditingCertificate18 = ref(false)
-    const isEditedCertificate18 = ref(true)
-    const isEditingBirthDate = ref(false)
-    const isEditedBirthDate = ref(false)
     const isEditingPassword = ref(false)
     const isEditedPassword = ref(false)
+    const isEditingBirthDate = ref(false)
+    const isEditedBirthDate = ref(false)
     const isEditingBody = ref(false)
     const isEditedBody = ref(false)
-    const passwordHide = ref(true)
+    const isEditingCertificate18 = ref(false)
+    const isEditedCertificate18 = ref(true)
 
+    // その他
+    const passwordHide = ref(true) // パスワード表示状態の制御
+    const errorMessage = ref('') // エラーメッセージ表示用
+    const userStore = useUserStore()
+    const id = ref(userStore.id)
+
+    // propsの変化を監視してローカル値を更新
+    watch(
+      () => props.userName,
+      val => (localUserName.value = val ?? ''),
+    )
+    watch(
+      () => props.password,
+      val => (localPassword.value = val ?? ''),
+    )
+    watch(
+      () => props.certificate18,
+      val => (localCertificate18.value = val ?? ''),
+    )
+    watch(
+      () => props.body,
+      val => (localBody.value = val ?? ''),
+    )
+    watch(
+      () => props.birthDate,
+      val => (localBirthDate.value = val ?? ''),
+    )
+
+    // パスワードの表示用文言を算出
+    const displayPassword = computed(() => {
+      if (
+        (isEditingPassword.value &&
+          originalPassword.value !== localPassword.value) ||
+        isEditedPassword.value
+      ) {
+        return localPassword.value
+      }
+
+      if (
+        originalPassword.value != null &&
+        originalPassword.value !== '' &&
+        originalPassword.value === localPassword.value
+      ) {
+        return '登録済みのパスワード'
+      }
+
+      return 'パスワードはまだありません'
+    })
+
+    // 各項目の編集状態を切り替える処理
     const toggleEdit = (field: string) => {
       switch (field) {
         case 'userName':
-          if (!isEditingUserName.value) {
-            originalUserName.value = localUserName.value // 編集開始時に記録
-          } else {
+          if (!isEditingUserName.value)
+            originalUserName.value = localUserName.value
+          else
             isEditedUserName.value =
               localUserName.value !== originalUserName.value
-          }
           isEditingUserName.value = !isEditingUserName.value
           break
         case 'password':
-          if (!isEditingPassword.value) {
+          if (!isEditingPassword.value)
             originalPassword.value = localPassword.value
-          } else {
+          else {
             isEditedPassword.value =
               localPassword.value !== originalPassword.value
-            if (!isEditingPassword.value) {
-              passwordHide.value = true
-            }
+            if (!isEditingPassword.value) passwordHide.value = true
           }
           isEditingPassword.value = !isEditingPassword.value
           break
         case 'birthDate':
-          if (!isEditingBirthDate.value) {
+          if (!isEditingBirthDate.value)
             originalBirthDate.value = localBirthDate.value
-          } else {
+          else
             isEditedBirthDate.value =
               localBirthDate.value !== originalBirthDate.value
-          }
           isEditingBirthDate.value = !isEditingBirthDate.value
           break
         case 'body':
-          if (!isEditingBody.value) {
-            originalBody.value = localBody.value
-          } else {
-            isEditedBody.value = localBody.value !== originalBody.value
-          }
+          if (!isEditingBody.value) originalBody.value = localBody.value
+          else isEditedBody.value = localBody.value !== originalBody.value
           isEditingBody.value = !isEditingBody.value
           break
         case 'certificate18':
-          if (!isEditingCertificate18.value) {
+          if (!isEditingCertificate18.value)
             originalCertificate18.value = localCertificate18.value
-          } else {
+          else
             isEditedCertificate18.value =
               localCertificate18.value !== originalCertificate18.value
-          }
           isEditingCertificate18.value = !isEditingCertificate18.value
           break
       }
     }
 
+    // パスワードの表示/非表示を切り替える処理
     const showPassword = () => {
       passwordHide.value = !passwordHide.value
     }
 
+    // フォームの送信処理
     const handleSubmit = async () => {
       const formData = new FormData()
 
+      // 編集された項目のみ送信する
       const entries = [
         ['userName', isEditedUserName.value, localUserName.value],
         ['password', isEditedPassword.value, localPassword.value],
@@ -204,34 +216,28 @@ export default defineComponent({
       }
     }
 
+    // 初期データをサーバーから取得
     onMounted(async () => {
       try {
         const response = await fetch(
           `https://yellowokapi2.sakura.ne.jp/Vue/api/ProfileAllCatchAPI.php/${id.value}`,
         )
         const contentType = response.headers.get('Content-Type') || ''
-        if (!contentType.includes('application/json')) {
+        if (!contentType.includes('application/json'))
           throw new Error('JSONとして受け取れませんでした。')
-        }
 
         const data = await response.json()
-
-        // サーバーのプロパティ名に合わせて代入
         localUserName.value = data.name ?? ''
         localPassword.value = data.password ?? ''
         localBody.value = data.body ?? ''
-        localBirthDate.value = data.birthDate ?? '' // birthDateも必要なら
-        // profilePhoto はとりあえず未対応。File化には変換が必要なので今回はスルー
-        // localProfilePhoto.value = [...]
-
-        // 18禁表示設定（未登録なら "0" に）
+        localBirthDate.value = data.birthDate ?? ''
         localCertificate18.value = String(data.certificate18 ?? '0')
 
-        // 比較用にAPIから取得したデータを代入
+        // 比較用に取得値を保持
         originalUserName.value = data.name ?? ''
         originalPassword.value = data.password ?? ''
         originalBody.value = data.body ?? ''
-        originalBirthDate.value = data.birthDate ?? '' // birthDateも必要なら
+        originalBirthDate.value = data.birthDate ?? ''
         originalCertificate18.value = String(data.certificate18 ?? '0')
       } catch (error) {
         console.error('初期データの取得に失敗:', error)
@@ -256,6 +262,7 @@ export default defineComponent({
       toggleEdit,
       showPassword,
       handleSubmit,
+      displayPassword,
     }
   },
 })
@@ -351,7 +358,7 @@ export default defineComponent({
       <!-- 編集していない：通常表示 -->
       <template v-else>
         <br />
-        <span>{{ localPassword }}</span>
+        <span>{{ displayPassword }}</span>
         <br />
         <button type="button" @click="showPassword">非表示</button>
       </template>

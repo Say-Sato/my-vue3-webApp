@@ -1,5 +1,5 @@
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, ref, computed } from 'vue'
 
 export default defineComponent({
   name: 'InputComponent',
@@ -20,25 +20,50 @@ export default defineComponent({
       type: String,
       default: 'text',
     },
-    // v-model 用のプロパティ
     modelValue: {
       type: String,
       default: '',
     },
   },
-  methods: {
-    handleInput(event: Event) {
-      // 値が存在するかどうかを確認し、null なら空文字に置き換え
+  setup(props, { emit }) {
+    const showPassword = ref(false)
+
+    const currentType = computed(() => {
+      if (props.type === 'password') {
+        return showPassword.value ? 'text' : 'password'
+      }
+      return props.type
+    })
+
+    const handleInput = (event: Event) => {
       const value = (event.target as HTMLInputElement).value ?? ''
-      this.$emit('update:modelValue', value)
-    },
+      emit('update:modelValue', value)
+    }
+
+    const togglePasswordVisibility = () => {
+      showPassword.value = !showPassword.value
+    }
+
+    return {
+      showPassword,
+      currentType,
+      handleInput,
+      togglePasswordVisibility,
+    }
   },
 })
 </script>
 
 <template>
+  <head>
+    <link
+      href="https://use.fontawesome.com/releases/v5.6.1/css/all.css"
+      rel="stylesheet"
+    />
+  </head>
+
   <div class="textInput">
-    <!-- typeが'textarea'の場合はtextarea、それ以外はinputを表示 -->
+    <!-- textarea -->
     <textarea
       v-if="type === 'textarea'"
       :id="id"
@@ -48,35 +73,96 @@ export default defineComponent({
       :value="modelValue"
       @input="handleInput"
     ></textarea>
-    <input
-      v-else
-      :type="type"
-      :id="id"
-      :class="className"
-      :name="name"
-      v-bind="$attrs"
-      :value="modelValue"
-      @input="handleInput"
-    />
+
+    <!-- password -->
+    <!-- password -->
+    <template v-else-if="type === 'password'">
+      <div class="passwordWrapper">
+        <input
+          :type="currentType"
+          :id="id"
+          :class="className"
+          :name="name"
+          v-bind="$attrs"
+          :value="modelValue"
+          @input="handleInput"
+        />
+
+        <!-- 👁️ 表示時：斜線アイコン（非表示に切り替える） -->
+        <label
+          v-if="showPassword"
+          for="checkPassword"
+          class="togglePassword fa fa-eye-slash"
+          @click.prevent="togglePasswordVisibility"
+        ></label>
+
+        <!-- 👁️ 非表示時：目アイコン（表示に切り替える） -->
+        <label
+          v-else
+          for="checkPassword"
+          class="togglePassword fa fa-eye"
+          @click.prevent="togglePasswordVisibility"
+        ></label>
+      </div>
+    </template>
+
+    <!-- その他の input -->
+    <template v-else>
+      <input
+        :type="currentType"
+        :id="id"
+        :class="className"
+        :name="name"
+        v-bind="$attrs"
+        :value="modelValue"
+        @input="handleInput"
+      />
+    </template>
   </div>
 </template>
 
 <style scoped>
-/* inputおよびtextareaの共通スタイル */
 .textInput input[type='text'],
 .textInput input[type='password'],
 .textInput textarea {
-  margin-right: 5px; /* ボタンとの間隔をあける */
-  width: 190px;
+  margin-right: 5px;
   height: 32px;
-  padding: 1px 12px; /* 内側の余白 */
-  border-radius: 20px; /* 角を丸くする */
+  padding: 1px 12px;
+  border-radius: 20px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
 }
 
-/* textarea固有のスタイル */
+/* textarea用 */
 .textInput textarea {
-  height: 100px; /* テキストエリアの高さを設定 */
-  resize: vertical; /* ユーザーがサイズを縦方向に変更できるようにする */
+  width: 190px;
+  height: 100px;
+  resize: vertical;
   border-width: 2px;
+}
+
+/* パスワード入力用ラッパー */
+.passwordWrapper {
+  position: relative;
+  width: 190px;
+}
+
+/* パスワード用 input */
+.passwordWrapper input {
+  padding-right: 36px;
+  width: 100%;
+  box-sizing: border-box;
+  text-align: left;
+}
+
+/* 👁️ ラベル（アイコン）のスタイル */
+.togglePassword {
+  position: absolute;
+  top: 50%;
+  right: -30px;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 18px;
+  color: #666;
 }
 </style>

@@ -1,5 +1,7 @@
 <?php
-header('Content-Type: application/json; charset=utf-8');
+header("Access-Control-Allow-Origin: http://localhost:5173");
+header("Access-Control-Allow-Headers: Content-Type, Authorization");
+header("Content-Type: application/json; charset=utf-8");
 include('./BlogPDO.php');
 
 // リクエストURIからIDを取得
@@ -12,13 +14,15 @@ if (preg_match('/\/(\d+)$/', $requestUri, $matches)) {
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $imageUrl = null;
+    $insertImage = null; // 最初に初期化しておく！
 
     if (isset($_FILES['profilePhoto']) && $_FILES['profilePhoto']['error'] === UPLOAD_ERR_OK) {
         $uploadedFile = $_FILES['profilePhoto'];
 
         // 保存先の設定
         $domainName = 'yellowokapi2.sakura.ne.jp';
-        $folderName = 'Blog/index/profile_photo';
+        $folderName = 'Blog/index';
+        $insertName = 'profile_photo';
         $uniqueFileName = uniqid('image_', true) . '.' . pathinfo($uploadedFile['name'], PATHINFO_EXTENSION);
         $savePath = $_SERVER['DOCUMENT_ROOT'] . '/' . $folderName . '/' . $uniqueFileName;
 
@@ -29,16 +33,20 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         // ファイルを一時保存場所から目的の場所へ移動
         if (move_uploaded_file($uploadedFile['tmp_name'], $savePath)) {
-            $imageUrl = "http://$domainName/$folderName/$uniqueFileName";
+            $imageUrl = "http://$domainName/$folderName/$insertName/$uniqueFileName";
+            $insertImage = "/$insertName/$uniqueFileName";
         } else {
             echo json_encode(["error" => "画像ファイルの保存に失敗しました。"], JSON_UNESCAPED_UNICODE);
             exit;
         }
     }
 
+    // 暗号鍵（本番では.envとかに置きなさいよ？）
+    $key = 'are0421'; // ← 16文字でAES-128、32文字でAES-256
+
     // 入力値の取得（nullチェックのみ行う）
     $inputData = [
-        'image'      => isset($imageUrl) ? $imageUrl : null,
+        'profile_photo'      => isset($insertImage) ? $insertImage : null,
         'name'          => array_key_exists('userName', $_POST) ? $_POST['userName'] : null,
         'password'      => array_key_exists('password', $_POST) ? $_POST['password'] : null,
         'certificate18' => array_key_exists('certificate18', $_POST) ? $_POST['certificate18'] : null,
@@ -46,15 +54,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         'body'          => array_key_exists('body', $_POST) ? $_POST['body'] : null,
     ];
 
-    // ★ ここでJSON形式で入力内容を出力するよ
-    echo json_encode([
-        "debug" => "受信した入力内容のデバッグ表示",
-        "input" => $inputData
-    ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-    exit;
+    // 👇 passwordがあるなら暗号化！
+    if (!empty($inputData['password'])) {
+        $encrypted = openssl_encrypt(
+            $inputData['password'],
+            'AES-128-ECB', // 暗号化方式（暗号・復号で一致してる必要あり）
+            $key,
+            OPENSSL_RAW_DATA
+        );
+        // バイナリ→16進文字列へ
+        $inputData['password'] = strtoupper(bin2hex($encrypted));
+    }
 
-    /*
-    // 以下の本処理はコメントアウト中
     $dbh = new PDO($dsn, $user, $password);
     $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
@@ -71,15 +82,33 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (!empty($updates) && $id !== null) {
         $params['id'] = $id;
         $sql = "UPDATE profile SET " . implode(', ', $updates) . " WHERE id = :id";
+
+        // 💡SQLデバッグ用（バインドされた値をSQLに埋め込んで表示）
+        $interpolatedSql = $sql;
+        foreach ($params as $key => $val) {
+            $escapedVal = is_null($val) ? 'NULL' : $dbh->quote($val);
+            $interpolatedSql = str_replace(":$key", $escapedVal, $interpolatedSql);
+        }
+
+        // 🔍★ここで SQL とパラメータを出力（デバッグ用）
+        /*echo json_encode([
+            "debug" => "SQLクエリとバインド変数のデバッグ出力",
+            "sql" => $sql,
+            "bound_sql" => $interpolatedSql,
+            "params" => $params,
+            "input" => $inputData,
+            "image" => $imageUrl,
+            "insertImage" => $insertImage
+        ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+        exit;*/
+
+        // 実行処理
         $stmt = $dbh->prepare($sql);
         $stmt->execute($params);
 
-        echo json_encode(["message" => "プロフィールを更新しました。"], JSON_UNESCAPED_UNICODE);
+        echo json_encode(["message" => "プロフィールを更新しました。"], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
     } else {
-        echo json_encode(["error" => "更新対象がありません。"], JSON_UNESCAPED_UNICODE);
+        echo json_encode(["error" => "更新対象がありません。"], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
     }
-    */
-} else {
-    echo json_encode(["error" => "POSTリクエストを送信してください。"], JSON_UNESCAPED_UNICODE);
 }
 ?>

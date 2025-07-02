@@ -1,6 +1,8 @@
 <script lang="ts">
-import { defineComponent, ref, watch } from 'vue'
+import { defineComponent, ref, watch, onMounted, computed } from 'vue'
+import { useUserStore } from '@/stores/user'
 import type { PropType } from 'vue'
+
 import TextInput from '@/basics/TextInput.vue'
 import RadioInput from '@/basics/RadioInput.vue'
 import BirthDate from '@/basics/BirthDate.vue'
@@ -20,7 +22,6 @@ export default defineComponent({
       type: Array as PropType<File[]>,
       required: false,
     },
-
     password: String,
     body: String,
     birthDate: String,
@@ -35,6 +36,7 @@ export default defineComponent({
     'update:birthDate',
   ],
   setup(props, { emit }) {
+    // ローカルの状態を定義（フォーム入力用）
     const localUserName = ref(props.userName ?? '')
     const localPassword = ref(props.password ?? '')
     const localCertificate18 = ref(props.certificate18 ?? '0')
@@ -42,91 +44,129 @@ export default defineComponent({
     const localBirthDate = ref(props.birthDate ?? '')
     const localProfilePhoto = ref<File[]>([])
 
-    // propsが変わった時にローカル反映
+    // 編集前の元の値を保持（変更検知用）
+    const originalUserName = ref('')
+    const originalPassword = ref('')
+    const originalBirthDate = ref('')
+    const originalCertificate18 = ref('')
+    const originalBody = ref('')
+
+    // 編集モードや変更済みフラグ
+    const isEditingUserName = ref(false)
+    const isEditedUserName = ref(false)
+    const isEditingPassword = ref(false)
+    const isEditedPassword = ref(false)
+    const isEditingBirthDate = ref(false)
+    const isEditedBirthDate = ref(false)
+    const isEditingBody = ref(false)
+    const isEditedBody = ref(false)
+    const isEditingCertificate18 = ref(false)
+    const isEditedCertificate18 = ref(true)
+
+    // その他
+    const passwordHide = ref(true) // パスワード表示状態の制御
+    const errorMessage = ref('') // エラーメッセージ表示用
+    const userStore = useUserStore()
+    const id = ref(userStore.id)
+
+    // propsの変化を監視してローカル値を更新
     watch(
       () => props.userName,
-      val => {
-        localUserName.value = val ?? ''
-      },
+      val => (localUserName.value = val ?? ''),
     )
     watch(
       () => props.password,
-      val => {
-        localPassword.value = val ?? ''
-      },
+      val => (localPassword.value = val ?? ''),
     )
     watch(
       () => props.certificate18,
-      val => {
-        localCertificate18.value = val ?? ''
-      },
+      val => (localCertificate18.value = val ?? ''),
     )
     watch(
       () => props.body,
-      val => {
-        localBody.value = val ?? ''
-      },
+      val => (localBody.value = val ?? ''),
     )
     watch(
       () => props.birthDate,
-      val => {
-        localBirthDate.value = val ?? ''
-      },
-    )
-    watch(
-      () => props.profilePhoto,
-      val => {
-        localProfilePhoto.value = val ?? []
-      },
-      { immediate: true },
+      val => (localBirthDate.value = val ?? ''),
     )
 
-    const errorMessage = ref<string>('')
-    const id = ref('4')
+    // パスワードの表示用文言を算出
+    const displayPassword = computed(() => {
+      if (
+        (isEditingPassword.value &&
+          originalPassword.value !== localPassword.value) ||
+        isEditedPassword.value
+      ) {
+        return localPassword.value
+      }
 
-    const isEditingUserName = ref(false)
-    const isEditedUserName = ref(false)
-    const isEditingCertificate18 = ref(false)
-    const isEditedCertificate18 = ref(true)
-    const isEditingBirthDate = ref(false)
-    const isEditedBirthDate = ref(false)
-    const isEditingPassword = ref(false)
-    const isEditedPassword = ref(false)
-    const isEditingBody = ref(false)
-    const isEditedBody = ref(false)
-    const passwordHide = ref(true)
+      if (
+        originalPassword.value != null &&
+        originalPassword.value !== '' &&
+        originalPassword.value === localPassword.value
+      ) {
+        return '登録済みのパスワード'
+      }
 
+      return 'パスワードはまだありません'
+    })
+
+    // 各項目の編集状態を切り替える処理
     const toggleEdit = (field: string) => {
       switch (field) {
         case 'userName':
+          if (!isEditingUserName.value)
+            originalUserName.value = localUserName.value
+          else
+            isEditedUserName.value =
+              localUserName.value !== originalUserName.value
           isEditingUserName.value = !isEditingUserName.value
-          isEditedUserName.value = true
           break
         case 'password':
-          isEditingPassword.value = !isEditingPassword.value
-          isEditedPassword.value = true
-          if (!isEditingPassword.value) {
-            passwordHide.value = true
+          if (!isEditingPassword.value)
+            originalPassword.value = localPassword.value
+          else {
+            isEditedPassword.value =
+              localPassword.value !== originalPassword.value
+            if (!isEditingPassword.value) passwordHide.value = true
           }
+          isEditingPassword.value = !isEditingPassword.value
           break
         case 'birthDate':
+          if (!isEditingBirthDate.value)
+            originalBirthDate.value = localBirthDate.value
+          else
+            isEditedBirthDate.value =
+              localBirthDate.value !== originalBirthDate.value
           isEditingBirthDate.value = !isEditingBirthDate.value
-          isEditedBirthDate.value = true
           break
         case 'body':
+          if (!isEditingBody.value) originalBody.value = localBody.value
+          else isEditedBody.value = localBody.value !== originalBody.value
           isEditingBody.value = !isEditingBody.value
-          isEditedBody.value = true
+          break
+        case 'certificate18':
+          if (!isEditingCertificate18.value)
+            originalCertificate18.value = localCertificate18.value
+          else
+            isEditedCertificate18.value =
+              localCertificate18.value !== originalCertificate18.value
+          isEditingCertificate18.value = !isEditingCertificate18.value
           break
       }
     }
 
+    // パスワードの表示/非表示を切り替える処理
     const showPassword = () => {
       passwordHide.value = !passwordHide.value
     }
 
+    // フォームの送信処理
     const handleSubmit = async () => {
       const formData = new FormData()
 
+      // 編集された項目のみ送信する
       const entries = [
         ['userName', isEditedUserName.value, localUserName.value],
         ['password', isEditedPassword.value, localPassword.value],
@@ -143,8 +183,8 @@ export default defineComponent({
         if (edited) formData.append(key, value)
       }
 
-      if (localProfilePhoto.value instanceof File) {
-        formData.append('profilePhoto', localProfilePhoto.value)
+      if (localProfilePhoto.value.length > 0) {
+        formData.append('profilePhoto', localProfilePhoto.value[0])
       }
 
       try {
@@ -176,6 +216,35 @@ export default defineComponent({
       }
     }
 
+    // 初期データをサーバーから取得
+    onMounted(async () => {
+      try {
+        const response = await fetch(
+          `https://yellowokapi2.sakura.ne.jp/Vue/api/ProfileAllCatchAPI.php/${id.value}`,
+        )
+        const contentType = response.headers.get('Content-Type') || ''
+        if (!contentType.includes('application/json'))
+          throw new Error('JSONとして受け取れませんでした。')
+
+        const data = await response.json()
+        localUserName.value = data.name ?? ''
+        localPassword.value = data.password ?? ''
+        localBody.value = data.body ?? ''
+        localBirthDate.value = data.birthDate ?? ''
+        localCertificate18.value = String(data.certificate18 ?? '0')
+
+        // 比較用に取得値を保持
+        originalUserName.value = data.name ?? ''
+        originalPassword.value = data.password ?? ''
+        originalBody.value = data.body ?? ''
+        originalBirthDate.value = data.birthDate ?? ''
+        originalCertificate18.value = String(data.certificate18 ?? '0')
+      } catch (error) {
+        console.error('初期データの取得に失敗:', error)
+        errorMessage.value = '初期データの取得に失敗しました。'
+      }
+    })
+
     return {
       localUserName,
       localPassword,
@@ -193,6 +262,7 @@ export default defineComponent({
       toggleEdit,
       showPassword,
       handleSubmit,
+      displayPassword,
     }
   },
 })
@@ -205,17 +275,16 @@ export default defineComponent({
     </div>
 
     <div>
-      <PhotoDragDrop
-        v-model="localProfilePhoto"
-        labelBeforeText="プロフィール画像編集："
-        labelAfterText="新規プロフィール画像："
-        :maxCount="1"
-      />
+      <label for="image">プロフィール画像:</label>
+      <PhotoDragDrop v-model="localProfilePhoto" :maxCount="1" />
     </div>
 
     <!-- 生年月日 -->
     <div>
-      <h2>選択された生年月日: {{ localBirthDate }}</h2>
+      <p>
+        【生年月日】<br />
+        {{ localBirthDate ? localBirthDate : 'なし' }}
+      </p>
       <template v-if="isEditingBirthDate">
         <BirthDate v-model="localBirthDate" />
       </template>
@@ -226,7 +295,7 @@ export default defineComponent({
 
     <!-- 名前 -->
     <div>
-      <label for="userName">名前</label>
+      <br /><label for="userName">【名前】</label>
       <template v-if="isEditingUserName">
         <TextInput
           id="userName"
@@ -245,7 +314,7 @@ export default defineComponent({
     </div>
 
     <div>
-      <label for="body">プロフィール本文</label>
+      <br /><label for="body">【プロフィール本文】</label>
       <template v-if="isEditingBody">
         <TextInput
           id="body"
@@ -265,7 +334,7 @@ export default defineComponent({
 
     <!-- パスワード -->
     <div>
-      <label for="password">パスワード</label>
+      <br /><label for="password">【パスワード】</label>
 
       <!-- 編集中で表示状態：パスワード入力欄 -->
       <template v-if="isEditingPassword">
@@ -289,7 +358,7 @@ export default defineComponent({
       <!-- 編集していない：通常表示 -->
       <template v-else>
         <br />
-        <span>{{ localPassword }}</span>
+        <span>{{ displayPassword }}</span>
         <br />
         <button type="button" @click="showPassword">非表示</button>
       </template>
@@ -300,7 +369,8 @@ export default defineComponent({
     </div>
 
     <!-- 年齢制限表示設定 -->
-    <p>年齢制限ありの画像を表示する</p>
+    <br />
+    <p>【年齢制限ありの画像を表示する】</p>
     <div class="radio-buttons">
       <span class="radio">
         <RadioInput
@@ -309,7 +379,6 @@ export default defineComponent({
           value="1"
           label="表示"
           v-model="localCertificate18"
-          required
         />
       </span>
       <span class="radio">
@@ -319,7 +388,6 @@ export default defineComponent({
           value="0"
           label="非表示"
           v-model="localCertificate18"
-          required
         />
       </span>
     </div>

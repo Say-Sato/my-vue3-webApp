@@ -1,30 +1,33 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 
-// ✅ v-model用に props を受け取る
 const props = defineProps<{
   modelValue: string
 }>()
 
-// ✅ v-model用に emit を定義
 const emit = defineEmits<{
   (e: 'update:modelValue', value: string): void
 }>()
 
-// 🐣 年月日を個別に管理（初期は空）
 const year = ref('')
 const month = ref('')
 const day = ref('')
 
 // ✅ props（modelValue）から年月日に初期値を反映
-if (props.modelValue) {
-  const [y, m, d] = props.modelValue.split('-')
-  year.value = y ?? '2000'
-  month.value = m ?? '1'
-  day.value = d ?? '1'
-}
+watch(
+  () => props.modelValue,
+  newVal => {
+    if (newVal && newVal.includes('-')) {
+      const [y, m, d] = newVal.split('-')
+      year.value = y
+      month.value = String(Number(m))
+      day.value = String(Number(d))
+    }
+  },
+  { immediate: true },
+)
 
-// ✅ 値が変わったら即emit（submitしなくてもv-modelが反映される）
+// ✅ 年月日が変わったら親へemit
 watch([year, month, day], () => {
   const y = year.value
   const m = month.value.padStart(2, '0')
@@ -34,7 +37,7 @@ watch([year, month, day], () => {
   }
 })
 
-// 🔢 月ごとの日数を計算
+// 月ごとの日数を計算
 const daysInMonth = computed(() => {
   const y = parseInt(year.value)
   const m = parseInt(month.value)
@@ -42,15 +45,9 @@ const daysInMonth = computed(() => {
   return Array.from({ length: new Date(y, m, 0).getDate() }, (_, i) => i + 1)
 })
 
-// 📅 年リスト（1900〜今年）
+// 年リスト（1900〜現在）
 const currentYear = new Date().getFullYear()
 const years = Array.from({ length: currentYear - 1900 + 1 }, (_, i) => 1900 + i)
-
-// 🧪 手動送信したいならsubmit関数はそのままでもOK（オマケ）
-const submit = () => {
-  const formatted = `${year.value}-${month.value.padStart(2, '0')}-${day.value.padStart(2, '0')}`
-  alert(`送信する日付: ${formatted}`)
-}
 </script>
 
 <template>
@@ -71,7 +68,5 @@ const submit = () => {
         {{ d }}
       </option>
     </select>
-
-    <button @click="submit">送信</button>
   </div>
 </template>

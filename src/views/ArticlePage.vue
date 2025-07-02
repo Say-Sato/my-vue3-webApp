@@ -50,32 +50,51 @@ watch(
 </script>
 
 <template>
-  <div class="container">
-    <!-- コンポーネントに分離！ -->
+  <div class="container main">
     <ImageList :images="post?.images ?? []" />
 
-    <h1 class="title">{{ post?.title }}</h1>
+    <div class="title-favorite-wrapper">
+      <h1 class="title">{{ post?.title }}</h1>
+      <span class="favorite">
+        <Favorite :i_id="post?.id ?? 0" />
+      </span>
+    </div>
+
     <div class="dtl">{{ post?.body || '本文が入っていません' }}</div>
     <ArticleTags :tagsMsg="post?.tags ?? []" />
-    <span class="favorite">
-      <Favorite :i_id="post?.id ?? 0" />
-    </span>
-  </div>
 
-  <div v-if="post">
-    <PrevNextButtons
-      :prevId="post?.prev_id ?? 0"
-      :nextId="post?.next_id ?? 0"
-    />
+    <div v-if="post" class="prev-next-wrapper">
+      <PrevNextButtons
+        :prevId="post?.prev_id ?? 0"
+        :nextId="post?.next_id ?? 0"
+      />
+    </div>
   </div>
 </template>
 
 <style scoped>
+.title-favorite-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 12px 0;
+  position: relative; /* これで絶対配置の基準にしてもいい */
+}
+
 .title {
-  margin: 12px;
+  flex-grow: 1; /* 余った幅を全部使う */
+  text-align: center; /* テキストを中央に */
+  margin: 0;
   font-size: 20px;
   font-weight: bold;
-  text-align: center;
+  position: relative; /* z-indexが必要なら */
+  left: 80px; /* 位置調整したければ */
+}
+
+.favorite {
+  display: block;
+  margin: 0 40px 0 0;
+  z-index: 1; /* タイトルの上に表示したければ */
 }
 
 .dtl {
@@ -99,10 +118,41 @@ watch(
   object-position: center;
 }
 
-.favorite {
+.container.main {
+  padding: 20px;
+  margin-top: 60px;
+  margin-right: 300px;
+  border-right: 2px dashed rgba(0, 0, 0, 0.2);
   position: relative;
-  display: block;
-  text-align: right;
-  margin: 12px 40px 0 0;
+  padding-bottom: 20px;
+  width: auto;
+}
+
+.prev-next-wrapper {
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  padding: 0 20px;
+}
+
+/* タブレットサイズ以下でタイトルを画像下に表示 */
+@media screen and (max-width: 800px) {
+  .container.main {
+    padding: 20px; /* 内側の余白 */
+    box-sizing: border-box; /* パディングを幅に含める */
+    margin-right: 0; /* 右側のマージンを0に設定 */
+    width: 100%; /* 幅をフルに設定 */
+    border-right: none; /* 薄い破線を非表示に設定 */
+  }
+
+  .prev-next-wrapper {
+    max-width: 100%; /* 幅をフルにして */
+    padding: 0 10px; /* 余白を狭く */
+  }
+}
+
+/* スマホサイズ以下でタイトルを画像下に表示 */
+@media screen and (max-width: 480px) {
 }
 </style>

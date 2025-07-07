@@ -1,18 +1,11 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
-import ArticleCatch from '@/views/ArticleCatchPage.vue'
-import Login from '@/views/LoginPage.vue'
-import Publish from '@/views/ArticleEntryPage.vue'
-import MyPage from '@/views/ProfileEditPage.vue'
-import Edit from '@/views/ArticleEditPage.vue'
-import Search from '@/views/SearchPage.vue'
-
 const router = createRouter({
   history: createWebHistory(),
   routes: [
     {
       path: '/',
-      redirect: '/0', // 最初にアクセスしたときに、IDが0のTodoリストにリダイレクトする
+      redirect: '/0', // 最初にアクセスしたときはID 0のTodoへ
     },
     {
       path: '/:id',
@@ -22,12 +15,12 @@ const router = createRouter({
     {
       path: '/publish',
       name: 'publish',
-      component: Publish,
+      component: () => import('@/views/ArticleEntryPage.vue'),
     },
     {
       path: '/article',
       name: 'article',
-      component: ArticleCatch,
+      component: () => import('@/views/ArticleCatchPage.vue'),
     },
     {
       path: '/article/:id',
@@ -37,29 +30,36 @@ const router = createRouter({
     {
       path: '/test',
       name: 'testPage',
-      component: MyPage,
+      component: () => import('@/views/ProfileEditPage.vue'),
     },
     {
       path: '/login',
       name: 'login',
-      component: Login,
-      meta: { showHeader: false, showProfile: false },
+      component: () => import('@/views/LoginPage.vue'),
+      meta: {
+        showHeader: false,
+        showProfile: false, // ← ログイン時にヘッダーやプロフィール表示を制御したい場合
+      },
     },
     {
       path: '/edit',
-      redirect: '/edit/0', // 最初にアクセスしたときに、IDが0のAboutPageにリダイレクトする
+      redirect: '/edit/0', // ID指定なしはID 0を編集
     },
     {
       path: '/edit/:id',
       name: 'edit',
-      component: Edit,
+      component: () => import('@/views/ArticleEditPage.vue'),
     },
     {
       path: '/tags/:word',
       name: 'search',
-      component: Search,
+      component: () => import('@/views/SearchPage.vue'),
     },
   ],
+  scrollBehavior() {
+    // 遷移後は必ず最上部へスクロール
+    return { top: 0 }
+  },
 })
 
 export default router

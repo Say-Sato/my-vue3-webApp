@@ -119,9 +119,8 @@ watch(
 }
 
 .container.main {
-  padding: 20px;
-  margin-top: 60px;
   margin-right: 300px;
+  margin-top: 0px;
   border-right: 2px dashed rgba(0, 0, 0, 0.2);
   position: relative;
   padding-bottom: 20px;

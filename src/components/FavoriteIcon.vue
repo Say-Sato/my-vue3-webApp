@@ -21,9 +21,8 @@ export default defineComponent({
     const likeId = ref('')
     const userStore = useUserStore()
 
-    // Piniaから loginid を取得
-    likeNum.value = userStore.id ?? ''
-    console.log('loginid (likeNum):', likeNum.value)
+    // Piniaから ユニークなid を取得
+    likeNum.value = userStore.id ?? '0'
 
     const fetchLatestLikeStatus = async () => {
       try {

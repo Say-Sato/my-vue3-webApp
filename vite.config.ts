@@ -5,7 +5,7 @@ import vue from '@vitejs/plugin-vue'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: './', // 相対パスでアセットを読み込む設定
+  base: '/', // ルート絶対パス指定に変更
   plugins: [vue()],
   resolve: {
     alias: {

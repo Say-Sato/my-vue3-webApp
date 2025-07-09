@@ -170,20 +170,18 @@ onBeforeUnmount(() => {
 }
 
 .image-container {
+
   position: relative;
-  width: 95%;
-  height: 600px;
-  display: block;
-  overflow: hidden;
-  background-color: #f0f0f0;
-  margin: 0 auto 24px;
+  margin-top: 10px;
+  display: flex;
+  justify-content: center; /* ← h1 を中央揃え */
+  align-items: center; /* ← 高さを揃える */
 }
 
-.image {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  object-position: center;
+.title {
+  font-size: 20px;
+  font-weight: bold;
+  margin: 0;
 }
 
 .prev-next-wrapper {
@@ -237,5 +235,6 @@ onBeforeUnmount(() => {
 
 /* スマホサイズ以下でタイトルを画像下に表示 */
 @media screen and (max-width: 480px) {
+
 }
 </style>

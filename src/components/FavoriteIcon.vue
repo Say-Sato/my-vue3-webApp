@@ -136,6 +136,7 @@ export default defineComponent({
       :iconClass="isLiked ? 'fa-solid fa-heart' : 'fa-regular fa-heart'"
       :color="isLiked ? 'white' : 'red'"
       :backgroundColor="isLiked ? '#e5348c' : '#1e1e1e'"
+      textColor="white"
       @click="toggleLike"
     />
   </div>

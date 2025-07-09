@@ -3,6 +3,8 @@
 import { defineProps } from 'vue'
 import { useUserStore } from '@/stores/user'
 
+import IconButton from '@/basics/IconButton.vue'
+
 // ✅ propsを定義（nameとid）
 const props = defineProps<{
   name?: string
@@ -39,7 +41,12 @@ const userStore = useUserStore()
         <p class="userId">ID: {{ userStore.login_id }}</p>
       </div>
 
-      <button class="follow-btn">フォロー</button>
+      <IconButton
+        icon-class=""
+        label="フォロー"
+        backgroundColor="#ccc"
+        textColor="white"
+      />
     </div>
   </div>
 </template>
@@ -52,7 +59,7 @@ const userStore = useUserStore()
   box-sizing: border-box;
 
   /* ← 追加ここから！ */
-  position: fixed;
+  z-index: 1;
 }
 
 .profile-row {
@@ -90,5 +97,12 @@ const userStore = useUserStore()
   font-size: 12px;
   border-radius: 4px;
   cursor: pointer;
+}
+
+@media screen and (max-width: 800px) {
+  .container {
+    width: 100%;
+    padding: 30px 0 0;
+  }
 }
 </style>

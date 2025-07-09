@@ -2,23 +2,28 @@
 defineProps({
   label: {
     type: String,
-    required: true,
-    default: 'Search', // デフォルトのテキスト
+    required: false,
+    default: 'Search',
   },
   color: {
     type: String,
     required: false,
-    default: 'white', // アイコンの色を黒に変更
+    default: 'white',
   },
   iconClass: {
     type: String,
     required: false,
-    default: 'fa-solid fa-magnifying-glass', // デフォルトのアイコン
+    default: 'fa-solid fa-magnifying-glass',
   },
   backgroundColor: {
     type: String,
     required: false,
-    default: '#1e1e1e', // ボタンのデフォルト背景色
+    default: '#1e1e1e',
+  },
+  textColor: {
+    type: String,
+    required: false,
+    default: 'white',
   },
 })
 </script>
@@ -26,7 +31,10 @@ defineProps({
 <template>
   <button
     class="icon-button"
-    :style="{ backgroundColor: backgroundColor }"
+    :style="{
+      backgroundColor: backgroundColor,
+      color: textColor,
+    }"
     v-bind="$attrs"
   >
     <i :class="iconClass" :style="{ color: color }"></i>
@@ -39,7 +47,7 @@ defineProps({
   color: #ffffff;
   border: none;
   border-radius: 15px; /* 角を丸める */
-  padding: 8px 16px; /* 内側の余白を設定 */
+  padding: 6px 12px 8px; /* 内側の余白を設定 */
   font-size: 14px; /* フォントサイズ */
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* ほんのり影をつける */
   transition:

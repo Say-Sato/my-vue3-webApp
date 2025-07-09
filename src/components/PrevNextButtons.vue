@@ -10,43 +10,36 @@ const props = defineProps<{
 
 <template>
   <div class="nav-wrapper">
-    <template v-if="props.prevId !== 0">
-      <router-link :to="`/article/${props.prevId}`">
-        <IconButton
-          label="前の記事"
-          icon-class="fa-solid fa-arrow-left"
-          background-color="#cccccc"
-        />
-      </router-link>
-    </template>
-    <template v-else>
-      <div class="disabled-button">
-        <IconButton
-          label="前の記事なし"
-          icon-class="fa-solid fa-ban"
-          background-color="#eeeeee"
-        />
-      </div>
-    </template>
+    <!-- 前のボタンスペース -->
+    <div class="button-wrapper">
+      <template v-if="props.prevId !== 0">
+        <router-link :to="`/article/${props.prevId}`">
+          <IconButton
+            label="前の記事"
+            icon-class="fa-solid fa-arrow-left"
+            background-color="#cccccc"
+            textColor="white"
+          />
+        </router-link>
+      </template>
+    </div>
 
-    <template v-if="props.nextId !== 0">
-      <router-link :to="`/article/${props.nextId}`">
-        <IconButton
-          label="次の記事"
-          icon-class="fa-solid fa-arrow-right"
-          background-color="#cccccc"
-        />
-      </router-link>
-    </template>
-    <template v-else>
-      <div class="disabled-button">
-        <IconButton
-          label="記事はありません"
-          icon-class="fa-solid fa-ban"
-          background-color="#cccccc"
-        />
-      </div>
-    </template>
+    <!-- 真ん中の縦線 -->
+    <div class="divider"></div>
+
+    <!-- 次のボタンスペース -->
+    <div class="button-wrapper">
+      <template v-if="props.nextId !== 0">
+        <router-link :to="`/article/${props.nextId}`">
+          <IconButton
+            label="次の記事"
+            icon-class="fa-solid fa-arrow-right"
+            background-color="#cccccc"
+            textColor="white"
+          />
+        </router-link>
+      </template>
+    </div>
   </div>
 </template>
 
@@ -55,12 +48,22 @@ const props = defineProps<{
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 20px;
+  gap: 0px;
   margin-top: 16px;
 }
 
-.disabled-button {
-  pointer-events: none; /* クリック無効 */
-  opacity: 0.5; /* 視覚的に無効化 */
+/* ボタン用の固定幅の箱。非表示時もスペース確保 */
+.button-wrapper {
+  width: 150px; /* アイコンボタンの幅に合わせて調整してね */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 縦線 */
+.divider {
+  width: 1px;
+  background-color: #ccc;
+  height: 40px; /* ボタンの高さに合わせて調整してね */
 }
 </style>

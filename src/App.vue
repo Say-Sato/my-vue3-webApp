@@ -79,13 +79,14 @@ body {
 
 /* メインコンテンツ */
 .main {
-  padding: 20px; /* 内側の余白 */
-  box-sizing: border-box; /* パディングを幅に含める */
-  margin-top: 60px; /* 60px下へずらす */
-  margin-right: 300px;
+  padding: 20px;
+  box-sizing: border-box;
+  margin-top: 60px;
+  margin-right: 0; /* 余白なくす */
   position: relative;
-  padding-bottom: 20px; /* フッターの高さ分の余白を追加 */
-  border-right: 2px dashed rgba(0, 0, 0, 0.2); /* 薄い破線 (色: rgba で透明度を調整) */
+  padding-bottom: 20px;
+  border-right: none; /* 波線消し */
+  width: 100%; /* 親幅に合わせる */
 }
 
 .no-border {

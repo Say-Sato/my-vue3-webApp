@@ -30,17 +30,37 @@ if (!isset($_FILES['image'])) {
 $files = $_FILES['image'];
 $fileCount = is_array($files['name']) ? count($files['name']) : 1;
 
+if (is_array($files['name'])) {
+    $fileCount = count($files['name']);
+} else {
+    $fileCount = 1;
+}
+
 if ($fileCount === 1) {
-    // 単一ファイルの配列化
-    $fileArray = [
-        [
-            'name' => $files['name'],
-            'type' => $files['type'],
-            'tmp_name' => $files['tmp_name'],
-            'error' => $files['error'],
-            'size' => $files['size'],
-        ]
-    ];
+    // もし単数でも配列だったら、そのまま配列として処理する
+    if (is_array($files['name'])) {
+        // 配列だけど要素数1のとき
+        $fileArray = [];
+        for ($i = 0; $i < $fileCount; $i++) {
+            $fileArray[] = [
+                'name' => $files['name'][$i],
+                'type' => $files['type'][$i],
+                'tmp_name' => $files['tmp_name'][$i],
+                'error' => $files['error'][$i],
+                'size' => $files['size'][$i],
+            ];
+        }
+    } else {
+        $fileArray = [
+            [
+                'name' => $files['name'],
+                'type' => $files['type'],
+                'tmp_name' => $files['tmp_name'],
+                'error' => $files['error'],
+                'size' => $files['size'],
+            ]
+        ];
+    }
 } else {
     // 複数ファイルの情報を1ファイルごとの連想配列にまとめる
     $fileArray = [];

@@ -46,11 +46,13 @@ const fetchData = async () => {
       }
 
       // ログイン情報を localStorage に保存
-      userStore.login(data.id, data.name, data.admin)
-      console.log('ユーザーID:', userStore.id)
+      userStore.login(data.id, data.name, data.admin, data.login_id)
+      console.log('ユニークID:', userStore.id)
+      console.log('ユーザー名:', userStore.login_id)
       console.log('ユーザー名:', userStore.name)
       console.log('管理者フラグ:', userStore.admin)
       console.log('ログイン状態:', userStore.isLogin)
+      console.log(data.login_id)
       router.push({ path: `/${data.id}` })
     } else {
       errorMessage.value = 'IDもしくはパスワードが間違っています。'

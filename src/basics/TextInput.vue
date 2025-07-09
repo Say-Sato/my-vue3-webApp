@@ -20,6 +20,10 @@ export default defineComponent({
       type: String,
       default: 'text',
     },
+    text: {
+      type: String,
+      default: '',
+    },
     modelValue: {
       type: String,
       default: '',
@@ -71,6 +75,7 @@ export default defineComponent({
       :name="name"
       v-bind="$attrs"
       :value="modelValue"
+      :placeholder="text"
       @input="handleInput"
     ></textarea>
 
@@ -85,6 +90,7 @@ export default defineComponent({
           :name="name"
           v-bind="$attrs"
           :value="modelValue"
+          :placeholder="text"
           @input="handleInput"
         />
 
@@ -115,6 +121,7 @@ export default defineComponent({
         :name="name"
         v-bind="$attrs"
         :value="modelValue"
+        :placeholder="text"
         @input="handleInput"
       />
     </template>
@@ -135,10 +142,15 @@ export default defineComponent({
 
 /* textarea用 */
 .textInput textarea {
-  width: 190px;
-  height: 100px;
   resize: vertical;
+  width: 100%; /* 幅は内容に合わせる */
+  max-width: 100%; /* 親の幅を超えないように制限 */
+  height: 100px; /* 高さは固定か必要に応じて */
+  min-width: 100px; /* 最小幅も適当に設定するといい */
+  padding: 12px;
   border-width: 2px;
+  box-sizing: border-box;
+  display: inline-block; /* 干渉を減らすためにインラインブロックに */
 }
 
 /* パスワード入力用ラッパー */

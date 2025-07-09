@@ -1,49 +1,108 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+//import { computed } from 'vue'
+import { defineProps } from 'vue'
+import { useUserStore } from '@/stores/user'
 
-const newId = ref<string>('') // ref の型を明示的に指定
+import IconButton from '@/basics/IconButton.vue'
 
-// 初期値として localStorage の値をセット
-newId.value = localStorage.getItem('name') ?? 'ゲスト'
+// ✅ propsを定義（nameとid）
+const props = defineProps<{
+  name?: string
+  id?: number | string
+  p_photo?: string
+}>()
 
-//onMounted(async () => {
-// localStorage に保存された値が現在の値と異なる場合にリロード
-//newId.value = localStorage.getItem('name') ?? ''
-//})
+const userStore = useUserStore()
+
+// ✅ props > store > fallback の順で表示名を決定
+/*const newId = computed(() => {
+  return userStore.id ?? '0'
+})*/
 </script>
 
 <template>
   <div class="container">
-    <!--<img :src="`${profile?.profile_photo}`" alt="Sample Profile Image" class="image" />
-    <p class="userName">{{ profile?.name || 'Unknown' }} さん</p>
-    <p>{{ profile?.body || 'テスト本文テスト' }}</p>-->
-    <p class="userName">{{ newId || 'unkonow' }} さん</p>
+    <div class="profile-row">
+      <img
+        v-if="props.p_photo"
+        :src="`https://yellowokapi2.sakura.ne.jp/Blog/index${props.p_photo}`"
+        alt="Profile Image"
+        class="image"
+      />
+      <img
+        v-else
+        :src="`https://yellowokapi2.sakura.ne.jp/Blog/index/profile_photo/noimage.png`"
+        alt="Sample Profile Image"
+        class="image"
+      />
 
-    <!-- ここで newId を表示 -->
+      <div class="info">
+        <p class="userName">{{ props.name || 'unknown' }} さん</p>
+        <p class="userId">ID: {{ userStore.login_id }}</p>
+      </div>
+
+      <IconButton
+        icon-class=""
+        label="フォロー"
+        backgroundColor="#ccc"
+        textColor="white"
+      />
+    </div>
   </div>
 </template>
 
 <style scoped>
 .container {
-  background-color: #fff; /* メニューの背景色 */
-  position: absolute; /* メニューの位置を絶対指定 */
-  top: 80px; /* ハンバーガーボタンの下に配置 */
-  right: 0; /* 右端に配置 */
-  width: 280px; /* メニューの幅 */
-  z-index: 1; /* ハンバーガーボタンの下に表示 */
+  background-color: #fff;
+  width: 280px;
   padding: 10px;
-  /* height は指定しない。コンテンツに合わせてサイズが決まる */
+  box-sizing: border-box;
+
+  /* ← 追加ここから！ */
+  z-index: 1;
 }
 
-.container p {
-  margin-top: 20px; /* 各コンテンツの上に20pxの余白を追加 */
+.profile-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .image {
-  width: 60px;
-  height: 60px;
-  margin-top: 10px;
-  object-fit: cover; /* 画像のアスペクト比を保ちながら、要素にぴったり収める */
-  border-radius: 50%; /* 丸くする */
+  width: 35px;
+  height: 35px;
+  object-fit: cover;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex: 1; /* 残りの幅を使ってボタンを右端に押し出す */
+}
+
+.userName,
+.userId {
+  font-size: 14px;
+  margin: 2px 0;
+}
+
+.follow-btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  font-size: 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+@media screen and (max-width: 800px) {
+  .container {
+    width: 100%;
+    padding: 30px 0 0;
+  }
 }
 </style>

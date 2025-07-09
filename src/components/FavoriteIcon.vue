@@ -21,9 +21,8 @@ export default defineComponent({
     const likeId = ref('')
     const userStore = useUserStore()
 
-    // Piniaから loginid を取得
-    likeNum.value = userStore.id ?? ''
-    console.log('loginid (likeNum):', likeNum.value)
+    // Piniaから ユニークなid を取得
+    likeNum.value = userStore.id ?? '0'
 
     const fetchLatestLikeStatus = async () => {
       try {
@@ -137,6 +136,7 @@ export default defineComponent({
       :iconClass="isLiked ? 'fa-solid fa-heart' : 'fa-regular fa-heart'"
       :color="isLiked ? 'white' : 'red'"
       :backgroundColor="isLiked ? '#e5348c' : '#1e1e1e'"
+      textColor="white"
       @click="toggleLike"
     />
   </div>

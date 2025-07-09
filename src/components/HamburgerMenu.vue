@@ -1,8 +1,10 @@
 <script lang="ts">
+import { defineComponent } from 'vue'
 import AdminLink from '@/basics/AdminLink.vue'
 import Icon from '@/components/HamburgerMenuIcon.vue'
 
-export default {
+export default defineComponent({
+  name: 'HamburgerMenu',
   components: {
     AdminLink,
     Icon,
@@ -23,7 +25,7 @@ export default {
       }
     },
   },
-}
+})
 </script>
 
 <template>

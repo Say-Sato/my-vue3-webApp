@@ -1,11 +1,15 @@
 <script lang="ts">
 import Hamburger from '@/components/HamburgerMenu.vue' // ハンバーガーメニュー
+import NotificationBell from '@/basics/NotificationBell.vue'
+import UserAvatar from '@/basics/UserAvatar.vue'
 import { ref } from 'vue'
 import { useUserStore } from '@/stores/user'
 
 export default {
   components: {
     Hamburger,
+    UserAvatar,
+    NotificationBell,
   },
   data() {
     // 現在のルートroute.meta.showHeaderを取得
@@ -30,6 +34,8 @@ export default {
     <router-link :to="`/${loginid}`">
       <h1 class="title">SPACE</h1>
     </router-link>
+    <NotificationBell />
+    <UserAvatar />
     <Hamburger />
   </div>
 </template>

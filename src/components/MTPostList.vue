@@ -28,7 +28,7 @@ const props = defineProps<{ posts: PostResponse[] }>()
 <template>
   <ul class="image-gallery">
     <li v-for="post in props.posts" :key="post.id" class="image-item">
-      <router-link :to="`/article/${post.id}`">
+      <router-link :to="`/posts/${post.id}`">
         <div class="box3">
           <div class="image-wrapper">
             <img
@@ -50,7 +50,7 @@ const props = defineProps<{ posts: PostResponse[] }>()
             post.title.length > 9 ? post.title.slice(0, 11) + '…' : post.title
           }}
         </h3>
-        <router-link :to="`/article/${post.id}`">
+        <router-link :to="`/posts/${post.id}`">
           <img
             :src="`https://yellowokapi2.sakura.ne.jp/Blog/index${post.p_photo}`"
             :alt="post.p_name"

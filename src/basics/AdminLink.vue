@@ -16,18 +16,18 @@ defineEmits(['close']) // 外部クリックで閉じるイベント
     <ul class="nav-menu" role="list">
       <span class="login" v-if="userStore.isLogin">
         <li class="nav-item">
-          <router-link class="nav-link" to="/publish">イラスト投稿</router-link>
+          <router-link class="nav-link" to="/posts/new"
+            >イラスト投稿</router-link
+          >
         </li>
         <li class="nav-item">
-          <router-link class="nav-link" to="/article"
-            >自分のイラスト</router-link
-          >
+          <router-link class="nav-link" to="/posts">自分のイラスト</router-link>
         </li>
         <li class="nav-item">
           <span class="nav-link">いいね一覧</span>
         </li>
         <li class="nav-item">
-          <router-link class="nav-link" to="/test">設定</router-link>
+          <router-link class="nav-link" to="/profile">設定</router-link>
         </li>
         <li class="nav-item">
           <span class="nav-link">ログアウト</span>
@@ -42,8 +42,8 @@ defineEmits(['close']) // 外部クリックで閉じるイベント
         </li>
         <li class="nav-item">
           <span class="nav-link">
-            ログインは<router-link to="/login">こちら</router-link></span
-          >
+            ログインは<router-link to="/login">こちら</router-link>
+          </span>
         </li>
       </span>
     </ul>

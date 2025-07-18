@@ -170,7 +170,6 @@ onBeforeUnmount(() => {
 }
 
 .image-container {
-
   position: relative;
   margin-top: 10px;
   display: flex;
@@ -235,6 +234,5 @@ onBeforeUnmount(() => {
 
 /* スマホサイズ以下でタイトルを画像下に表示 */
 @media screen and (max-width: 480px) {
-
 }
 </style>

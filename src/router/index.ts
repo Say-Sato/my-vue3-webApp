@@ -5,30 +5,30 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      redirect: '/0', // 最初にアクセスしたときはID 0のTodoへ
+      redirect: '/login',
     },
     {
-      path: '/:id',
+      path: '/home/:userId',
       name: 'mainTodo',
       component: () => import('@/views/MainTodo.vue'),
     },
     {
-      path: '/publish',
+      path: '/posts/new',
       name: 'publish',
       component: () => import('@/views/ArticleEntryPage.vue'),
     },
     {
-      path: '/article',
+      path: '/posts',
       name: 'article',
       component: () => import('@/views/ArticleCatchPage.vue'),
     },
     {
-      path: '/article/:id',
+      path: '/posts/:id',
       name: 'articlePage',
       component: () => import('@/views/ArticlePage.vue'),
     },
     {
-      path: '/test',
+      path: '/profile',
       name: 'testPage',
       component: () => import('@/views/ProfileEditPage.vue'),
     },
@@ -43,10 +43,10 @@ const router = createRouter({
     },
     {
       path: '/edit',
-      redirect: '/edit/0', // ID指定なしはID 0を編集
+      redirect: '/posts/0/edit',
     },
     {
-      path: '/edit/:id',
+      path: '/posts/edit/:id',
       name: 'edit',
       component: () => import('@/views/ArticleEditPage.vue'),
     },

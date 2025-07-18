@@ -13,7 +13,7 @@ const props = defineProps<{
     <!-- 前のボタンスペース -->
     <div class="button-wrapper">
       <template v-if="props.prevId !== 0">
-        <router-link :to="`/article/${props.prevId}`">
+        <router-link :to="`/posts/${props.prevId}`">
           <IconButton
             label="前の記事"
             icon-class="fa-solid fa-arrow-left"
@@ -30,7 +30,7 @@ const props = defineProps<{
     <!-- 次のボタンスペース -->
     <div class="button-wrapper">
       <template v-if="props.nextId !== 0">
-        <router-link :to="`/article/${props.nextId}`">
+        <router-link :to="`/posts/${props.nextId}`">
           <IconButton
             label="次の記事"
             icon-class="fa-solid fa-arrow-right"

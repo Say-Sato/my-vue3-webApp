@@ -31,7 +31,7 @@ export default {
 <template>
   <div>
     <!-- loginidが取得できた場合、その値を使って遷移先を設定 -->
-    <router-link :to="`/${loginid}`">
+    <router-link :to="`/home/${loginid}`">
       <h1 class="title">SPACE</h1>
     </router-link>
     <NotificationBell />

@@ -53,7 +53,7 @@ const fetchData = async () => {
       console.log('管理者フラグ:', userStore.admin)
       console.log('ログイン状態:', userStore.isLogin)
       console.log(data.login_id)
-      router.push({ path: `/${data.id}` })
+      router.push({ path: `/home/${data.id}` })
     } else {
       errorMessage.value = 'IDもしくはパスワードが間違っています。'
     }

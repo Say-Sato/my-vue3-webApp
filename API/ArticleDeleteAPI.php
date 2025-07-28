@@ -17,10 +17,14 @@ if ($id !== null) {
         
         // 指定されたIDのレコードを選択
         $query = // 指定されたIDのレコードを選択
-        $query = "DELETE illust, illust_tags
-            FROM illust
-            JOIN illust_tags ON illust.id = illust_tags.i_id
-            WHERE illust.id = :id";
+        $query = "DELETE illust, illust_tags, images, favorite, comment
+                FROM illust
+                LEFT JOIN illust_tags ON illust.id = illust_tags.i_id
+                LEFT JOIN images ON illust.id = images.post_id
+                LEFT JOIN favorite ON illust.id = favorite.i_id
+                LEFT JOIN comment ON illust.id = comment.i_id
+                WHERE illust.id = :id";
+
         $stmt = $dbh->prepare($query);
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
         

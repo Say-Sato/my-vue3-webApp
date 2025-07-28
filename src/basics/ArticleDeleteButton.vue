@@ -13,6 +13,7 @@ export default {
       isModalVisible: false, // モーダルの表示状態を管理
       modalMessage: '記事を削除しますか？',
       modalConfirmText: '実行', // 右ボタンの文言
+      modalCancelText: 'キャンセル',
     }
   },
   methods: {
@@ -91,6 +92,7 @@ export default {
         v-if="isModalVisible"
         :message="modalMessage"
         :confirmText="modalConfirmText"
+        :cancelText="modalCancelText"
         :isVisible="isModalVisible"
         :onConfirm="deleteArticle"
         :onCancel="onModalCancel"

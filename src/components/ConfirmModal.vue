@@ -1,45 +1,37 @@
-<script lang="ts">
-export default {
-  props: {
-    message: {
-      type: String,
-      default: 'テストメッセージ', // 文言の初期値
-    },
-    confirmText: {
-      type: String,
-      default: '決定', // 右ボタン文言の初期値
-    },
-    isVisible: {
-      type: Boolean,
-      required: true, // モーダルの表示状態を親から渡す
-    },
-    onConfirm: {
-      type: Function,
-      default: () => {}, // デフォルトは何もしない関数
-    },
-    onCancel: {
-      type: Function,
-      default: () => {}, // キャンセル時のデフォルト動作
-    },
-  },
-  methods: {
-    handleCancel() {
-      this.onCancel() // 親から渡されたキャンセルイベントを実行
-    },
-    handleConfirm() {
-      this.onConfirm() // 親から渡された確認イベントを実行
-    },
-  },
+<script setup lang="ts">
+import { defineProps } from 'vue'
+
+// props定義（最初のまま！）
+const props = defineProps<{
+  message: string
+  confirmText: string
+  cancelText: string
+  onConfirm: () => void
+  onCancel: () => void
+  isVisible: boolean
+}>()
+
+// メソッド（動作は今のコードベースに揃える）
+function handleCancel() {
+  props.onCancel()
+}
+
+function handleEnter() {
+  props.onConfirm()
 }
 </script>
 
 <template>
   <div class="modal-overlay" v-if="isVisible">
-    <div class="modal-content">
-      <p>{{ message }}</p>
+    <div class="modal-container">
+      <p class="modal-message">{{ message }}</p>
       <div class="modal-buttons">
-        <button @click="handleCancel">戻る</button>
-        <button @click="handleConfirm">{{ confirmText }}</button>
+        <button class="cancel-button" @click="handleCancel">
+          {{ cancelText }}
+        </button>
+        <button class="enter-button" @click="handleEnter">
+          {{ confirmText }}
+        </button>
       </div>
     </div>
   </div>
@@ -52,39 +44,63 @@ export default {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(255, 255, 255, 0.6);
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 9999;
 }
 
-.modal-content {
+.modal-container {
   background: white;
-  padding: 20px;
-  border-radius: 10px;
+  border-radius: 16px;
+  padding: 40px 50px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
   text-align: center;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  max-width: 500px;
+  width: 90%;
+}
+
+.modal-message {
+  margin-bottom: 30px;
+  color: #333;
+  font-size: 14px;
+  line-height: 1.7;
 }
 
 .modal-buttons {
   display: flex;
-  justify-content: space-between;
-  margin-top: 20px;
+  justify-content: center;
+  gap: 30px;
 }
 
-button {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-button:first-of-type {
+.cancel-button {
+  padding: 10px 30px;
   background: #ccc;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s;
 }
 
-button:last-of-type {
-  background: #007bff;
+.cancel-button:hover {
+  background: #bbb;
+}
+
+.enter-button {
+  padding: 10px 30px;
+  background: #111;
   color: white;
+  border: none;
+  border-radius: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.enter-button:hover {
+  background: #000;
 }
 </style>

@@ -8,6 +8,10 @@ const router = createRouter({
       redirect: '/login',
     },
     {
+      path: '/home',
+      redirect: '/home/0',
+    },
+    {
       path: '/home/:userId',
       name: 'mainTodo',
       component: () => import('@/views/MainTodo.vue'),
@@ -54,6 +58,24 @@ const router = createRouter({
       path: '/tags/:word',
       name: 'search',
       component: () => import('@/views/SearchPage.vue'),
+    },
+    {
+      path: '/register/temporary',
+      name: 'temporary',
+      component: () => import('@/views/TemporaryRegisterPage.vue'),
+    },
+    {
+      path: '/register',
+      name: 'register',
+      component: () => import('@/views/RegisterPage.vue'),
+    },
+    {
+      path: '/register/complete',
+      name: 'RegisterComplete',
+      component: () => import('@/views/RegisterCompletePage.vue'),
+      props: route => ({
+        message: route.query.message || '登録が完了しました！',
+      }),
     },
   ],
   scrollBehavior() {

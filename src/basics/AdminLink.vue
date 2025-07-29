@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useUserStore } from '@/stores/user'
+import logout from '@/components/LogoutModal.vue'
 
 const userStore = useUserStore()
 //isLigin = *ログインしているときのみtrue*
@@ -29,9 +30,7 @@ defineEmits(['close']) // 外部クリックで閉じるイベント
         <li class="nav-item">
           <router-link class="nav-link" to="/profile">設定</router-link>
         </li>
-        <li class="nav-item">
-          <span class="nav-link">ログアウト</span>
-        </li>
+        <logout />
       </span>
 
       <span class="login" v-else>

@@ -4,12 +4,12 @@ import { defineProps } from 'vue'
 import ImageItem from '../basics/APImageItem.vue'
 
 type Post = {
-  id: number
-  title: string
-  url: string
-  R18: number
-  p_name: string
-  p_photo: string
+  illust_id: number
+  illust_title: string
+  illust_R18: number
+  profile_name: string
+  profile_photo: string
+  image_url: string
 }
 
 // props を型付きで定義して、props.posts にアクセスできるようにする
@@ -18,7 +18,7 @@ const props = defineProps<{ posts: Post[] }>()
 
 <template>
   <ul class="image-gallery">
-    <ImageItem v-for="post in props.posts" :key="post.id" :post="post" />
+    <ImageItem v-for="post in props.posts" :key="post.illust_id" :post="post" />
   </ul>
 </template>
 

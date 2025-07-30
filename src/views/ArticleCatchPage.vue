@@ -3,24 +3,16 @@ import { onMounted, ref, computed } from 'vue'
 import ImageGallery from '../components/APImageGallery.vue'
 import { useUserStore } from '@/stores/user'
 
-export type Image = {
-  image_id: number
-  image_url: string
-  sort_order: number
-}
-
 export type PostResponse = {
-  id: number
-  p_id: number
-  title: string
-  tags: number[]
-  url: string
-  body: string
-  R18: number
-  s_url: string
-  p_name: string
-  p_photo: string
-  images: Image[]
+  illust_id: number
+  illust_title: string
+  illust_R18: number
+  profile_name: string
+  profile_photo: string
+  image_url: string
+  illust_profile_id: number
+  illust_body: string
+  illust_s_url: string
 }
 
 const posts = ref<PostResponse[]>([])
@@ -45,7 +37,9 @@ const processedPosts = computed(() =>
   posts.value.map(post => ({
     ...post,
     truncatedTitle:
-      post.title.length > 9 ? post.title.slice(0, 9) + '…' : post.title,
+      post.illust_title.length > 9
+        ? post.illust_title.slice(0, 9) + '…'
+        : post.illust_title,
   })),
 )
 </script>

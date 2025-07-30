@@ -3,12 +3,12 @@
 import { defineProps } from 'vue'
 
 type Post = {
-  id: number
-  title: string
-  url: string
-  R18: number
-  p_name: string
-  p_photo: string
+  illust_id: number
+  illust_title: string
+  illust_R18: number
+  profile_name: string
+  profile_photo: string
+  image_url: string
 }
 
 const props = defineProps({
@@ -20,12 +20,16 @@ const props = defineProps({
 </script>
 
 <template>
-  <li :key="props.post.id" class="image-item">
-    <router-link :to="`/posts/edit/${props.post.id}`">
+  <li :key="props.post.illust_id" class="image-item">
+    <router-link :to="`/posts/edit/${props.post.illust_id}`">
       <div class="box3">
         <div class="image-wrapper">
-          <img :src="props.post.url" :alt="props.post.title" class="image" />
-          <div v-if="props.post.R18" class="blur-overlay">R18</div>
+          <img
+            :src="props.post.image_url"
+            :alt="props.post.illust_title"
+            class="image"
+          />
+          <div v-if="props.post.illust_R18" class="blur-overlay">R18</div>
         </div>
       </div>
     </router-link>

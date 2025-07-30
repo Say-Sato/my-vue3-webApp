@@ -98,6 +98,9 @@ const handleSubmit = () => {
       </div>
       <button type="submit">ログイン</button>
     </form>
+    <router-link class="register" to="/register/temporary"
+      >新規登録</router-link
+    >
     <div v-if="errorMessage" class="error">
       <p>{{ errorMessage }}</p>
     </div>
@@ -134,5 +137,67 @@ const handleSubmit = () => {
 
 .error {
   color: red;
+}
+
+.container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+form {
+  background: white;
+  padding: 40px 30px;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  min-width: 320px;
+  max-width: 380px;
+  width: 100%;
+}
+
+.login {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+label {
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #999;
+  border-radius: 20px;
+  font-size: 14px;
+}
+
+button[type='submit'] {
+  width: 100%;
+  padding: 10px;
+  background: #000;
+  color: white;
+  font-weight: bold;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  transition: background 0.2s;
+}
+
+button[type='submit']:hover {
+  background: #222;
+}
+
+.register {
+  font-size: 12px;
+  color: #1976d2;
+  text-decoration: none;
+  display: inline-block;
+  margin-top: 8px;
 }
 </style>

@@ -23,7 +23,6 @@ export default {
     onModalConfirm() {
       const userStore = useUserStore()
 
-      console.log('モーダルの「実行」がクリックされました！')
       this.isModalVisible = false
 
       // userStoreの初期化
@@ -34,7 +33,6 @@ export default {
     },
 
     onModalCancel() {
-      console.log('モーダルがキャンセルされました。')
       this.isModalVisible = false
     },
   },

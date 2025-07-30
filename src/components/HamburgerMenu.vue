@@ -1,7 +1,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import AdminLink from '@/basics/AdminLink.vue'
-import Icon from '@/components/HamburgerMenuIcon.vue'
+import Icon from '@/basics/HamburgerMenuIcon.vue'
 
 export default defineComponent({
   name: 'HamburgerMenu',

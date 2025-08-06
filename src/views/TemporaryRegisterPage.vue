@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+//import { useRouter } from 'vue-router'
 const email = ref('')
-const router = useRouter()
+//const router = useRouter()
 
 const sendPreRegister = async () => {
   const response = await fetch(
@@ -15,9 +15,11 @@ const sendPreRegister = async () => {
   )
 
   const result = await response.json()
+  console.log('APIレスポンス:', result)
+
   if (result.success) {
     alert('確認メールを送信したわよ。ちゃんと受け取りなさい！')
-    router.push('/register/complete')
+    //router.push('/register/complete')
   } else {
     alert('メール送信に失敗したわよ。もう一回試しなさい！')
   }

@@ -12,8 +12,15 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Headers: Content-Type');
 header('Content-Type: application/json');
 
-// 以降は元のコード...
+// DB接続
+include('./BlogPDO.php');
 
+try {
+    $pdo = new PDO($dsn, $user, $password);
+} catch (PDOException $e) {
+    echo json_encode(['error' => 'DB接続失敗: ' . $e->getMessage()], JSON_UNESCAPED_UNICODE);
+    exit;
+}
 
 // POSTデータ受け取り＆デコード
 $input = json_decode(file_get_contents('php://input'), true);
@@ -24,12 +31,25 @@ $response = ['success' => false];
 if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
     // トークン生成（簡易的な例）
     $token = bin2hex(random_bytes(16));
-    $expire = time() + 86400; // 24時間（秒）
+    $expireTimestamp = time() + 86400; // 24時間（秒）
+    $expireDatetime = date('Y-m-d H:i:s', $expireTimestamp);
 
-    // 仮登録データをDBやファイルに保存する処理（必要に応じて追加）
+    // DBに仮登録データを保存
+    try {
+        $stmt = $pdo->prepare('INSERT INTO temporary_users (email, token, expire, is_used) VALUES (:email, :token, :expire, 0)');
+        $stmt->execute([
+            ':email' => $email,
+            ':token' => $token,
+            ':expire' => $expireDatetime,
+        ]);
+    } catch (PDOException $e) {
+        // 重複トークンの可能性もあるがまずは失敗として返す
+        echo json_encode(['success' => false, 'error' => 'DB保存エラー: ' . $e->getMessage()], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
 
-    // 本登録用URL
-    $registerUrl = "http://localhost:5173/register";
+    // ユニークトークン付きの本登録URLを作成
+    $registerUrl = "https://yellowokapi2.sakura.ne.jp/register?token={$token}";
 
     // メール設定
     mb_language("Japanese");
@@ -37,8 +57,7 @@ if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
 
     $subject = "本登録のご案内";
     $body = <<<EOT
-
-SPACEへのご登録ありがとうございます。
+SPACEへの仮登録ありがとうございます。
 
 ※まだ本登録は完了しておりません。ご利用いただくには本登録が必要です。
 以下のリンクから24時間以内に本登録を完了してください。
@@ -55,6 +74,9 @@ EOT;
     // メール送信
     if (mb_send_mail($email, $subject, $body, $fromHeader, "-f $fromEmail")) {
         $response['success'] = true;
+        $response['token'] = $token;
+    } else {
+        $response['error'] = 'メール送信に失敗しました。';
     }
 } else {
     $response['error'] = '不正なメールアドレスよ。ちゃんと入力しなさい！';
@@ -62,5 +84,4 @@ EOT;
 
 // レスポンス返却
 echo json_encode($response, JSON_UNESCAPED_UNICODE);
-
 ?>

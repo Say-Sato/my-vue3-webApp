@@ -51,6 +51,7 @@ const { title, msg, buttonText, onClick } = props
   color: #555;
   margin-bottom: 3rem;
   line-height: 1.6;
+  white-space: pre-line;
 }
 
 .message-button {

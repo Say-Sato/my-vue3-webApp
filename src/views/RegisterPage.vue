@@ -47,9 +47,35 @@ function togglePassword() {
   isPasswordVisible.value = !isPasswordVisible.value
 }
 
-function submitForm() {
+const submitForm = async () => {
   console.log('登録:', { loginId: loginId.value, password: password.value })
-  // ここでAPI送信など処理を書く
+
+  try {
+    const response = await fetch(
+      'https://yellowokapi2.sakura.ne.jp/Vue/api/RegisterAPI.php',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          loginId: loginId.value,
+          password: password.value,
+        }),
+      },
+    )
+
+    const result = await response.json()
+    console.log('APIレスポンス:', result)
+
+    if (result.success) {
+      alert('登録完了!')
+      router.push('/register/complete') // 任意でリダイレクト
+    } else {
+      alert(result.message || '登録失敗よ！もっとちゃんと入力しなさい！')
+    }
+  } catch (err) {
+    console.error('登録API通信エラー:', err)
+    alert('通信エラーよ！あとでやり直しなさい！')
+  }
 }
 </script>
 

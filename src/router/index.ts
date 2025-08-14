@@ -46,7 +46,7 @@ const router = createRouter({
       },
     },
     {
-      path: '/edit',
+      path: '/posts/edit',
       redirect: '/posts/0/edit',
     },
     {
@@ -91,6 +91,15 @@ const router = createRouter({
       path: '/user-favorite',
       name: 'UserFavorite',
       component: () => import('@/views/FavoritePage.vue'),
+    },
+    {
+      path: '/user-profile',
+      redirect: '/user-profile/0',
+    },
+    {
+      path: '/user-profile/:id',
+      name: 'UserProfile',
+      component: () => import('@/views/UserPage.vue'),
     },
   ],
   scrollBehavior() {

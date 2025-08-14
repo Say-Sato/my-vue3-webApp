@@ -10,6 +10,7 @@ type Post = {
   s_url: string
   p_name: string
   p_photo: string
+  showProfile: boolean
 }
 
 const props = defineProps<{ posts: Post[] }>()
@@ -37,8 +38,8 @@ const fullProfilePhoto = (p_photo: string) =>
           </h3>
         </router-link>
 
-        <router-link :to="`/posts/${post.id}`">
-          <div class="profile-info">
+        <router-link :to="`/user-profile/${post.p_id}`">
+          <div class="profile-info" v-if="post.showProfile">
             <img
               :src="fullProfilePhoto(post.p_photo)"
               :alt="post.p_name"

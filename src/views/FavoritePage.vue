@@ -15,6 +15,7 @@ export type PostResponse = {
   s_url: string
   p_name: string
   p_photo: string
+  showProfile: boolean
 }
 
 const userStore = useUserStore()
@@ -47,6 +48,11 @@ const fetchData = async () => {
     const json2 = (await res2.json()) as PostResponse[]
 
     posts.value = json2
+
+    posts.value = json2.map(post => ({
+      ...post,
+      showProfile: true, // 条件はお好みで
+    }))
   } catch (error) {
     console.error('Error fetching data:', error)
   }

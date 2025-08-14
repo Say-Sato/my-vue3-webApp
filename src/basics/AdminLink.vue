@@ -25,7 +25,9 @@ defineEmits(['close']) // 外部クリックで閉じるイベント
           <router-link class="nav-link" to="/posts">自分のイラスト</router-link>
         </li>
         <li class="nav-item">
-          <span class="nav-link">いいね一覧</span>
+          <router-link class="nav-link" to="/user-favorite"
+            >いいね一覧</router-link
+          >
         </li>
         <li class="nav-item">
           <router-link class="nav-link" to="/profile">設定</router-link>

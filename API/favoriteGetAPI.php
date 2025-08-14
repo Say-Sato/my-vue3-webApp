@@ -6,7 +6,7 @@ include('./BlogPDO.php');
 $requestUri = $_SERVER['REQUEST_URI'];
 $id = null;
 
-// URIが'/api/favoriteGetAPI.php/id'形式の場合
+// URIが'/api/FavoriteGetAPI.php/id'形式の場合
 if (preg_match('/php\/(\d+)$/', $requestUri, $matches)) {
     $id = urldecode($matches[1]);
 }
@@ -28,7 +28,7 @@ try {
 
         echo json_encode(["i_id" => $result], JSON_UNESCAPED_UNICODE);
 
-    } else {
+    } elseif($id == 0) {
         // すべてのイラストごとにいいね数を取得
         $query = "SELECT i_id, COUNT(u_id) AS liked_count
                 FROM favorite

@@ -87,6 +87,11 @@ const router = createRouter({
       name: 'InvalidToken',
       component: () => import('@/views/InvalidTokenPage.vue'),
     },
+    {
+      path: '/user-favorite',
+      name: 'UserFavorite',
+      component: () => import('@/views/FavoritePage.vue'),
+    },
   ],
   scrollBehavior() {
     // 遷移後は必ず最上部へスクロール

@@ -102,7 +102,7 @@ const props = defineProps<{ posts: Post[] }>()
   pointer-events: none;
 }
 
-@media screen and (max-width: 1100px) {
+@media screen and (max-width: 800px) {
   .image-item {
     width: calc(50% - 10px);
   }

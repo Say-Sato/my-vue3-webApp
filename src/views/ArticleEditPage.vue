@@ -1,7 +1,7 @@
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import type { Image } from '@/views/ArticleCatchPage.vue' // 型定義の場所に合わせてね
+import type { Image } from '@/views/ArticlePage.vue' // 型定義の場所に合わせてね
 import EditForm from '@/pages/EntryPageView.vue'
 import DeleteButton from '@/basics/ArticleDeleteButton.vue'
 import ImageList from '@/components/ArticleImageList.vue'

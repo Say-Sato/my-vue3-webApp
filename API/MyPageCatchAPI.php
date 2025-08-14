@@ -17,7 +17,37 @@ if ($id !== null) {
         $dbh = new PDO($dsn, $user, $password);
         
         // 指定されたIDのレコードを選択
-        $query = "SELECT * FROM illust WHERE p_id = :id ORDER BY created DESC;";
+        $query = "SELECT
+        -- illust テーブルの全カラム（エイリアス付き）
+        illust.id AS illust_id,
+        illust.p_id AS illust_profile_id,
+        illust.title AS illust_title,
+        illust.body AS illust_body,
+        illust.public AS illust_public,
+        illust.R18 AS illust_R18,
+        illust.s_url AS illust_s_url,
+
+        -- profile テーブルの必要カラム（エイリアス付き）
+        profile.id AS profile_id,
+        profile.login_id AS profile_login_id,
+        profile.name AS profile_name,
+        profile.profile_photo AS profile_photo,
+
+        -- images テーブルのURLのみ（エイリアス付き）
+        images.url AS image_url
+
+        FROM
+        illust
+        -- profileテーブルとの内部結合
+        INNER JOIN profile ON illust.p_id = profile.id
+        -- imagesテーブルとの内部結合（サムネイル1枚分）
+        INNER JOIN images ON illust.id = images.post_id
+
+        WHERE
+        -- sort_orderが0の画像（メイン画像想定）
+        images.sort_order = 0
+        AND illust.p_id = :id
+        ORDER BY illust.created DESC;";
         $stmt = $dbh->prepare($query);
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
         
@@ -29,15 +59,20 @@ if ($id !== null) {
         if ($rows) {
             foreach ($rows as $row) {
                 $data[] = [
-                    "id" => $row['id'],
-                    "p_id" => $row['p_id'],
-                    "title" => $row['title'],
-                    "tag" => $row['tag'],
-                    "url" => $row['url'],
-                    "body" => $row['body'],
-                    "R18" => $row['R18'],
-                    "public" => $row['public'],
-                    "s_url" => $row['s_url'],
+                    "illust_id"         => $row['illust_id'],
+                    "illust_profile_id" => $row['illust_profile_id'],
+                    "illust_title"      => $row['illust_title'],
+                    "illust_body"       => $row['illust_body'],
+                    "illust_public"     => $row['illust_public'],
+                    "illust_R18"        => $row['illust_R18'],
+                    "illust_s_url"      => $row['illust_s_url'],
+
+                    "profile_id"        => $row['profile_id'],
+                    "profile_login_id"  => $row['profile_login_id'],
+                    "profile_name"      => $row['profile_name'],
+                    "profile_photo"     => $row['profile_photo'],
+
+                    "image_url"         => $row['image_url'],
                 ];
             }
         } else {
@@ -49,12 +84,12 @@ if ($id !== null) {
 
         // JSON形式で返す
         header('Content-Type: application/json');
-        echo json_encode($data);
+        echo json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 
     } catch(PDOException $e) {
         // エラーメッセージもJSON形式で返す
         header('Content-Type: application/json', true, 500);
-        echo json_encode(["error" => "データベースの接続に失敗しました: " . $e->getMessage()]);
+        echo json_encode(["error" => "データベースの接続に失敗しました: " . $e->getMessage()], JSON_UNESCAPED_UNICODE);
         die();
     } finally {
         // DB接続を閉じる

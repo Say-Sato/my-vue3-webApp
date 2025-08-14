@@ -8,6 +8,10 @@ const router = createRouter({
       redirect: '/login',
     },
     {
+      path: '/home',
+      redirect: '/home/0',
+    },
+    {
       path: '/home/:userId',
       name: 'mainTodo',
       component: () => import('@/views/MainTodo.vue'),
@@ -42,7 +46,7 @@ const router = createRouter({
       },
     },
     {
-      path: '/edit',
+      path: '/posts/edit',
       redirect: '/posts/0/edit',
     },
     {
@@ -54,6 +58,48 @@ const router = createRouter({
       path: '/tags/:word',
       name: 'search',
       component: () => import('@/views/SearchPage.vue'),
+    },
+    {
+      path: '/register/temporary',
+      name: 'temporary',
+      component: () => import('@/views/TemporaryRegisterPage.vue'),
+    },
+    {
+      path: '/register',
+      name: 'register',
+      component: () => import('@/views/RegisterPage.vue'),
+    },
+    {
+      path: '/register-error',
+      name: 'RegisterError',
+      component: () => import('@/views/RegisterErrorPage.vue'),
+    },
+    {
+      path: '/register/complete',
+      name: 'RegisterComplete',
+      component: () => import('@/views/RegisterCompletePage.vue'),
+      props: route => ({
+        message: route.query.message || '登録が完了しました！',
+      }),
+    },
+    {
+      path: '/invalid-token',
+      name: 'InvalidToken',
+      component: () => import('@/views/InvalidTokenPage.vue'),
+    },
+    {
+      path: '/user-favorite',
+      name: 'UserFavorite',
+      component: () => import('@/views/FavoritePage.vue'),
+    },
+    {
+      path: '/user-profile',
+      redirect: '/user-profile/0',
+    },
+    {
+      path: '/user-profile/:id',
+      name: 'UserProfile',
+      component: () => import('@/views/UserPage.vue'),
     },
   ],
   scrollBehavior() {

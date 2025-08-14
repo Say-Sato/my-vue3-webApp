@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { onMounted, ref, computed } from 'vue'
-import ImageGallery from '../components/APImageGallery.vue'
-import { useUserStore } from '@/stores/user'
+import { useRoute } from 'vue-router'
+import ImageGallery from '../components/FVImageGallery.vue'
 
+// 元APIのレスポンス型
 export type PostResponse = {
   illust_id: number
   illust_title: string
@@ -16,9 +17,9 @@ export type PostResponse = {
   profile_login_id: string
 }
 
+const route = useRoute()
 const posts = ref<PostResponse[]>([])
-const userStore = useUserStore()
-const id = ref(userStore.id)
+const id = ref(route.params.id)
 
 const fetchData = async () => {
   try {
@@ -33,14 +34,20 @@ const fetchData = async () => {
 
 onMounted(fetchData)
 
+// 新しいImageGalleryのPost型に変換
 const processedPosts = computed(() =>
   posts.value.map(post => ({
-    ...post,
-    truncatedTitle:
-      post.illust_title.length > 9
-        ? post.illust_title.slice(0, 9) + '…'
-        : post.illust_title,
-    fullProfilePhoto: `http://yellowokapi2.sakura.ne.jp/Blog/index${post.profile_photo}`,
+    id: post.illust_id,
+    p_id: post.illust_profile_id,
+    title: post.illust_title,
+    url: post.image_url,
+    body: post.illust_body,
+    R18: post.illust_R18,
+    public: 1, // APIに無いので仮で公開状態を1に
+    s_url: post.illust_s_url,
+    p_name: post.profile_name,
+    p_photo: post.profile_photo,
+    showProfile: false, // 必要に応じて条件分岐
   })),
 )
 </script>
@@ -48,7 +55,7 @@ const processedPosts = computed(() =>
 <template>
   <div class="profile-container" v-if="posts.length > 0">
     <img
-      :src="processedPosts[0].fullProfilePhoto"
+      :src="`http://yellowokapi2.sakura.ne.jp/Blog/index${posts[0].profile_photo}`"
       alt="プロフィール画像"
       class="profile-photo"
     />
@@ -56,7 +63,6 @@ const processedPosts = computed(() =>
       <h2>{{ posts[0].profile_name }}</h2>
       <p>ID: {{ posts[0].profile_login_id }}</p>
       <p>mailaddress@example.com</p>
-      <!-- ← メールはpostsにないので仮置き -->
     </div>
     <div class="profile-actions">
       <button class="disabled-button">通知オフ</button>

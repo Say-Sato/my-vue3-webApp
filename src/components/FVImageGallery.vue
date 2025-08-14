@@ -26,19 +26,27 @@ const fullProfilePhoto = (p_photo: string) =>
 <template>
   <div class="gallery-container">
     <div v-for="post in props.posts" :key="post.id" class="card">
-      <img :src="post.url" :alt="post.title" class="card-image" />
+      <router-link :to="`/posts/${post.id}`">
+        <img :src="post.url" :alt="post.title" class="card-image" />
+      </router-link>
+
       <div class="card-body">
-        <h3 class="card-title">
-          {{ truncatedTitle(post.title) }}
-        </h3>
-        <div class="profile-info">
-          <img
-            :src="fullProfilePhoto(post.p_photo)"
-            :alt="post.p_name"
-            class="profile-photo"
-          />
-          <span class="profile-name">{{ post.p_name }}</span>
-        </div>
+        <router-link :to="`/posts/${post.id}`">
+          <h3 class="card-title">
+            {{ truncatedTitle(post.title) }}
+          </h3>
+        </router-link>
+
+        <router-link :to="`/posts/${post.id}`">
+          <div class="profile-info">
+            <img
+              :src="fullProfilePhoto(post.p_photo)"
+              :alt="post.p_name"
+              class="profile-photo"
+            />
+            <span class="profile-name">{{ post.p_name }}</span>
+          </div>
+        </router-link>
       </div>
     </div>
   </div>
@@ -98,6 +106,16 @@ const fullProfilePhoto = (p_photo: string) =>
 .profile-name {
   font-size: 12px;
   color: #555;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* プロフィール部分のリンクはblockではなくinline-flexにしてズレ防止 */
+a.profile-info {
+  display: inline-flex;
 }
 
 /* スマホ対応（1100px以下は2列表示） */

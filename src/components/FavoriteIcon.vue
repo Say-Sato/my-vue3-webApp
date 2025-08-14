@@ -26,7 +26,7 @@ export default defineComponent({
 
     const fetchLatestLikeStatus = async () => {
       try {
-        const url = `https://yellowokapi2.sakura.ne.jp/Vue/api/favoriteGetAPI.php/${likeNum.value}`
+        const url = `https://yellowokapi2.sakura.ne.jp/Vue/api/FavoriteGetAPI.php/${likeNum.value}`
         console.log(`リクエストURL (fetchLatestLikeStatus): ${url}`)
 
         const response = await fetch(url, {

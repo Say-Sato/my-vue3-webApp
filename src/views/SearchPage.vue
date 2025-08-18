@@ -1,27 +1,21 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import MTImageGallery from '../components/MTPostList.vue'
 import ImageGallery from '../components/FVImageGallery.vue'
 import SearchField from '../components/SearchField.vue'
-
-export type Image = {
-  image_id: number
-  image_url: string
-  sort_order: number
-}
 
 export type PostResponse = {
   id: number
   p_id: number
   title: string
-  tags: number[]
   url: string
   body: string
   R18: number
+  public: number
   s_url: string
   p_name: string
   p_photo: string
-  images: Image[]
+  showProfile: boolean
+  tags: number[]
 }
 
 // タグを保持する変数
@@ -44,6 +38,10 @@ const fetchData = async () => {
     console.log('APIレスポンス:', data)
 
     posts.value = data // posts 配列にデータを格納
+    posts.value = data.map((post: PostResponse) => ({
+      ...post,
+      showProfile: true,
+    }))
 
     // tags（または適切なキー）をtagsName.valueに格納
     if (data.tags) {
@@ -71,7 +69,7 @@ onMounted(fetchData)
     </div>
 
     <!-- 投稿データの表示 -->
-    <MTImageGallery :posts="posts" />
+    <ImageGallery :posts="posts" />
     <!-- posts 配列を渡す -->
   </div>
   <!-- データがなかった場合 -->

@@ -1,19 +1,27 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import ImageGallery from '../components/MTPostList.vue'
+import MTImageGallery from '../components/MTPostList.vue'
+import ImageGallery from '../components/FVImageGallery.vue'
 import SearchField from '../components/SearchField.vue'
+
+export type Image = {
+  image_id: number
+  image_url: string
+  sort_order: number
+}
 
 export type PostResponse = {
   id: number
-  p_id: string
+  p_id: number
   title: string
-  tag: string
+  tags: number[]
   url: string
   body: string
   R18: number
   s_url: string
   p_name: string
   p_photo: string
+  images: Image[]
 }
 
 // タグを保持する変数
@@ -38,8 +46,8 @@ const fetchData = async () => {
     posts.value = data // posts 配列にデータを格納
 
     // tags（または適切なキー）をtagsName.valueに格納
-    if (data.tag) {
-      tagsName.value = data.tag // ここでAPIから返されるtagsを格納
+    if (data.tags) {
+      tagsName.value = data.tags // ここでAPIから返されるtagsを格納
     }
 
     console.log('格納されたタグ:', tagsName.value)
@@ -59,11 +67,11 @@ onMounted(fetchData)
   <div v-if="posts.length > 0">
     <!-- タグの表示 -->
     <div class="post-item" v-if="posts.length > 0">
-      <h2>タグ: {{ posts[0].tag || 'error:タグ読み取り失敗' }} の検索結果</h2>
+      <h2>タグ: {{ posts[0].tags || 'error:タグ読み取り失敗' }} の検索結果</h2>
     </div>
 
     <!-- 投稿データの表示 -->
-    <ImageGallery :posts="posts" />
+    <MTImageGallery :posts="posts" />
     <!-- posts 配列を渡す -->
   </div>
   <!-- データがなかった場合 -->

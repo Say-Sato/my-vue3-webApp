@@ -25,12 +25,18 @@ defineProps({
     required: false,
     default: 'white',
   },
+  type: {
+    type: String as () => 'button' | 'submit' | 'reset',
+    required: false,
+    default: 'button', // デフォルトは普通のボタン
+  },
 })
 </script>
 
 <template>
   <button
     class="icon-button"
+    :type="type"
     :style="{
       backgroundColor: backgroundColor,
       color: textColor,

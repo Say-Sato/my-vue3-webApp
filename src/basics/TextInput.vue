@@ -132,6 +132,8 @@ export default defineComponent({
 .textInput input[type='text'],
 .textInput input[type='password'],
 .textInput textarea {
+  width: 100%; /* 幅は内容に合わせる */
+  max-width: 100%; /* 親の幅を超えないように制限 */
   margin-right: 5px;
   height: 32px;
   padding: 1px 12px;

@@ -11,7 +11,6 @@ export type PostResponse = {
   id: number
   p_id: number
   title: string
-  tags: number[]
   url: string
   body: string
   R18: number
@@ -21,7 +20,7 @@ export type PostResponse = {
   images: Image[]
 }
 
-// props に tags, images を含むように型定義
+// props に images を含むように型定義
 const props = defineProps<{ posts: PostResponse[] }>()
 </script>
 

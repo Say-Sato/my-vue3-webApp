@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref, computed } from 'vue'
 import IconButton from '@/basics/IconButton.vue'
+import LinkCopy from '@/components/LinkCopy.vue'
 import ImageGallery from '../components/APImageGallery.vue'
 import { useUserStore } from '@/stores/user'
 
@@ -74,12 +75,7 @@ const processedPosts = computed(() =>
         textColor="white"
       />
 
-      <IconButton
-        label=""
-        icon-class="fa-regular fa-copy"
-        background-color="#bcbcbc"
-        textColor="white"
-      />
+      <LinkCopy />
     </div>
   </div>
 

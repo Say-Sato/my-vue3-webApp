@@ -37,12 +37,12 @@ const userStore = useUserStore()
       />
 
       <div class="info">
-        <p class="userName">{{ props.name || 'unknown' }} さん</p>
+        <p class="userName">{{ props.name || 'unknown' }}</p>
         <p class="userId">ID: {{ userStore.login_id }}</p>
       </div>
 
       <IconButton
-        icon-class=""
+        icon-class="fa-solid fa-user-plus"
         label="フォロー"
         backgroundColor="#ccc"
         textColor="white"

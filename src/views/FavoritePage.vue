@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useUserStore } from '@/stores/user'
-
+import SectionTitle from '@/basics/SectionTitle.vue'
 import ImageGallery from '../components/FVImageGallery.vue'
 
 export type PostResponse = {
@@ -63,6 +63,7 @@ onMounted(fetchData)
 
 <template>
   <div>
+    <SectionTitle title="いいね一覧" />
     <ImageGallery :posts="posts" />
   </div>
 </template>

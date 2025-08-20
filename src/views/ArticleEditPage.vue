@@ -168,8 +168,6 @@ export default defineComponent({
 
 <template>
   <div>
-    <h2>投稿編集</h2>
-
     <EditForm
       v-if="formData"
       :title="formData.title"

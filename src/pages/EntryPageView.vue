@@ -144,7 +144,9 @@ export default defineComponent({
         <PhotoDragDrop v-model="localImages" :maxCount="10" />
       </div>
 
-      <slot name="top"></slot>
+      <div class="images-area" v-if="$slots.top">
+        <slot name="top"></slot>
+      </div>
 
       <!-- タイトル -->
       <p class="section-title">タイトル</p>
@@ -281,6 +283,11 @@ export default defineComponent({
 .form-group {
   margin-bottom: 16px;
 }
+
+.images-area {
+  margin-bottom: 20px;
+}
+
 .title,
 .tags,
 .body {

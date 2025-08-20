@@ -2,6 +2,7 @@
 import { onMounted, ref, computed } from 'vue'
 import IconButton from '@/basics/IconButton.vue'
 import LinkCopy from '@/components/LinkCopy.vue'
+import SectionTitle from '@/basics/SectionTitle.vue'
 import ImageGallery from '../components/APImageGallery.vue'
 import { useUserStore } from '@/stores/user'
 
@@ -79,21 +80,13 @@ const processedPosts = computed(() =>
     </div>
   </div>
 
-  <div class="title">
-    <h1>投稿一覧</h1>
-  </div>
+  <!-- 投稿一覧 -->
+  <SectionTitle title="投稿一覧" />
+
   <ImageGallery :posts="processedPosts" />
 </template>
 
 <style scoped>
-.title {
-  font-weight: 400;
-  font-size: 24px;
-  font-style: normal;
-  border-bottom: 2px solid #777;
-  padding-bottom: 10px;
-}
-
 .profile-container {
   display: flex;
   align-items: center;

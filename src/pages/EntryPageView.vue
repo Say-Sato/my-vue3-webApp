@@ -34,7 +34,7 @@ export default defineComponent({
     const route = useRoute()
 
     const hideEdit = computed(() => {
-      return !route.path.startsWith('/edit')
+      return !/^\/posts\/edit\/\d+$/.test(route.path)
     })
 
     const localTitle = computed<string>({
@@ -144,6 +144,8 @@ export default defineComponent({
         <PhotoDragDrop v-model="localImages" :maxCount="10" />
       </div>
 
+      <slot name="top"></slot>
+
       <!-- タイトル -->
       <p class="section-title">タイトル</p>
       <div class="form-group">
@@ -243,7 +245,12 @@ export default defineComponent({
       </div>
 
       <!-- プレビューボタン -->
-      <div class="submit-area">
+      <div class="submit-area" v-if="$slots.bottom">
+        <slot name="bottom"></slot>
+        <IconButton label="保存" type="submit" />
+      </div>
+
+      <div class="submit-area-right" v-else>
         <IconButton label="プレビュー" type="submit" />
       </div>
     </form>
@@ -352,8 +359,15 @@ export default defineComponent({
 /* 送信ボタン */
 .submit-area {
   display: flex;
-  justify-content: flex-end;
-  margin-top: 20px;
+  justify-content: space-between; /* 左右に配置 */
+  align-items: center; /* 高さ揃え */
+  margin-top: 40px;
+}
+
+.submit-area-right {
+  display: flex;
+  justify-content: flex-end; /* 右寄せ */
+  margin-top: 40px;
 }
 
 /* エラーメッセージ */

@@ -24,14 +24,14 @@ const MAX_IMAGES =
 // ファイル処理用関数
 const handleFile = (file: File) => {
   if (!file.type.startsWith('image/')) {
-    alert('画像ファイルを選んでね♡')
+    alert('画像ファイルを選んで')
     return
   }
 
   const reader = new FileReader()
   reader.onload = () => {
     if (imagePreviewUrls.value.length >= MAX_IMAGES) {
-      alert('画像は最大${MAX_IMAGES}枚までよッ！')
+      alert('画像は最大${MAX_IMAGES}枚まで')
       return
     }
 
@@ -105,14 +105,23 @@ watch(
                 handleFile(file)
               })
           }
-          input.value = '' // ← ここ追加！！
+          input.value = ''
         }
       "
     />
 
-    <!-- 1枚以上あるとき -->
-    <div class="preview-scroll">
-      <!-- 画像がmaxCount未満なら先頭に追加ボタン -->
+    <!-- 画像が0枚のとき -->
+    <div v-if="imagePreviewUrls.length === 0" class="upload-placeholder">
+      <label class="click-area image-button" @click="fileInputRef?.click()">
+        画像を追加
+      </label>
+      <p class="upload-info" v-if="maxCount !== undefined && maxCount > 1">
+        JPEG/PNG<br />{{ maxCount }}枚までアップロード可能
+      </p>
+    </div>
+
+    <!-- 画像が1枚以上あるとき -->
+    <div v-else class="preview-scroll">
       <label
         v-if="imagePreviewUrls.length < MAX_IMAGES"
         class="click-area image-button"
@@ -132,64 +141,83 @@ watch(
     </div>
   </div>
 
-  <p>登録画像数: {{ imagePreviewUrls.length }}/{{ MAX_IMAGES }}</p>
+  <!-- 👇 登録画像数を drop-area 内右下に重ねる -->
+  <p class="upload-count-overlay">
+    {{ imagePreviewUrls.length }}/{{ MAX_IMAGES }}
+  </p>
 </template>
 
 <style scoped>
-.image-upload {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
 .drop-area {
-  border: 2px dashed #999;
   padding: 20px;
-  height: 200px; /* ← 明示的に縦幅を指定 */
+  height: 200px;
   text-align: center;
-  background: #f9f9f9;
+  background: #ddd;
+  border-radius: 8px;
   transition: 0.2s ease;
+  position: relative; /* ← これで右下配置できる */
 }
 
-.drop-area:hover {
-  border-color: #333;
-  background: #eee;
+/* 画像数カウントを右下に配置 */
+.upload-count-overlay {
+  position: relative;
+  bottom: 230px;
+  left: 10px;
+  font-size: 12px; /* ← 小さめ文字 */
+  color: #666;
+  margin: 0;
+  pointer-events: none; /* 他の操作を邪魔しない */
+  z-index: 10; /* 高いz-indexで前面に表示 */
+}
+
+/* 画像0枚のとき中央にボタンを配置 */
+.upload-placeholder {
+  display: flex;
+  flex-direction: column; /* ボタンと文言を縦に並べる */
+  align-items: center; /* 横方向中央寄せ */
+  justify-content: center; /* drop-area 高さの中央に配置 */
+  bottom: 100px;
+  height: 100%;
+}
+
+.upload-info {
+  margin-top: 8px; /* ボタンとの間隔 */
+  text-align: center;
+  font-size: 14px; /* upload-count-overlayより一段階大きい */
+  color: #666;
+  line-height: 1.3;
 }
 
 .preview-scroll {
   display: flex;
   align-items: center;
-  justify-content: flex-start; /* 横方向の初期位置は先頭にしておく */
+  justify-content: flex-start;
   flex-direction: row;
   overflow-x: auto;
-  overflow-y: hidden; /* 👈 これで縦スクロール禁止ッ！ */
+  overflow-y: hidden;
   gap: 10px;
   padding: 10px 0;
-  height: 180px; /* 👈 高さを固定して、画像あり・なしで同じ見た目にする！ */
+  height: 180px;
 }
 
 .image-button {
-  width: 100px;
-  height: 100px;
-  min-width: 100px;
+  width: 120px;
+  height: 120px;
+  min-width: 120px;
   display: flex;
   align-items: center;
   justify-content: center;
-  white-space: pre-line;
   font-weight: bold;
   font-size: 14px;
   text-align: center;
   color: #555;
-  line-height: 6;
+  background-color: #fff;
+  border: 1px dashed #aaa;
+  border-radius: 8px;
 }
 
 .click-area {
   cursor: pointer;
-  display: inline-block;
-  padding: 10px;
-  border: 1px dashed #aaa;
-  border-radius: 8px;
-  background-color: #fff;
   transition: background-color 0.3s ease;
 }
 
@@ -199,18 +227,15 @@ watch(
 
 .image-preview-wrapper {
   position: relative;
-  height: 180px; /* drop-area の高さと合わせて */
+  height: 180px;
   display: flex;
-  align-items: center; /* ← これで縦方向中央揃え */
-  justify-content: center; /* 横方向も中央揃え（必要なら） */
-  padding: 0; /* 念のため余白なしに */
-  box-sizing: border-box; /* 枠のサイズにpaddingが含まれるように */
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
 }
 
 .thumb {
-  height: auto;
-  max-height: 100%; /* 枠内に収まる最大高さ */
-  width: auto;
+  max-height: 100%;
   object-fit: contain;
   border: 1px solid #ccc;
   flex-shrink: 0;
@@ -232,7 +257,6 @@ watch(
   padding: 0;
   font-size: 16px;
   color: #333;
-  transition: background-color 0.2s ease;
 }
 
 .remove-button:hover {

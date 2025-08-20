@@ -142,8 +142,6 @@ export default defineComponent({
       <!-- 画像アップロード -->
       <div v-if="hideEdit" class="image-upload">
         <PhotoDragDrop v-model="localImages" :maxCount="10" />
-        <p class="upload-info">JPEG/PNG<br />10枚までアップロード可能</p>
-        <span class="upload-count">{{ localImages.length }}/10</span>
       </div>
 
       <!-- タイトル -->
@@ -184,18 +182,13 @@ export default defineComponent({
         <ul>
           <li v-for="(tag, index) in tagList" :key="index" class="tag-item">
             <span class="tag-label">{{ tag }}</span>
-            <IconButton
-              label="×"
-              class="tag-remove"
-              background-color="#cccccc"
-              textColor="white"
-              @click="removeTag(index)"
-            />
+            <button class="tag-remove" @click="removeTag(index)">×</button>
           </li>
         </ul>
       </div>
 
       <!-- 本文 -->
+      <p class="section-title">本文</p>
       <div class="form-group">
         <TextInput
           id="body"
@@ -277,27 +270,6 @@ export default defineComponent({
 }
 
 /* 画像アップロード */
-.image-upload {
-  position: relative;
-  background: #f0f0f0;
-  border-radius: 8px;
-  padding: 30px 0;
-  text-align: center;
-  margin-bottom: 16px;
-}
-.upload-info {
-  margin-top: 8px;
-  font-size: 12px;
-  color: #666;
-}
-.upload-count {
-  position: absolute;
-  bottom: 8px;
-  right: 12px;
-  font-size: 12px;
-  color: #333;
-}
-
 /* 共通フォーム要素 */
 .form-group {
   margin-bottom: 16px;
@@ -324,23 +296,40 @@ export default defineComponent({
 }
 
 .tag-list ul {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  padding: 0;
-  margin: 12px 0;
   list-style: none;
+  padding: 8px;
+  margin: 0;
 }
+
 .tag-item {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  background: #f5f5f5;
-  border-radius: 16px;
+  background-color: #d8d8d8;
+  color: #333;
+  border-radius: 12px;
   padding: 4px 8px;
+  margin: 4px;
+  position: relative;
   font-size: 14px;
 }
+
 .tag-label {
-  margin-right: 4px;
+  margin-right: 6px;
+}
+
+.tag-remove {
+  background-color: white;
+  color: black;
+  border: none;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  font-size: 12px;
+  line-height: 18px;
+  text-align: center;
+  cursor: pointer;
+  padding: 0;
+  transition: background-color 0.2s;
 }
 
 /* 本文 */

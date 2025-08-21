@@ -1,10 +1,9 @@
-<!-- components/CommentSection.vue -->
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, computed, watch } from 'vue'
 import TextInput from '@/basics/TextInput.vue'
 import IconButton from '@/basics/IconButton.vue'
 
-export type PostResponse = {
+export type comment = {
   id: number
   user_id: number
   body: string
@@ -14,12 +13,18 @@ export type PostResponse = {
   comment_count: number
 }
 
-// ✅ propsを定義（nameとid）
+export type PostResponse = {
+  success: boolean
+  comment: comment[]
+}
+
+// ✅ propsを定義（post_id）
 const props = defineProps<{
   post_id: number
 }>()
 
-const posts = ref<PostResponse[]>([])
+const posts = ref<PostResponse | null>(null)
+const showAll = ref(false)
 
 const fetchData = async () => {
   try {
@@ -27,19 +32,48 @@ const fetchData = async () => {
       `https://yellowokapi2.sakura.ne.jp/Vue/api/CommentAllCatchAPI.php/${props.post_id}`,
     )
     posts.value = await response.json()
+    console.log(posts.value)
   } catch (error) {
     console.error('Error fetching data:', error)
   }
 }
 
-onMounted(fetchData)
+onMounted(() => {
+  // マウント時にすでに post_id が入っていれば即 fetch
+  if (props.post_id) {
+    fetchData()
+  }
+})
+
+// props.post_id がセットされたら fetch 実行
+watch(
+  () => props.post_id,
+  newId => {
+    if (newId) {
+      fetchData()
+    }
+  },
+)
+
+// ✅ 表示するコメント（3件 or 全件）
+const visibleComments = computed(() => {
+  if (!posts.value) return []
+  return showAll.value ? posts.value.comment : posts.value.comment.slice(0, 3)
+})
+
+// ✅ コメント数
+const commentCount = computed(() =>
+  posts.value ? posts.value.comment.length : 0,
+)
 </script>
 
 <template>
   <div class="container">
-    <p class="count">コメント（3件）</p>
+    <!-- コメント数 -->
+    <p class="count">
+      コメント（{{ commentCount }}件）,id:({{ props.post_id }})
+    </p>
 
-    <!-- コメント入力フォーム -->
     <div class="comment-group">
       <TextInput
         text="コメントを書く"
@@ -52,20 +86,21 @@ onMounted(fetchData)
     </div>
 
     <!-- コメントリスト -->
-    <div class="comment-list">
-      <template v-for="i in 3" :key="i">
+    <div
+      v-if="commentCount > 0"
+      class="comment-list"
+      :class="{ scrollable: showAll && commentCount > 10 }"
+    >
+      <template v-for="c in visibleComments" :key="c.id">
         <div class="comment-item">
           <img
-            src="https://placehold.jp/40x40.png"
+            :src="c.profile_photo || 'https://placehold.jp/40x40.png'"
             alt="ユーザーアイコン"
             class="comment-icon"
           />
           <div class="comment-body">
-            <p class="comment-user">田原あろえ</p>
-            <!-- 修正対象 -->
-            <p class="comment-text">
-              テスト仮メッセージああああああああああああああああ
-            </p>
+            <p class="comment-user">{{ c.profile_name }}</p>
+            <p class="comment-text">{{ c.body }}</p>
             <div class="comment-actions">
               <span class="comment-report">通報</span>
               <span class="comment-reply">返信</span>
@@ -74,7 +109,16 @@ onMounted(fetchData)
         </div>
       </template>
     </div>
-    <p class="show-all-comments">すべてのコメントを表示</p>
+    <p v-else class="no-comments">コメントはありません</p>
+
+    <!-- 「すべてのコメントを表示」リンク -->
+    <p
+      v-if="!showAll && commentCount > 3"
+      class="show-all-comments"
+      @click="showAll = true"
+    >
+      すべてのコメントを表示
+    </p>
   </div>
 </template>
 
@@ -122,6 +166,13 @@ onMounted(fetchData)
   gap: 12px;
 }
 
+/* ✅ 10件を超える場合にスクロール可能にする */
+.comment-list.scrollable {
+  max-height: 400px; /* 好きな高さに調整可能 */
+  overflow-y: auto;
+  padding-right: 6px; /* スクロールバー用の余白 */
+}
+
 /* コメント1件 */
 .comment-item {
   display: flex;
@@ -143,13 +194,11 @@ onMounted(fetchData)
   flex-direction: column;
 }
 
-/* ユーザー名 */
 .comment-user {
   font-weight: bold;
   margin: 0 0 6px;
 }
 
-/* コメントテキスト（修正ポイント） */
 .comment-text {
   width: 100%;
   margin: 0 0 6px;
@@ -160,7 +209,6 @@ onMounted(fetchData)
   box-sizing: border-box;
 }
 
-/* アクション */
 .comment-actions {
   font-size: 12px;
   color: #666;

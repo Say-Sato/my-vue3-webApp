@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref, computed, watch } from 'vue'
+import { useUserStore } from '@/stores/user'
 import TextInput from '@/basics/TextInput.vue'
 import IconButton from '@/basics/IconButton.vue'
 
@@ -23,8 +24,44 @@ const props = defineProps<{
   post_id: number
 }>()
 
+const userStore = useUserStore()
 const posts = ref<PostResponse | null>(null)
 const showAll = ref(false)
+// 入力値
+const commentBody = ref('')
+
+// コメント送信処理
+const submitComment = async () => {
+  if (!commentBody.value.trim()) {
+    alert('コメントを入力してください')
+    return
+  }
+  const formData = new FormData()
+  formData.append('post_id', props.post_id.toString())
+  formData.append('user_id', userStore.id.toString())
+  formData.append('body', commentBody.value)
+
+  try {
+    const response = await fetch(
+      'https://yellowokapi2.sakura.ne.jp/Vue/api/CommentInsertAPI.php',
+      {
+        method: 'POST',
+        body: formData,
+      },
+    )
+    const result = await response.json()
+    console.log('投稿結果' + result)
+    if (result.success) {
+      alert('コメント送信成功！')
+      commentBody.value = '' // 送信後クリア
+    } else {
+      alert(result.error || '送信に失敗しました')
+    }
+  } catch (error) {
+    console.error('Error:', error)
+    alert('通信エラーです:')
+  }
+}
 
 const fetchData = async () => {
   try {
@@ -76,13 +113,18 @@ const commentCount = computed(() =>
 
     <div class="comment-group">
       <TextInput
+        v-model="commentBody"
         text="コメントを書く"
         type="textarea"
         class="comment-textarea"
       />
     </div>
     <div class="comment-submit">
-      <IconButton label="送信" backgroundColor="#cbcbcb" />
+      <IconButton
+        label="送信"
+        backgroundColor="#cbcbcb"
+        @click="submitComment"
+      />
     </div>
 
     <!-- コメントリスト -->
@@ -207,6 +249,11 @@ const commentCount = computed(() =>
   border-radius: 6px;
   padding: 8px;
   box-sizing: border-box;
+
+  /* ここを追加 */
+  white-space: normal; /* 自動改行を有効化 */
+  word-break: break-word; /* 単語途中でも折り返す */
+  overflow-wrap: break-word; /* こちらも折り返し補助 */
 }
 
 .comment-actions {

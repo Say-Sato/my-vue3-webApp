@@ -12,7 +12,7 @@ try {
     $dbh = new PDO($dsn, $user, $password);
     $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
-    echo json_encode(['error' => 'DB接続失敗', 'message' => $e->getMessage()]);
+    echo json_encode(['error' => 'DB接続失敗', 'message' => $e->getMessage()], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
@@ -35,7 +35,7 @@ if ($id) {
             'comment' => $result
         ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
     } catch (PDOException $e) {
-        echo json_encode(['error' => 'コメント取得失敗', 'message' => $e->getMessage()]);
+        echo json_encode(['error' => 'コメント取得失敗', 'message' => $e->getMessage()], JSON_UNESCAPED_UNICODE);
     }
 } else {
     try {
@@ -50,7 +50,7 @@ if ($id) {
             'comment' => $result
         ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
     } catch (PDOException $e) {
-        echo json_encode(['error' => 'コメント取得失敗', 'message' => $e->getMessage()]);
+        echo json_encode(['error' => 'コメント取得失敗', 'message' => $e->getMessage()], JSON_UNESCAPED_UNICODE);
     }
 }
 ?>

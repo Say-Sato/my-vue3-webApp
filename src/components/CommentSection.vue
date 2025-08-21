@@ -130,12 +130,15 @@ const commentCount = computed(() =>
       class="comment-list"
       :class="{ scrollable: showAll && commentCount > 10 }"
     >
-      <template v-for="c in visibleComments" :key="c.id">
-        <div class="comment-item">
+      <template v-for="c in visibleComments" :key="c.comment_id">
+        <!-- 削除されていないコメント -->
+        <div class="comment-item" v-if="!c.deleted_at">
           <img
             :src="
-              'https://yellowokapi2.sakura.ne.jp/Blog/index' +
-                c.profile_photo || 'https://placehold.jp/40x40.png'
+              c.profile_photo
+                ? 'https://yellowokapi2.sakura.ne.jp/Blog/index' +
+                  c.profile_photo
+                : 'https://placehold.jp/40x40.png'
             "
             alt="ユーザーアイコン"
             class="comment-icon"
@@ -145,7 +148,27 @@ const commentCount = computed(() =>
             <p class="comment-text">{{ c.comment_body }}</p>
             <div class="comment-actions">
               <!--<span class="comment-report">通報</span>
-              <span class="comment-reply">返信</span>-->
+        <span class="comment-reply">返信</span>-->
+            </div>
+          </div>
+        </div>
+
+        <!-- 削除済コメント -->
+        <div class="comment-item" v-else>
+          <img
+            src="https://placehold.jp/40x40.png"
+            alt="削除ユーザーアイコン"
+            class="comment-icon"
+          />
+          <div class="comment-body">
+            <p class="comment-user">deleted</p>
+            <p class="comment-text" style="font-style: italic; color: #999">
+              このコメントは削除されました
+            </p>
+            <div class="comment-actions">
+              <span style="font-size: 0.8em; color: #bbb"
+                >※このコメントは削除済みです</span
+              >
             </div>
           </div>
         </div>

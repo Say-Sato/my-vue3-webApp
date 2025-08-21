@@ -5,13 +5,12 @@ import TextInput from '@/basics/TextInput.vue'
 import IconButton from '@/basics/IconButton.vue'
 
 export type comment = {
-  id: number
+  comment_id: number
   user_id: number
-  body: string
+  comment_body: string
   profile_photo: string
   profile_name: string
   deleted_at: string
-  comment_count: number
 }
 
 export type PostResponse = {
@@ -52,8 +51,8 @@ const submitComment = async () => {
     const result = await response.json()
     console.log('投稿結果' + result)
     if (result.success) {
-      alert('コメント送信成功！')
-      commentBody.value = '' // 送信後クリア
+      posts.value?.comment.push(result.comment) // 追加
+      commentBody.value = ''
     } else {
       alert(result.error || '送信に失敗しました')
     }
@@ -107,9 +106,7 @@ const commentCount = computed(() =>
 <template>
   <div class="container">
     <!-- コメント数 -->
-    <p class="count">
-      コメント（{{ commentCount }}件）,id:({{ props.post_id }})
-    </p>
+    <p class="count">コメント( {{ commentCount }} )</p>
 
     <div class="comment-group">
       <TextInput
@@ -136,16 +133,19 @@ const commentCount = computed(() =>
       <template v-for="c in visibleComments" :key="c.id">
         <div class="comment-item">
           <img
-            :src="c.profile_photo || 'https://placehold.jp/40x40.png'"
+            :src="
+              'https://yellowokapi2.sakura.ne.jp/Blog/index' +
+                c.profile_photo || 'https://placehold.jp/40x40.png'
+            "
             alt="ユーザーアイコン"
             class="comment-icon"
           />
           <div class="comment-body">
             <p class="comment-user">{{ c.profile_name }}</p>
-            <p class="comment-text">{{ c.body }}</p>
+            <p class="comment-text">{{ c.comment_body }}</p>
             <div class="comment-actions">
-              <span class="comment-report">通報</span>
-              <span class="comment-reply">返信</span>
+              <!--<span class="comment-report">通報</span>
+              <span class="comment-reply">返信</span>-->
             </div>
           </div>
         </div>

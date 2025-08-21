@@ -23,7 +23,17 @@ if (preg_match('/php\/(\d+)$/', $requestUri, $matches)) {
 
 if ($id) {
     try {
-        $stmt = $dbh->prepare("SELECT * FROM comments WHERE post_id = :post_id");
+        $stmt = $dbh->prepare("SELECT
+            comments.id as comment_id,
+            comments.user_id as user_id,
+            comments.body as comment_body,
+            comments.deleted_at as deleted_at,
+            profile.profile_photo as profile_photo,
+            profile.name as profile_name
+            FROM comments
+            INNER JOIN profile ON comments.user_id = profile.id
+            WHERE comments.post_id = :post_id
+            ORDER BY comments.created_at ASC;");
         $stmt->execute([
             ':post_id' => $id,
         ]);
@@ -39,7 +49,16 @@ if ($id) {
     }
 } else {
     try {
-        $stmt = $dbh->prepare("SELECT * FROM comments");
+        $stmt = $dbh->prepare("SELECT
+            comments.id as comment_id,
+            comments.user_id as user_id,
+            comments.body as comment_body,
+            comments.deleted_at as deleted_at,
+            profile.profile_photo as profile_photo,
+            profile.name as profile_name
+            FROM comments
+            INNER JOIN profile ON comments.user_id = profile.id
+            ORDER BY comments.created_at ASC;");
         $stmt->execute([
         ]);
         

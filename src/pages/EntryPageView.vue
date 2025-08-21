@@ -2,6 +2,7 @@
 import { watch, defineComponent, ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import TextInput from '@/basics/TextInput.vue'
+import IconButton from '@/basics/IconButton.vue'
 import RadioInput from '@/basics/RadioInput.vue'
 import PhotoDragDrop from '@/basics/PhotoDragDrop.vue'
 
@@ -10,6 +11,7 @@ export default defineComponent({
     TextInput,
     RadioInput,
     PhotoDragDrop,
+    IconButton,
   },
   props: {
     title: String,
@@ -32,7 +34,7 @@ export default defineComponent({
     const route = useRoute()
 
     const hideEdit = computed(() => {
-      return !route.path.startsWith('/edit')
+      return !/^\/posts\/edit\/\d+$/.test(route.path)
     })
 
     const localTitle = computed<string>({
@@ -135,56 +137,76 @@ export default defineComponent({
 </script>
 
 <template>
-  <form @submit.prevent="handleSubmit">
-    <div v-if="hideEdit">
-      <label for="image">画像:</label>
-      <PhotoDragDrop v-model="localImages" :maxCount="10" />
-    </div>
+  <div class="form-container">
+    <form @submit.prevent="handleSubmit" class="upload-form">
+      <!-- 画像アップロード -->
+      <div v-if="hideEdit" class="image-upload">
+        <PhotoDragDrop v-model="localImages" :maxCount="10" />
+      </div>
 
-    <div>
-      <label for="title">タイトル</label>
-      <TextInput
-        id="title"
-        class="title"
-        name="title"
-        v-model="localTitle"
-        required
-      />
-    </div>
+      <div class="images-area" v-if="$slots.top">
+        <slot name="top"></slot>
+      </div>
 
-    <div v-if="errorMessage" class="error-message">
-      {{ errorMessage }}
-    </div>
+      <!-- タイトル -->
+      <p class="section-title">タイトル</p>
+      <div class="form-group">
+        <TextInput
+          id="title"
+          class="title"
+          name="title"
+          placeholder="タイトル"
+          v-model="localTitle"
+          required
+        />
+      </div>
 
-    <div>
-      <label for="tags">タグ</label>
-      <TextInput id="tags" class="tags" name="tags" v-model="tagInput" />
-      <button type="button" @click="addTag">タグ追加</button>
-    </div>
-    <div>
-      <p>登録済みタグ:</p>
-      <ul>
-        <li v-for="(tag, index) in tagList" :key="index">
-          {{ tag }}
-          <button type="button" @click="removeTag(index)">削除</button>
-        </li>
-      </ul>
-    </div>
+      <!-- エラーメッセージ -->
+      <div v-if="errorMessage" class="error-message">
+        {{ errorMessage }}
+      </div>
 
-    <div>
-      <label for="body">本文</label>
-      <TextInput
-        id="body"
-        class="body"
-        name="body"
-        type="textarea"
-        v-model="localBody"
-      />
-    </div>
+      <!-- タグ入力 -->
+      <p class="section-title">タグ</p>
+      <div class="form-group tag-input">
+        <TextInput
+          id="tags"
+          class="tags"
+          name="tags"
+          placeholder="タグ"
+          v-model="tagInput"
+        />
+        <div class="add-button-wrapper">
+          <IconButton label="追加" class="add-button" @click="addTag" />
+        </div>
+      </div>
 
-    <p>公開設定</p>
-    <div class="radio-buttons">
-      <span class="radio">
+      <!-- 登録済みタグ -->
+      <div class="tag-list">
+        <ul>
+          <li v-for="(tag, index) in tagList" :key="index" class="tag-item">
+            <span class="tag-label">{{ tag }}</span>
+            <button class="tag-remove" @click="removeTag(index)">×</button>
+          </li>
+        </ul>
+      </div>
+
+      <!-- 本文 -->
+      <p class="section-title">本文</p>
+      <div class="form-group">
+        <TextInput
+          id="body"
+          class="body"
+          name="body"
+          type="textarea"
+          placeholder="本文"
+          v-model="localBody"
+        />
+      </div>
+
+      <!-- 公開設定 -->
+      <p class="section-title">公開設定</p>
+      <div class="radio-buttons">
         <RadioInput
           id="public"
           name="publish"
@@ -193,8 +215,6 @@ export default defineComponent({
           v-model="localPublish"
           required
         />
-      </span>
-      <span class="radio">
         <RadioInput
           id="private"
           name="publish"
@@ -203,12 +223,11 @@ export default defineComponent({
           v-model="localPublish"
           required
         />
-      </span>
-    </div>
+      </div>
 
-    <p>年齢制限</p>
-    <div class="radio-buttons">
-      <span class="radio">
+      <!-- 年齢制限 -->
+      <p class="section-title">年齢制限</p>
+      <div class="radio-buttons">
         <RadioInput
           id="allAges"
           name="AdultsOnly"
@@ -217,8 +236,6 @@ export default defineComponent({
           v-model="localAdultsOnly"
           required
         />
-      </span>
-      <span class="radio">
         <RadioInput
           id="adultsOnly"
           name="AdultsOnly"
@@ -227,20 +244,142 @@ export default defineComponent({
           v-model="localAdultsOnly"
           required
         />
-      </span>
-    </div>
-    <button type="submit">プレビュー</button>
-  </form>
+      </div>
+
+      <!-- プレビューボタン -->
+      <div class="submit-area" v-if="$slots.bottom">
+        <slot name="bottom"></slot>
+        <IconButton label="保存" type="submit" />
+      </div>
+
+      <div class="submit-area-right" v-else>
+        <IconButton label="プレビュー" type="submit" />
+      </div>
+    </form>
+  </div>
 </template>
 
 <style scoped>
-ul {
-  list-style: none;
-  padding: 0;
-}
-li {
+/* 全体のセンター揃え */
+.form-container {
   display: flex;
+  justify-content: center;
+  padding: 20px;
+}
+
+/* 白いカード風 */
+.upload-form {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  padding: 24px;
+  width: 100%;
+  max-width: 600px;
+  box-sizing: border-box;
+}
+
+/* 画像アップロード */
+/* 共通フォーム要素 */
+.form-group {
+  margin-bottom: 16px;
+}
+
+.images-area {
+  margin-bottom: 20px;
+}
+
+.title,
+.tags,
+.body {
+  width: 100%;
+}
+
+/* タグ */
+/* タグ入力欄をタイトルと同じ幅にする */
+.tag-input {
+  display: flex;
+  flex-direction: column;
+  gap: 8px; /* 入力欄とボタンの間隔 */
+  margin-bottom: 16px; /* 他要素との間隔を一定に */
+}
+
+/* 追加ボタン */
+.add-button-wrapper {
+  display: flex;
+  justify-content: flex-end; /* 右寄せ配置 */
+}
+
+.tag-list ul {
+  list-style: none;
+  padding: 8px;
+  margin: 0;
+}
+
+.tag-item {
+  display: inline-flex;
   align-items: center;
-  gap: 5px;
+  background-color: #d8d8d8;
+  color: #333;
+  border-radius: 12px;
+  padding: 4px 8px;
+  margin: 4px;
+  position: relative;
+  font-size: 14px;
+}
+
+.tag-label {
+  margin-right: 6px;
+}
+
+.tag-remove {
+  background-color: white;
+  color: black;
+  border: none;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  font-size: 12px;
+  line-height: 18px;
+  text-align: center;
+  cursor: pointer;
+  padding: 0;
+  transition: background-color 0.2s;
+}
+
+/* 本文 */
+.body {
+  min-height: 100px;
+}
+
+/* ラジオボタン */
+.section-title {
+  margin: 12px 0 6px;
+  font-weight: bold;
+  font-size: 14px;
+}
+.radio-buttons {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 12px;
+}
+
+/* 送信ボタン */
+.submit-area {
+  display: flex;
+  justify-content: space-between; /* 左右に配置 */
+  align-items: center; /* 高さ揃え */
+  margin-top: 40px;
+}
+
+.submit-area-right {
+  display: flex;
+  justify-content: flex-end; /* 右寄せ */
+  margin-top: 40px;
+}
+
+/* エラーメッセージ */
+.error-message {
+  color: red;
+  margin-bottom: 12px;
 }
 </style>

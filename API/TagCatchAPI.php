@@ -1,6 +1,8 @@
 <?php
 //TagCatchiAPI.php
-header('Content-Type: application/json');
+header("Access-Control-Allow-Origin: *"); // 全てのオリジンを許可（開発用）
+header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type");
 include('./BlogPDO.php');
 
 // リクエストURIからタグを取得
@@ -9,8 +11,6 @@ $tag = null;
 
 if (preg_match('/php\/(.+)$/', $requestUri, $matches)) {
     $tag = urldecode($matches[1]);
-} elseif() {
-    //他ファイルで利用されるなど$tagを直接指定された場合
 }
 
 $tagList = $tag ? explode(',', $tag) : []; // 空チェック
@@ -110,7 +110,7 @@ if (count($tagList) > 0) {
 
         // イラストデータにタグ情報を追加
         foreach ($illusts as &$illust) {
-            $illust['tag'] = $tagWord;
+            $illust['tags'] = $tagWord;
         }
 
         // 結果を返す
@@ -134,4 +134,3 @@ if (count($tagList) > 0) {
     die();
 }
 ?>
-

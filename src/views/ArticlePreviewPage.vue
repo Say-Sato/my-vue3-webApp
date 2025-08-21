@@ -105,18 +105,11 @@ export default defineComponent({
 </script>
 
 <template>
-  <div class="preview">
-    <h3>プレビュー</h3>
-    <div>
-      <h4>{{ formTitle }}</h4>
-      <p>{{ formUserId || 'ID：null' }}</p>
-      <p>{{ formTags || 'タグ：なし' }}</p>
-      <p>{{ formBody || '本文：なし' }}</p>
-      <p>publish:{{ formPublish }}</p>
-      <p>adultsOnly:{{ formAdultsOnly }}</p>
-
-      <!-- 画像プレビュースライダー -->
-      <div class="image-preview-wrapper" v-if="previewUrls.length">
+  <div class="main-layout">
+    <!-- メインエリア -->
+    <div class="container main">
+      <!-- 画像スライダー -->
+      <div class="image-container" v-if="previewUrls.length">
         <div class="image-row">
           <img
             v-for="(url, index) in previewUrls"
@@ -127,31 +120,64 @@ export default defineComponent({
           />
         </div>
       </div>
+
+      <!-- タイトル・ユーザーID -->
+      <div class="title-favorite-wrapper">
+        <h1 class="title">{{ formTitle || 'タイトルなし' }}</h1>
+        <span class="favorite">ID: {{ formUserId || 'null' }}</span>
+      </div>
+
+      <!-- 本文 -->
+      <div class="dtl">{{ formBody || '本文が入っていません' }}</div>
+
+      <!-- タグ -->
+      <div class="article-tags">
+        タグ：<span v-if="formTags && formTags.length">{{ formTags }}</span>
+        <span v-else>なし</span>
+      </div>
+
+      <!-- 送信フォーム -->
+      <form @submit.prevent="handleSubmit">
+        <button type="submit">送信</button>
+      </form>
+
+      <!-- 戻るボタン -->
+      <button @click="$emit('reset')">戻る</button>
     </div>
 
-    <form @submit.prevent="handleSubmit">
-      <button type="submit">送信</button>
-    </form>
-    <button @click="$emit('reset')">戻る</button>
+    <!-- サイドエリア（幅が広い場合のみ表示、仮値） -->
+    <div class="sidebar">
+      <div class="profile">投稿者: 仮ユーザー</div>
+      <div class="sidebar-divider"></div>
+      <div class="comment">コメントエリア</div>
+    </div>
   </div>
 </template>
 
 <style scoped>
-.preview {
-  background-color: #f4f4f4;
-  padding: 20px;
-  margin-top: 20px;
-  border-radius: 5px;
-  width: 90%;
-  height: 80%;
-  margin: 0 auto;
+.main-layout {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: flex-start;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.image-preview-wrapper {
-  overflow-x: auto;
-  white-space: nowrap;
-  padding-bottom: 10px;
+.container.main {
+  width: calc(100% - 300px);
+  padding: 20px;
+  margin-left: -70px;
+  margin-right: 20px;
+  border-right: 2px dashed rgba(0, 0, 0, 0.2);
+  box-sizing: border-box;
+}
+
+.image-container {
+  position: relative;
   margin-top: 10px;
+  display: flex;
+  overflow-x: auto;
 }
 
 .image-row {
@@ -162,5 +188,77 @@ export default defineComponent({
 .preview-image {
   max-height: 150px;
   border-radius: 5px;
+}
+
+.title-favorite-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: bold;
+  margin: 0;
+}
+
+.favorite {
+  font-size: 14px;
+  color: #666;
+}
+
+.dtl {
+  line-height: 1.5;
+  margin: 16px 0;
+}
+
+.dtl::after {
+  content: '';
+  display: block;
+  width: 100%;
+  height: 1px;
+  background-color: #ccc;
+  margin: 24px 0 10px;
+}
+
+.article-tags {
+  margin-bottom: 16px;
+}
+
+.prev-next-wrapper {
+  margin: 20px 0;
+  display: flex;
+  gap: 10px;
+}
+
+.sidebar {
+  width: 250px;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.sidebar-divider {
+  width: 280px;
+  height: 1px;
+  background-color: #ccc;
+  margin: 30px 0 10px;
+}
+
+/* モバイル対応 */
+@media screen and (max-width: 800px) {
+  .main-layout {
+    flex-direction: column;
+    align-items: center;
+  }
+  .container.main {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    border-right: none;
+  }
+  .sidebar {
+    display: none;
+  }
 }
 </style>

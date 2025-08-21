@@ -94,7 +94,7 @@ onBeforeUnmount(() => {
         :p_photo="post?.p_photo"
       />
       <div class="sidebar-divider"></div>
-      <Comment />
+      <Comment :post_id="post?.id || 0" />
     </div>
 
     <div v-else class="sidebar-mobile">
@@ -103,7 +103,7 @@ onBeforeUnmount(() => {
         :p_photo="post?.p_photo"
       />
       <div class="sidebar-divider"></div>
-      <Comment />
+      <Comment :post_id="post?.id || 0" />
     </div>
   </div>
 </template>

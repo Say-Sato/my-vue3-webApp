@@ -1,19 +1,22 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import ImageGallery from '../components/MTPostList.vue'
+import ImageGallery from '../components/FVImageGallery.vue'
+import SectionTitle from '@/basics/SectionTitle.vue'
 import SearchField from '../components/SearchField.vue'
 
 export type PostResponse = {
   id: number
-  p_id: string
+  p_id: number
   title: string
-  tag: string
   url: string
   body: string
   R18: number
+  public: number
   s_url: string
   p_name: string
   p_photo: string
+  showProfile: boolean
+  tags: number[]
 }
 
 // タグを保持する変数
@@ -36,10 +39,14 @@ const fetchData = async () => {
     console.log('APIレスポンス:', data)
 
     posts.value = data // posts 配列にデータを格納
+    posts.value = data.map((post: PostResponse) => ({
+      ...post,
+      showProfile: true,
+    }))
 
-    // tags（または適切なキー）をtagsName.valueに格納
-    if (data.tag) {
-      tagsName.value = data.tag // ここでAPIから返されるtagsを格納
+    // 最初の要素の tags を格納
+    if (data.length > 0 && data[0].tags) {
+      tagsName.value = String(data[0].tags)
     }
 
     console.log('格納されたタグ:', tagsName.value)
@@ -59,7 +66,9 @@ onMounted(fetchData)
   <div v-if="posts.length > 0">
     <!-- タグの表示 -->
     <div class="post-item" v-if="posts.length > 0">
-      <h2>タグ: {{ posts[0].tag || 'error:タグ読み取り失敗' }} の検索結果</h2>
+      <SectionTitle
+        :title="tagsName + 'の検索結果：' + '●●件' || 'error:タグ読み取り失敗'"
+      />
     </div>
 
     <!-- 投稿データの表示 -->

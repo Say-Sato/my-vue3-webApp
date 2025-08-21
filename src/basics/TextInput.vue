@@ -80,7 +80,6 @@ export default defineComponent({
     ></textarea>
 
     <!-- password -->
-    <!-- password -->
     <template v-else-if="type === 'password'">
       <div class="passwordWrapper">
         <input
@@ -158,22 +157,22 @@ export default defineComponent({
 /* パスワード入力用ラッパー */
 .passwordWrapper {
   position: relative;
-  width: 190px;
+  width: 100%; /* 幅100%に変更 */
 }
 
 /* パスワード用 input */
-.passwordWrapper input {
-  padding-right: 36px;
-  width: 100%;
+.passwordWrapper input[type='text'],
+.passwordWrapper input[type='password'] {
+  width: 100%; /* 幅100% */
+  padding-right: 36px; /* アイコン分の余白を確保 */
   box-sizing: border-box;
-  text-align: left;
 }
 
 /* 👁️ ラベル（アイコン）のスタイル */
 .togglePassword {
   position: absolute;
   top: 50%;
-  right: -30px;
+  right: 8px; /* input 内に収まるよう微調整 */
   transform: translateY(-50%);
   cursor: pointer;
   font-size: 18px;

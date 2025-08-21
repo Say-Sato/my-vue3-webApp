@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+
+import TextInput from '@/basics/TextInput.vue'
+import IconButton from '@/basics/IconButton.vue'
 //import { useRouter } from 'vue-router'
 const email = ref('')
 //const router = useRouter()
@@ -27,48 +30,63 @@ const sendPreRegister = async () => {
 </script>
 
 <template>
-  <div class="register-container">
+  <div class="container">
     <div class="register-card">
-      <p class="description">
-        仮登録のため、メールアドレスをご入力ください。<br />
-        ご入力いただいたアドレス宛に本登録用のリンクをお送りします。
-      </p>
-      <label class="label" for="email">メールアドレス</label>
-      <input
-        id="email"
-        type="email"
-        v-model="email"
-        class="input"
-        placeholder="your@example.com"
-      />
-      <button class="submit-button" @click="sendPreRegister">送信</button>
+      <div class="wrapper">
+        <p class="description">
+          仮登録のため、メールアドレスをご入力ください。<br />
+          ご入力いただいたアドレス宛に本登録用のリンクをお送りします。
+        </p>
+        <label class="label" for="email">メールアドレス</label>
+        <TextInput
+          id="email"
+          className="email"
+          name="email"
+          v-model="email"
+          required
+        /><br />
+        <div class="submit-email">
+          <IconButton
+            label="送信"
+            @click="sendPreRegister"
+            class="submit-button"
+          />
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-.register-container {
+.container {
+  width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 80vh;
-  background-color: #fff;
+  padding-top: 20px;
 }
 
 .register-card {
-  background-color: #ffffff;
-  border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  background: white;
   padding: 40px 30px;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  min-width: 320px;
+  max-width: 380px;
   width: 100%;
-  max-width: 400px;
-  text-align: center;
+}
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 30px;
 }
 
 .description {
   font-size: 14px;
   color: #333;
-  margin-bottom: 24px;
+  margin-bottom: 30px;
   line-height: 1.5;
 }
 
@@ -81,28 +99,10 @@ const sendPreRegister = async () => {
   color: #222;
 }
 
-.input {
-  width: 100%;
-  padding: 10px 14px;
-  font-size: 14px;
-  border: 1px solid #ccc;
-  border-radius: 20px;
-  outline: none;
-  margin-bottom: 20px;
-}
+.submit-email {
+  display: flex;
+  justify-content: flex-end; /* 右寄せ */
 
-.submit-button {
-  background-color: #000;
-  color: #fff;
-  font-size: 14px;
-  padding: 10px 24px;
-  border: none;
-  border-radius: 20px;
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-.submit-button:hover {
-  opacity: 0.85;
+  margin-bottom: -20px;
 }
 </style>

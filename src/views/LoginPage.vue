@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router' // Vue Routerをインポート
 import { useUserStore } from '@/stores/user'
 import TextInput from '@/basics/TextInput.vue'
+import IconButton from '@/basics/IconButton.vue'
 
 // ログイン情報を保持する状態
 const loginid = ref('')
@@ -74,19 +75,18 @@ const handleSubmit = () => {
 
 <template>
   <div class="container">
-    <h2>ログイン</h2>
-
     <form @submit.prevent="handleSubmit">
       <div class="login">
-        <label for="loginid">ログインID : </label>
+        <br />
+        <label for="loginid">ログインID</label>
         <TextInput
           id="loginid"
           className="loginid"
           name="loginid"
           v-model="loginid"
           required
-        /><br />
-        <label for="password">パスワード : </label>
+        />
+        <label for="password">パスワード</label>
         <TextInput
           id="password"
           className="password"
@@ -94,13 +94,15 @@ const handleSubmit = () => {
           type="password"
           v-model="password"
           required
-        />
+        /><br />
       </div>
-      <button type="submit">ログイン</button>
+      <div class="submit-login">
+        <router-link class="register" to="/register/temporary"
+          >新規登録</router-link
+        >
+        <IconButton label="ログイン" type="submit" />
+      </div>
     </form>
-    <router-link class="register" to="/register/temporary"
-      >新規登録</router-link
-    >
     <div v-if="errorMessage" class="error">
       <p>{{ errorMessage }}</p>
     </div>
@@ -108,33 +110,6 @@ const handleSubmit = () => {
 </template>
 
 <style scoped>
-.title {
-  margin: 12px;
-  font-size: 20px;
-  font-weight: bold;
-  text-align: center;
-}
-
-.dtl {
-  line-height: 1.5;
-}
-
-.image-container {
-  width: 95%; /* 画面全体の80%の幅 */
-  height: 600px; /* 高さは固定（必要に応じて変更可） */
-  display: block; /* ブロック要素として設定 */
-  overflow: hidden; /* 画像が領域を超えた場合に隠す */
-  background-color: #f0f0f0; /* 背景色を指定（オプション） */
-  margin: 0 auto; /* 左右のマージンを自動で設定（中央寄せ） */
-}
-
-.image {
-  width: 100%;
-  height: 100%;
-  object-fit: contain; /* 領域内に収める */
-  object-position: center; /* 中央寄せにする */
-}
-
 .error {
   color: red;
 }
@@ -176,21 +151,11 @@ input {
   font-size: 14px;
 }
 
-button[type='submit'] {
-  width: 100%;
-  padding: 10px;
-  background: #000;
-  color: white;
-  font-weight: bold;
-  border-radius: 20px;
-  border: none;
-  cursor: pointer;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-  transition: background 0.2s;
-}
-
-button[type='submit']:hover {
-  background: #222;
+.submit-login {
+  display: flex;
+  justify-content: space-between; /* 左右に配置 */
+  align-items: center; /* 高さ揃え */
+  margin-top: 40px;
 }
 
 .register {

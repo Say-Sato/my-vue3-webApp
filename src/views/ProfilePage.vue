@@ -7,14 +7,12 @@ import TextInput from '@/basics/TextInput.vue'
 import RadioInput from '@/basics/RadioInput.vue'
 import IconButton from '@/basics/IconButton.vue'
 import BirthDate from '@/basics/BirthDate.vue'
-import PhotoDragDrop from '@/basics/PhotoDragDrop.vue'
 
 export default defineComponent({
   components: {
     TextInput,
     RadioInput,
     BirthDate,
-    PhotoDragDrop,
     IconButton,
   },
   props: {
@@ -281,50 +279,59 @@ export default defineComponent({
 
           <div>
             <label for="image">プロフィール画像</label>
-            <PhotoDragDrop v-model="localProfilePhoto" :maxCount="1" />
           </div>
 
           <!-- 生年月日 -->
           <div>
-            <p>生年月日</p>
-            <BirthDate v-model="localBirthDate" />
+            <p>
+              生年月日<br />
+              {{ localBirthDate ? localBirthDate : 'なし' }}
+            </p>
+            <template v-if="isEditingBirthDate">
+              <BirthDate v-model="localBirthDate" />
+            </template>
           </div>
 
           <!-- 名前 -->
           <div>
             <br /><label for="userName">名前</label>
-            <TextInput
-              id="userName"
-              class="userName"
-              name="userName"
-              type="text"
-              v-model="localUserName"
-            />
+            <template v-if="isEditingUserName">
+              <TextInput
+                id="userName"
+                class="userName"
+                name="userName"
+                type="text"
+                v-model="localUserName"
+              />
+            </template>
+            <template v-else>
+              <br /><span>{{ localUserName }}</span>
+            </template>
           </div>
+
           <div>
             <br /><label for="body">プロフィール本文</label>
-            <TextInput
-              id="body"
-              class="body"
-              name="body"
-              type="textarea"
-              v-model="localBody"
-            />
+            <template v-if="isEditingBody">
+              <TextInput
+                id="body"
+                class="body"
+                name="body"
+                type="textarea"
+                v-model="localBody"
+              />
+            </template>
+            <template v-else>
+              <br /><span>{{ localBody }}</span>
+            </template>
           </div>
 
           <!-- パスワード -->
-
-          <br /><label for="password">パスワード</label>
-
-          <!-- 編集中で表示状態：パスワード入力欄 -->
-
-          <TextInput
-            id="password"
-            class="password"
-            name="password"
-            type="password"
-            v-model="localPassword"
-          />
+          <div>
+            <br /><label for="password">パスワード</label>
+            <br />
+            <span>●●●●●●</span>
+            <br />
+          </div>
 
           <!-- 年齢制限表示設定 -->
           <br />
@@ -350,8 +357,7 @@ export default defineComponent({
             </span>
           </div>
           <div class="submit-edit">
-            <IconButton label="キャンセル" backgroundColor="#ccc" />
-            <IconButton type="submit" label="保存する" />
+            <IconButton label="編集する" />
           </div>
         </form>
       </div>
@@ -396,8 +402,8 @@ export default defineComponent({
 
 .submit-edit {
   display: flex;
-  justify-content: space-between; /* 左右に配置 */
-  align-items: center; /* 高さ揃え */
-  margin-top: 40px;
+  justify-content: flex-end; /* 右寄せ */
+  padding-top: 20px;
+  margin-bottom: -20px;
 }
 </style>

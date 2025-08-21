@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import { onMounted, ref, computed } from 'vue'
+import IconButton from '@/basics/IconButton.vue'
+import LinkCopy from '@/components/LinkCopy.vue'
+import SectionTitle from '@/basics/SectionTitle.vue'
 import ImageGallery from '../components/APImageGallery.vue'
 import { useUserStore } from '@/stores/user'
 
@@ -59,27 +62,31 @@ const processedPosts = computed(() =>
       <!-- ← メールはpostsにないので仮置き -->
     </div>
     <div class="profile-actions">
-      <button class="disabled-button">通知オフ</button>
-      <button class="follow-button">フォロー</button>
-      <button class="icon-button">🔁</button>
+      <IconButton
+        label="通知オフ"
+        icon-class="fa-solid fa-bell-slash"
+        background-color="#bcbcbc"
+        textColor="white"
+      />
+
+      <IconButton
+        label="フォロー"
+        icon-class="fa-solid fa-user-plus"
+        background-color="#bcbcbc"
+        textColor="white"
+      />
+
+      <LinkCopy />
     </div>
   </div>
 
-  <div class="title">
-    <h1>投稿一覧</h1>
-  </div>
+  <!-- 投稿一覧 -->
+  <SectionTitle title="投稿一覧" />
+
   <ImageGallery :posts="processedPosts" />
 </template>
 
 <style scoped>
-.title {
-  font-weight: 400;
-  font-size: 24px;
-  font-style: normal;
-  border-bottom: 2px solid #777;
-  padding-bottom: 10px;
-}
-
 .profile-container {
   display: flex;
   align-items: center;
@@ -113,29 +120,5 @@ const processedPosts = computed(() =>
   display: flex;
   flex-direction: row;
   gap: 8px;
-}
-
-.disabled-button {
-  background-color: #eee;
-  border: none;
-  color: #666;
-  padding: 4px 8px;
-  border-radius: 6px;
-  cursor: not-allowed;
-}
-
-.follow-button {
-  background-color: #ddd;
-  border: none;
-  padding: 4px 8px;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.icon-button {
-  background: none;
-  border: none;
-  font-size: 20px;
-  cursor: pointer;
 }
 </style>

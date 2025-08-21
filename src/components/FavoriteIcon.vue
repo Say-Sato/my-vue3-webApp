@@ -130,7 +130,6 @@ export default defineComponent({
     />
   </head>
   <div class="liked-container">
-    <!-- 検索アイコン -->
     <IconButton
       :label="isLiked ? 'いいね済み' : 'いいね'"
       :iconClass="isLiked ? 'fa-solid fa-heart' : 'fa-regular fa-heart'"

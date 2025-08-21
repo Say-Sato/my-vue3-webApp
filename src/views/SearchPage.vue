@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import ImageGallery from '../components/FVImageGallery.vue'
+import SectionTitle from '@/basics/SectionTitle.vue'
 import SearchField from '../components/SearchField.vue'
 
 export type PostResponse = {
@@ -43,9 +44,9 @@ const fetchData = async () => {
       showProfile: true,
     }))
 
-    // tags（または適切なキー）をtagsName.valueに格納
-    if (data.tags) {
-      tagsName.value = data.tags // ここでAPIから返されるtagsを格納
+    // 最初の要素の tags を格納
+    if (data.length > 0 && data[0].tags) {
+      tagsName.value = String(data[0].tags)
     }
 
     console.log('格納されたタグ:', tagsName.value)
@@ -65,7 +66,9 @@ onMounted(fetchData)
   <div v-if="posts.length > 0">
     <!-- タグの表示 -->
     <div class="post-item" v-if="posts.length > 0">
-      <h2>タグ: {{ posts[0].tags || 'error:タグ読み取り失敗' }} の検索結果</h2>
+      <SectionTitle
+        :title="tagsName + 'の検索結果：' + '●●件' || 'error:タグ読み取り失敗'"
+      />
     </div>
 
     <!-- 投稿データの表示 -->

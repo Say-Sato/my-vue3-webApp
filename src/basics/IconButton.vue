@@ -13,7 +13,7 @@ defineProps({
   iconClass: {
     type: String,
     required: false,
-    default: 'fa-solid fa-magnifying-glass',
+    default: '',
   },
   backgroundColor: {
     type: String,
@@ -25,12 +25,25 @@ defineProps({
     required: false,
     default: 'white',
   },
+  type: {
+    type: String as () => 'button' | 'submit' | 'reset',
+    required: false,
+    default: 'button', // デフォルトは普通のボタン
+  },
 })
 </script>
 
 <template>
+  <head>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+
   <button
     class="icon-button"
+    :type="type"
     :style="{
       backgroundColor: backgroundColor,
       color: textColor,

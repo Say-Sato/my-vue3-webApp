@@ -168,13 +168,6 @@ export default defineComponent({
 
 <template>
   <div>
-    <h2>投稿編集</h2>
-
-    <!-- ページ最上部に画像を表示 -->
-    <div v-if="formData && formData.images">
-      <ImageList :images="formData?.images ?? []" :Edit="true" />
-    </div>
-
     <EditForm
       v-if="formData"
       :title="formData.title"
@@ -196,12 +189,20 @@ export default defineComponent({
       @update:adultsOnly="value => formData && (formData.adultsOnly = value)"
       @handle-image-change="handleImageChange"
       @submit="handleSubmit"
-    />
+    >
+      <template #top>
+        <div v-if="formData && formData.images">
+          <ImageList :images="formData?.images ?? []" :Edit="true" />
+        </div>
+      </template>
+
+      <template #bottom>
+        <DeleteButton />
+      </template>
+    </EditForm>
     <div v-else>
       <p>データを読み込み中...</p>
     </div>
-
-    <DeleteButton />
   </div>
 </template>
 

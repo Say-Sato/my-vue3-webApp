@@ -2,11 +2,13 @@
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import ModalComponent from '@/components/ConfirmModal.vue'
+import IconButton from '@/basics/IconButton.vue'
 
 export default {
   name: 'ArticleDeleteComponent',
   components: {
     ModalComponent,
+    IconButton,
   },
   data() {
     return {
@@ -87,7 +89,12 @@ export default {
 <template>
   <div>
     <div>
-      <button @click="showModal">削除</button>
+      <IconButton
+        label="削除"
+        class="delete-button"
+        backgroundColor="#ff4d4f"
+        @click="showModal"
+      />
       <ModalComponent
         v-if="isModalVisible"
         :message="modalMessage"

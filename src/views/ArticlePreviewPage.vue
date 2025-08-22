@@ -54,12 +54,12 @@ const handleSubmit = async () => {
     formData.append('image[]', file)
   })
 
-  formData.append('userid', formUserId.value)
-  formData.append('title', formTitle.value)
+  formData.append('user_id', formUserId.value)
+  formData.append('illust_title', formTitle.value)
   formData.append('tags', formTags.value)
-  formData.append('body', formBody.value)
-  formData.append('publish', formPublish.value)
-  formData.append('adultsOnly', formAdultsOnly.value)
+  formData.append('ilust_body', formBody.value)
+  formData.append('public', formPublish.value)
+  formData.append('R18', formAdultsOnly.value)
 
   try {
     const response = await fetch(

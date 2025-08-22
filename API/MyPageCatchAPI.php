@@ -20,12 +20,10 @@ if ($id !== null) {
         $query = "SELECT
         -- illust テーブルの全カラム（エイリアス付き）
         illust.id AS illust_id,
-        illust.p_id AS illust_profile_id,
         illust.title AS illust_title,
         illust.body AS illust_body,
-        illust.public AS illust_public,
-        illust.R18 AS illust_R18,
-        illust.s_url AS illust_s_url,
+        illust.public AS public,
+        illust.R18 AS R18,
 
         -- profile テーブルの必要カラム（エイリアス付き）
         profile.id AS profile_id,
@@ -34,7 +32,7 @@ if ($id !== null) {
         profile.profile_photo AS profile_photo,
 
         -- images テーブルのURLのみ（エイリアス付き）
-        images.url AS image_url
+        images.url AS thumbnail_url
 
         FROM
         illust
@@ -60,19 +58,15 @@ if ($id !== null) {
             foreach ($rows as $row) {
                 $data[] = [
                     "illust_id"         => $row['illust_id'],
-                    "illust_profile_id" => $row['illust_profile_id'],
                     "illust_title"      => $row['illust_title'],
                     "illust_body"       => $row['illust_body'],
-                    "illust_public"     => $row['illust_public'],
-                    "illust_R18"        => $row['illust_R18'],
-                    "illust_s_url"      => $row['illust_s_url'],
-
+                    "public"            => $row['public'],
+                    "R18"               => $row['R18'],
                     "profile_id"        => $row['profile_id'],
                     "profile_login_id"  => $row['profile_login_id'],
                     "profile_name"      => $row['profile_name'],
                     "profile_photo"     => $row['profile_photo'],
-
-                    "image_url"         => $row['image_url'],
+                    "thumbnail_url"     => $row['thumbnail_url'],
                 ];
             }
         } else {

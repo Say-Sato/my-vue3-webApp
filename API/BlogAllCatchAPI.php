@@ -70,21 +70,18 @@ if ($id !== null) {
 
         if ($current) {
             $data = [
-                "id"         => $current['id'],
-                "p_id"       => $current['p_id'],
-                "title"      => $current['title'],
+                "illust_id"         => $current['id'],
+                "profile_id"       => $current['p_id'],
+                "illust_title"      => $current['title'],
                 "tags"       => isset($current['tag_ids']) ? array_map('intval', explode(',', $current['tag_ids'])) : [],
-                "url"        => $current['url'],
-                "body"       => $current['body'],
+                "thumbnail_url"        => $current['url'],
+                "illust_body"       => $current['body'],
                 "R18"        => $current['R18'],
                 "public"     => $current['public'],
-                "s_url"      => $current['s_url'],
-                "p_name"     => $current['p_name'],
-                "p_photo"    => $current['p_photo'],
+                "profile_name"     => $current['p_name'],
+                "profile_photo"    => $current['p_photo'],
                 "prev_id"    => $prev['id'] ?? null,
                 "next_id"    => $next['id'] ?? null,
-                "prev_title" => $prev['title'] ?? null,
-                "next_title" => $next['title'] ?? null,
                 "images"     => []
             ];
 
@@ -144,17 +141,16 @@ if ($id !== null) {
         // メインループで各イラストごとの配列を作成
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $item = [
-                "id" => (int)$row['id'],
-                "p_id" => (int)$row['p_id'],
-                "title" => $row['title'],
+                "illust_id" => (int)$row['id'],
+                "profile_id" => (int)$row['p_id'],
+                "illust_title" => $row['title'],
                 "tags" => $row['tag_ids'] ? array_map('intval', explode(',', $row['tag_ids'])) : [],
-                "url" => $row['url'],
-                "body" => $row['body'],
+                "thumbnail_url" => $row['url'],
+                "illust_body" => $row['body'],
                 "R18" => $row['R18'],
                 "public" => $row['public'],
-                "s_url" => $row['s_url'],
-                "p_name" => $row['p_name'],
-                "p_photo" => $row['p_photo'],
+                "profile_name" => $row['p_name'],
+                "profile_photo" => $row['p_photo'],
                 "images" => [], // ← ここに画像リスト入れる
             ];
 

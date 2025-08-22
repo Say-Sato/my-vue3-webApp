@@ -3,25 +3,11 @@ import { onMounted, ref } from 'vue'
 import ImageGallery from '../components/FVImageGallery.vue'
 import SectionTitle from '@/basics/SectionTitle.vue'
 import SearchField from '../components/SearchField.vue'
-
-export type PostResponse = {
-  id: number
-  p_id: number
-  title: string
-  url: string
-  body: string
-  R18: number
-  public: number
-  s_url: string
-  p_name: string
-  p_photo: string
-  showProfile: boolean
-  tags: number[]
-}
+import type { Favorite } from '@/types/PostResponse'
 
 // タグを保持する変数
 const tag = ref('')
-const posts = ref<PostResponse[]>([])
+const posts = ref<Favorite[]>([])
 const tagsName = ref('')
 
 const fetchData = async () => {
@@ -39,7 +25,7 @@ const fetchData = async () => {
     console.log('APIレスポンス:', data)
 
     posts.value = data // posts 配列にデータを格納
-    posts.value = data.map((post: PostResponse) => ({
+    posts.value = data.map((post: Favorite) => ({
       ...post,
       showProfile: true,
     }))

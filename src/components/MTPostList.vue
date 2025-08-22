@@ -1,38 +1,20 @@
 <script setup lang="ts">
 import { defineProps } from 'vue'
-
-export type Image = {
-  image_id: number
-  image_url: string
-  sort_order: number
-}
-
-export type PostResponse = {
-  id: number
-  p_id: number
-  title: string
-  url: string
-  body: string
-  R18: number
-  s_url: string
-  p_name: string
-  p_photo: string
-  images: Image[]
-}
+import type { PostGallery } from '@/types/PostResponse'
 
 // props に images を含むように型定義
-const props = defineProps<{ posts: PostResponse[] }>()
+const props = defineProps<{ posts: PostGallery[] }>()
 </script>
 
 <template>
   <ul class="image-gallery">
-    <li v-for="post in props.posts" :key="post.id" class="image-item">
-      <router-link :to="`/posts/${post.id}`">
+    <li v-for="post in props.posts" :key="post.illust_id" class="image-item">
+      <router-link :to="`/posts/${post.illust_id}`">
         <div class="box3">
           <div class="image-wrapper">
             <img
-              :src="post.s_url"
-              :alt="post.title"
+              :src="post.thumbnail_url"
+              :alt="post.illust_title"
               class="image"
               :class="{ blurred: post.R18 }"
             />
@@ -46,16 +28,18 @@ const props = defineProps<{ posts: PostResponse[] }>()
       <div class="p-container">
         <h3 class="image-title">
           {{
-            post.title.length > 9 ? post.title.slice(0, 11) + '…' : post.title
+            post.illust_title.length > 9
+              ? post.illust_title.slice(0, 11) + '…'
+              : post.illust_title
           }}
         </h3>
-        <router-link :to="`/posts/${post.id}`">
+        <router-link :to="`/posts/${post.illust_id}`">
           <img
-            :src="`https://yellowokapi2.sakura.ne.jp/Blog/index${post.p_photo}`"
-            :alt="post.p_name"
+            :src="`https://yellowokapi2.sakura.ne.jp/Blog/index${post.profile_photo}`"
+            :alt="post.profile_name"
             class="p-photo"
           />
-          <p class="p-name">{{ post.p_name }}</p>
+          <p class="p-name">{{ post.profile_name }}</p>
         </router-link>
       </div>
     </li>

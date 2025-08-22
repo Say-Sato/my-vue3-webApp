@@ -3,20 +3,7 @@ import { onMounted, ref, computed, watch } from 'vue'
 import { useUserStore } from '@/stores/user'
 import TextInput from '@/basics/TextInput.vue'
 import IconButton from '@/basics/IconButton.vue'
-
-export type comment = {
-  comment_id: number
-  user_id: number
-  comment_body: string
-  profile_photo: string
-  profile_name: string
-  deleted_at: string
-}
-
-export type PostResponse = {
-  success: boolean
-  comment: comment[]
-}
+import type { CommentResponse } from '@/types/PostResponse'
 
 // ✅ propsを定義（post_id）
 const props = defineProps<{
@@ -24,7 +11,7 @@ const props = defineProps<{
 }>()
 
 const userStore = useUserStore()
-const posts = ref<PostResponse | null>(null)
+const posts = ref<CommentResponse | null>(null)
 const showAll = ref(false)
 // 入力値
 const commentBody = ref('')

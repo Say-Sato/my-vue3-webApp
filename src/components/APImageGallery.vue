@@ -1,17 +1,9 @@
 <!-- ArticleCatchPage 画像ギャラリー（1ファイル版） -->
 <script setup lang="ts">
 import { defineProps } from 'vue'
+import type { Postvalidation } from '@/types/PostResponse'
 
-type Post = {
-  illust_id: number
-  illust_title: string
-  illust_R18: number
-  profile_name: string
-  profile_photo: string
-  image_url: string
-}
-
-const props = defineProps<{ posts: Post[] }>()
+const props = defineProps<{ posts: Postvalidation[] }>()
 </script>
 
 <template>
@@ -20,8 +12,12 @@ const props = defineProps<{ posts: Post[] }>()
       <router-link :to="`/posts/edit/${post.illust_id}`">
         <div class="box3">
           <div class="image-wrapper">
-            <img :src="post.image_url" :alt="post.illust_title" class="image" />
-            <div v-if="post.illust_R18" class="blur-overlay">R18</div>
+            <img
+              :src="post.thumbnail_url"
+              :alt="post.illust_title"
+              class="image"
+            />
+            <div v-if="post.R18" class="blur-overlay">R18</div>
             <!-- ▼ 非公開ラベルの例（仮で非公開固定表示、動的に切り替える場合は別途条件式が必要） -->
             <div class="private-label">非公開</div>
           </div>

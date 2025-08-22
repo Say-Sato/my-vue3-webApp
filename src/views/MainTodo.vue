@@ -1,36 +1,17 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import ImageGallery from '../components/MTPostList.vue'
+import type { PostGallery } from '@/types/PostResponse'
 
-export type Image = {
-  image_id: number
-  image_url: string
-  sort_order: number
-}
-
-export type PostResponse = {
-  id: number
-  p_id: number
-  title: string
-  tags: number[]
-  url: string
-  body: string
-  R18: number
-  s_url: string
-  p_name: string
-  p_photo: string
-  images: Image[]
-}
-
-const posts = ref<PostResponse[]>([])
-const topFourPosts = ref<PostResponse[]>([])
+const posts = ref<PostGallery[]>([])
+const topFourPosts = ref<PostGallery[]>([])
 
 const fetchData = async () => {
   try {
     const response = await fetch(
       'https://yellowokapi2.sakura.ne.jp/Vue/api/BlogAllCatchAPI.php',
     )
-    const data = (await response.json()) as PostResponse[]
+    const data = (await response.json()) as PostGallery[]
     posts.value = data
 
     topFourPosts.value = posts.value.slice(0, 4)

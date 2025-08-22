@@ -1,5 +1,6 @@
-<script lang="ts">
-import { defineComponent, ref, watch, onMounted, computed } from 'vue'
+<script setup lang="ts">
+//import { ref, watch, onMounted, computed, defineEmits, defineProps } from 'vue'
+import { ref, watch, onMounted, defineEmits, defineProps } from 'vue'
 import { useUserStore } from '@/stores/user'
 import type { PropType } from 'vue'
 
@@ -9,264 +10,196 @@ import IconButton from '@/basics/IconButton.vue'
 import BirthDate from '@/basics/BirthDate.vue'
 import PhotoDragDrop from '@/basics/PhotoDragDrop.vue'
 
-export default defineComponent({
-  components: {
-    TextInput,
-    RadioInput,
-    BirthDate,
-    PhotoDragDrop,
-    IconButton,
-  },
-  props: {
-    userName: String,
-    certificate18: String,
-    profilePhoto: {
-      type: Array as PropType<File[]>,
-      required: false,
-    },
-    password: String,
-    body: String,
-    birthDate: String,
-  },
-  emits: [
-    'submit',
-    'update:userName',
-    'update:certificate18',
-    'update:profilePhoto',
-    'update:password',
-    'update:body',
-    'update:birthDate',
-  ],
-  setup(props, { emit }) {
-    // ローカルの状態を定義（フォーム入力用）
-    const localUserName = ref(props.userName ?? '')
-    const localPassword = ref(props.password ?? '')
-    const localCertificate18 = ref(props.certificate18 ?? '0')
-    const localBody = ref(props.body ?? '')
-    const localBirthDate = ref(props.birthDate ?? '')
-    const localProfilePhoto = ref<File[]>([])
+const props = defineProps<{
+  userName: string
+  certificate18: string
+  profilePhoto?: PropType<File[]>
+  password: string
+  body: string
+  birthDate: string
+}>()
 
-    // 編集前の元の値を保持（変更検知用）
-    const originalUserName = ref('')
-    const originalPassword = ref('')
-    const originalBirthDate = ref('')
-    const originalCertificate18 = ref('')
-    const originalBody = ref('')
+const emit = defineEmits<{
+  (e: 'submit'): void
+  (e: 'update:userName', value: string): void
+  (e: 'update:certificate18', value: string): void
+  (e: 'update:profilePhoto', value: File[]): void
+  (e: 'update:password', value: string): void
+  (e: 'update:body', value: string): void
+  (e: 'update:birthDate', value: string): void
+}>()
+// ローカルの状態を定義（フォーム入力用）
+const localUserName = ref(props.userName ?? '')
+const localPassword = ref(props.password ?? '')
+const localCertificate18 = ref(props.certificate18 ?? '0')
+const localBody = ref(props.body ?? '')
+const localBirthDate = ref(props.birthDate ?? '')
+const localProfilePhoto = ref<File[]>([])
 
-    // 編集モードや変更済みフラグ
-    const isEditingUserName = ref(false)
-    const isEditedUserName = ref(false)
-    const isEditingPassword = ref(false)
-    const isEditedPassword = ref(false)
-    const isEditingBirthDate = ref(false)
-    const isEditedBirthDate = ref(false)
-    const isEditingBody = ref(false)
-    const isEditedBody = ref(false)
-    const isEditingCertificate18 = ref(false)
-    const isEditedCertificate18 = ref(true)
+// 編集前の元の値を保持（変更検知用）
+const originalUserName = ref('')
+const originalPassword = ref('')
+const originalBirthDate = ref('')
+const originalCertificate18 = ref('')
+const originalBody = ref('')
 
-    // その他
-    const passwordHide = ref(true) // パスワード表示状態の制御
-    const errorMessage = ref('') // エラーメッセージ表示用
-    const userStore = useUserStore()
-    const id = ref(userStore.id)
+// 編集モードや変更済みフラグ
+//const isEditingUserName = ref(false)
+const isEditedUserName = ref(false)
+//const isEditingPassword = ref(false)
+const isEditedPassword = ref(false)
+//const isEditingBirthDate = ref(false)
+const isEditedBirthDate = ref(false)
+//const isEditingBody = ref(false)
+const isEditedBody = ref(false)
+//const isEditingCertificate18 = ref(false)
+const isEditedCertificate18 = ref(true)
 
-    // propsの変化を監視してローカル値を更新
-    watch(
-      () => props.userName,
-      val => (localUserName.value = val ?? ''),
-    )
-    watch(
-      () => props.password,
-      val => (localPassword.value = val ?? ''),
-    )
-    watch(
-      () => props.certificate18,
-      val => (localCertificate18.value = val ?? ''),
-    )
-    watch(
-      () => props.body,
-      val => (localBody.value = val ?? ''),
-    )
-    watch(
-      () => props.birthDate,
-      val => (localBirthDate.value = val ?? ''),
-    )
+// その他
+//const passwordHide = ref(true) // パスワード表示状態の制御
+const errorMessage = ref('') // エラーメッセージ表示用
+const userStore = useUserStore()
+const id = ref(userStore.id)
 
-    // パスワードの表示用文言を算出
-    const displayPassword = computed(() => {
-      if (
-        (isEditingPassword.value &&
-          originalPassword.value !== localPassword.value) ||
-        isEditedPassword.value
-      ) {
-        return localPassword.value
+// propsの変化を監視してローカル値を更新
+watch(
+  () => props.userName,
+  val => (localUserName.value = val ?? ''),
+)
+watch(
+  () => props.password,
+  val => (localPassword.value = val ?? ''),
+)
+watch(
+  () => props.certificate18,
+  val => (localCertificate18.value = val ?? ''),
+)
+watch(
+  () => props.body,
+  val => (localBody.value = val ?? ''),
+)
+watch(
+  () => props.birthDate,
+  val => (localBirthDate.value = val ?? ''),
+)
+
+// 各項目の編集状態を切り替える処理
+/*const toggleEdit = (field: string) => {
+  switch (field) {
+    case 'userName':
+      if (!isEditingUserName.value) originalUserName.value = localUserName.value
+      else
+        isEditedUserName.value = localUserName.value !== originalUserName.value
+      isEditingUserName.value = !isEditingUserName.value
+      break
+    case 'password':
+      if (!isEditingPassword.value) originalPassword.value = localPassword.value
+      else {
+        isEditedPassword.value = localPassword.value !== originalPassword.value
+        if (!isEditingPassword.value) passwordHide.value = true
       }
+      isEditingPassword.value = !isEditingPassword.value
+      break
+    case 'birthDate':
+      if (!isEditingBirthDate.value)
+        originalBirthDate.value = localBirthDate.value
+      else
+        isEditedBirthDate.value =
+          localBirthDate.value !== originalBirthDate.value
+      isEditingBirthDate.value = !isEditingBirthDate.value
+      break
+    case 'body':
+      if (!isEditingBody.value) originalBody.value = localBody.value
+      else isEditedBody.value = localBody.value !== originalBody.value
+      isEditingBody.value = !isEditingBody.value
+      break
+    case 'certificate18':
+      if (!isEditingCertificate18.value)
+        originalCertificate18.value = localCertificate18.value
+      else
+        isEditedCertificate18.value =
+          localCertificate18.value !== originalCertificate18.value
+      isEditingCertificate18.value = !isEditingCertificate18.value
+      break
+  }
+}*/
+// フォームの送信処理
+const handleSubmit = async () => {
+  const formData = new FormData()
 
-      if (
-        originalPassword.value != null &&
-        originalPassword.value !== '' &&
-        originalPassword.value === localPassword.value
-      ) {
-        return '登録済みのパスワード'
-      }
+  // 編集された項目のみ送信する
+  const entries = [
+    ['userName', isEditedUserName.value, localUserName.value],
+    ['password', isEditedPassword.value, localPassword.value],
+    ['certificate18', isEditedCertificate18.value, localCertificate18.value],
+    ['body', isEditedBody.value, localBody.value],
+    ['birthDate', isEditedBirthDate.value, localBirthDate.value],
+  ] as const
 
-      return 'パスワードはまだありません'
-    })
+  for (const [key, edited, value] of entries) {
+    if (edited) formData.append(key, value)
+  }
 
-    // 各項目の編集状態を切り替える処理
-    const toggleEdit = (field: string) => {
-      switch (field) {
-        case 'userName':
-          if (!isEditingUserName.value)
-            originalUserName.value = localUserName.value
-          else
-            isEditedUserName.value =
-              localUserName.value !== originalUserName.value
-          isEditingUserName.value = !isEditingUserName.value
-          break
-        case 'password':
-          if (!isEditingPassword.value)
-            originalPassword.value = localPassword.value
-          else {
-            isEditedPassword.value =
-              localPassword.value !== originalPassword.value
-            if (!isEditingPassword.value) passwordHide.value = true
-          }
-          isEditingPassword.value = !isEditingPassword.value
-          break
-        case 'birthDate':
-          if (!isEditingBirthDate.value)
-            originalBirthDate.value = localBirthDate.value
-          else
-            isEditedBirthDate.value =
-              localBirthDate.value !== originalBirthDate.value
-          isEditingBirthDate.value = !isEditingBirthDate.value
-          break
-        case 'body':
-          if (!isEditingBody.value) originalBody.value = localBody.value
-          else isEditedBody.value = localBody.value !== originalBody.value
-          isEditingBody.value = !isEditingBody.value
-          break
-        case 'certificate18':
-          if (!isEditingCertificate18.value)
-            originalCertificate18.value = localCertificate18.value
-          else
-            isEditedCertificate18.value =
-              localCertificate18.value !== originalCertificate18.value
-          isEditingCertificate18.value = !isEditingCertificate18.value
-          break
-      }
+  if (localProfilePhoto.value.length > 0) {
+    formData.append('profilePhoto', localProfilePhoto.value[0])
+  }
+
+  try {
+    const response = await fetch(
+      `https://yellowokapi2.sakura.ne.jp/Vue/api/ProfileEditAPI.php/${id.value}`,
+      {
+        method: 'POST',
+        body: formData,
+      },
+    )
+
+    const contentType = response.headers.get('Content-Type') || ''
+    if (!contentType.includes('application/json')) {
+      throw new Error('サーバーからJSON形式の返答がありませんでした。')
     }
 
-    // パスワードの表示/非表示を切り替える処理
-    const showPassword = () => {
-      passwordHide.value = !passwordHide.value
+    const result = await response.json()
+
+    if (!response.ok) {
+      throw new Error(result.message || `HTTP ${response.status}`)
     }
 
-    // フォームの送信処理
-    const handleSubmit = async () => {
-      const formData = new FormData()
+    console.log('送信成功:', result)
+    alert('データが正常に送信されました')
+    emit('submit')
+  } catch (error) {
+    console.error('更新失敗:', error)
+    errorMessage.value = '更新に失敗しました。もう一度お試しください。'
+  }
+}
 
-      // 編集された項目のみ送信する
-      const entries = [
-        ['userName', isEditedUserName.value, localUserName.value],
-        ['password', isEditedPassword.value, localPassword.value],
-        [
-          'certificate18',
-          isEditedCertificate18.value,
-          localCertificate18.value,
-        ],
-        ['body', isEditedBody.value, localBody.value],
-        ['birthDate', isEditedBirthDate.value, localBirthDate.value],
-      ] as const
+// 初期データをサーバーから取得
+onMounted(async () => {
+  try {
+    const response = await fetch(
+      `https://yellowokapi2.sakura.ne.jp/Vue/api/ProfileAllCatchAPI.php/${id.value}`,
+    )
+    const contentType = response.headers.get('Content-Type') || ''
+    if (!contentType.includes('application/json'))
+      throw new Error('JSONとして受け取れませんでした。')
 
-      for (const [key, edited, value] of entries) {
-        if (edited) formData.append(key, value)
-      }
+    const data = await response.json()
+    localUserName.value = data.name ?? ''
+    localPassword.value = data.password ?? ''
+    localBody.value = data.body ?? ''
+    localBirthDate.value = data.birthDate ?? ''
+    localCertificate18.value = String(data.certificate18 ?? '0')
 
-      if (localProfilePhoto.value.length > 0) {
-        formData.append('profilePhoto', localProfilePhoto.value[0])
-      }
-
-      try {
-        const response = await fetch(
-          `https://yellowokapi2.sakura.ne.jp/Vue/api/ProfileEditAPI.php/${id.value}`,
-          {
-            method: 'POST',
-            body: formData,
-          },
-        )
-
-        const contentType = response.headers.get('Content-Type') || ''
-        if (!contentType.includes('application/json')) {
-          throw new Error('サーバーからJSON形式の返答がありませんでした。')
-        }
-
-        const result = await response.json()
-
-        if (!response.ok) {
-          throw new Error(result.message || `HTTP ${response.status}`)
-        }
-
-        console.log('送信成功:', result)
-        alert('データが正常に送信されました')
-        emit('submit')
-      } catch (error) {
-        console.error('更新失敗:', error)
-        errorMessage.value = '更新に失敗しました。もう一度お試しください。'
-      }
-    }
-
-    // 初期データをサーバーから取得
-    onMounted(async () => {
-      try {
-        const response = await fetch(
-          `https://yellowokapi2.sakura.ne.jp/Vue/api/ProfileAllCatchAPI.php/${id.value}`,
-        )
-        const contentType = response.headers.get('Content-Type') || ''
-        if (!contentType.includes('application/json'))
-          throw new Error('JSONとして受け取れませんでした。')
-
-        const data = await response.json()
-        localUserName.value = data.name ?? ''
-        localPassword.value = data.password ?? ''
-        localBody.value = data.body ?? ''
-        localBirthDate.value = data.birthDate ?? ''
-        localCertificate18.value = String(data.certificate18 ?? '0')
-
-        // 比較用に取得値を保持
-        originalUserName.value = data.name ?? ''
-        originalPassword.value = data.password ?? ''
-        originalBody.value = data.body ?? ''
-        originalBirthDate.value = data.birthDate ?? ''
-        originalCertificate18.value = String(data.certificate18 ?? '0')
-      } catch (error) {
-        console.error('初期データの取得に失敗:', error)
-        errorMessage.value = '初期データの取得に失敗しました。'
-      }
-    })
-
-    return {
-      localUserName,
-      localPassword,
-      localCertificate18,
-      localBody,
-      localBirthDate,
-      localProfilePhoto,
-      errorMessage,
-      isEditingUserName,
-      isEditingPassword,
-      isEditingCertificate18,
-      isEditingBirthDate,
-      isEditingBody,
-      passwordHide,
-      toggleEdit,
-      showPassword,
-      handleSubmit,
-      displayPassword,
-    }
-  },
+    // 比較用に取得値を保持
+    originalUserName.value = data.name ?? ''
+    originalPassword.value = data.password ?? ''
+    originalBody.value = data.body ?? ''
+    originalBirthDate.value = data.birthDate ?? ''
+    originalCertificate18.value = String(data.certificate18 ?? '0')
+  } catch (error) {
+    console.error('初期データの取得に失敗:', error)
+    errorMessage.value = '初期データの取得に失敗しました。'
+  }
 })
 </script>
 

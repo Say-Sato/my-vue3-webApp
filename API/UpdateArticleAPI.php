@@ -7,12 +7,12 @@ include('./BlogPDO.php');
 $requestUri = $_SERVER['REQUEST_URI'];
 $id = null;
 
-$imageUrl = isset($_POST['imageBase64']) ? $_POST['imageBase64'] : '未指定';
-$title = isset($_POST['title']) ? htmlspecialchars($_POST['title']) : '未指定';
+$imageUrl = isset($_POST['thumbnail_url']) ? $_POST['thumbnail_url'] : '未指定';
+$title = isset($_POST['illust_title']) ? htmlspecialchars($_POST['illust_title']) : '未指定';
 $tags = isset($_POST['tags']) ? htmlspecialchars($_POST['tags']) : '未指定';
-$body = isset($_POST['body']) ? htmlspecialchars($_POST['body']) : '未指定';
-$publish = isset($_POST['publish']) ? htmlspecialchars($_POST['publish']) : '未指定';
-$adultsOnly = isset($_POST['adultsOnly']) ? htmlspecialchars($_POST['adultsOnly']) : '未指定';
+$body = isset($_POST['illust_body']) ? htmlspecialchars($_POST['illust_body']) : '';
+$publish = isset($_POST['public']) ? htmlspecialchars($_POST['public']) : '未指定';
+$adultsOnly = isset($_POST['R18']) ? htmlspecialchars($_POST['R18']) : '未指定';
 
 // URIが'/api/UpdateArticleAPI.php/id'形式の場合
 if (preg_match('/\/(\d+)$/', $requestUri, $matches)) {

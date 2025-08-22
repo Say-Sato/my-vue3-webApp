@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import EditForm from '@/pages/EntryPageView.vue'
-import DeleteButton from '@/basics/ArticleDeleteButton.vue'
+import DeleteButton from '@/components/ArticleDeleteButton.vue'
 import ImageList from '@/components/ArticleImageList.vue'
 import type { PostEdit } from '@/types/PostResponse'
 

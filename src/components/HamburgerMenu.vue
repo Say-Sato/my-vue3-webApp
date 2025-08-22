@@ -1,31 +1,24 @@
-<script lang="ts">
-import { defineComponent } from 'vue'
+<script setup lang="ts">
+import { ref } from 'vue'
 import AdminLink from '@/basics/AdminLink.vue'
 import Icon from '@/basics/HamburgerMenuIcon.vue'
 
-export default defineComponent({
-  name: 'HamburgerMenu',
-  components: {
-    AdminLink,
-    Icon,
-  },
-  data() {
-    return {
-      isOpen: false, // メニューが開いているかどうかの状態
-    }
-  },
-  methods: {
-    toggleMenu() {
-      this.isOpen = !this.isOpen // メニューの開閉を切り替える
-    },
-    handleClickOutside(event: MouseEvent) {
-      const menu = this.$refs.menu as HTMLElement
-      if (this.isOpen && menu && !menu.contains(event.target as Node)) {
-        this.isOpen = false
-      }
-    },
-  },
-})
+const isOpen = ref(false)
+const menu = ref<HTMLElement | null>(null)
+
+const toggleMenu = () => {
+  isOpen.value = !isOpen.value // メニューの開閉を切り替える
+}
+
+const handleClickOutside = (event: MouseEvent) => {
+  if (
+    isOpen.value &&
+    menu.value &&
+    !menu.value.contains(event.target as Node)
+  ) {
+    isOpen.value = false
+  }
+}
 </script>
 
 <template>

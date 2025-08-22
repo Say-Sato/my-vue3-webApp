@@ -1,60 +1,53 @@
-<script lang="ts">
-import { ref, watch, defineComponent } from 'vue'
+<script setup lang="ts">
+import { ref, watch } from 'vue'
 
-export default defineComponent({
-  props: {
-    tagsMsg: {
-      type: Array as () => number[],
-      default: () => [],
-    },
-  },
-
-  setup(props) {
-    const tags = ref<string[]>([])
-    const tagNames = ref<number[]>([])
-
-    const fetchTagNames = async () => {
-      if (props.tagsMsg.length === 0) {
-        tags.value = []
-        tagNames.value = []
-        return
-      }
-
-      const tagIdsString = props.tagsMsg.join(',')
-
-      try {
-        const response = await fetch(
-          `https://yellowokapi2.sakura.ne.jp/Vue/api/TagResolverAPI.php/${tagIdsString}`,
-        )
-
-        const data = await response.json()
-
-        if (data && data.tagName && data.tagIds) {
-          tags.value = data.tagName.split(',')
-          tagNames.value = data.tagIds
-        } else {
-          console.log('タグが取得できませんでした')
-          tags.value = []
-          tagNames.value = []
-        }
-      } catch (error) {
-        console.error('タグの取得に失敗しました', error)
-        tags.value = []
-        tagNames.value = []
-      }
-    }
-
-    watch(
-      () => props.tagsMsg,
-      async () => {
-        await fetchTagNames()
-      },
-      { immediate: true },
-    )
-
-    return { tags, tagNames } // ← ここに tagNames を追加
+const props = defineProps({
+  tagsMsg: {
+    type: Array as () => number[],
+    default: () => [],
   },
 })
+const tags = ref<string[]>([])
+const tagNames = ref<number[]>([])
+
+const fetchTagNames = async () => {
+  if (props.tagsMsg.length === 0) {
+    tags.value = []
+    tagNames.value = []
+    return
+  }
+
+  const tagIdsString = props.tagsMsg.join(',')
+
+  try {
+    const response = await fetch(
+      `https://yellowokapi2.sakura.ne.jp/Vue/api/TagResolverAPI.php/${tagIdsString}`,
+    )
+
+    const data = await response.json()
+
+    if (data && data.tagName && data.tagIds) {
+      tags.value = data.tagName.split(',')
+      tagNames.value = data.tagIds
+    } else {
+      console.log('タグが取得できませんでした')
+      tags.value = []
+      tagNames.value = []
+    }
+  } catch (error) {
+    console.error('タグの取得に失敗しました', error)
+    tags.value = []
+    tagNames.value = []
+  }
+}
+
+watch(
+  () => props.tagsMsg,
+  async () => {
+    await fetchTagNames()
+  },
+  { immediate: true },
+)
 </script>
 
 <template>

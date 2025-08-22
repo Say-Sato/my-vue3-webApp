@@ -1,13 +1,7 @@
-<script lang="ts">
-import { defineComponent } from 'vue'
-export default defineComponent({
-  name: 'NotificationBell',
-  data() {
-    return {
-      Notification: false, // 通知があるときtrue
-    }
-  },
-})
+<script setup lang="ts">
+import { ref } from 'vue'
+
+const Notification = ref(false)
 </script>
 
 <template>

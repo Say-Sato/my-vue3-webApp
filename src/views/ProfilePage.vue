@@ -298,7 +298,7 @@ export default defineComponent({
             <template v-if="isEditingUserName">
               <TextInput
                 id="userName"
-                class="userName"
+                className="userName"
                 name="userName"
                 type="text"
                 v-model="localUserName"
@@ -314,7 +314,7 @@ export default defineComponent({
             <template v-if="isEditingBody">
               <TextInput
                 id="body"
-                class="body"
+                className="body"
                 name="body"
                 type="textarea"
                 v-model="localBody"

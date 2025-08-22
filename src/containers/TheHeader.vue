@@ -1,30 +1,15 @@
-<script lang="ts">
+<script setup lang="ts">
 import Hamburger from '@/components/HamburgerMenu.vue' // ハンバーガーメニュー
 import NotificationBell from '@/basics/NotificationBell.vue'
 import UserAvatar from '@/basics/UserAvatar.vue'
 import { ref } from 'vue'
 import { useUserStore } from '@/stores/user'
 
-export default {
-  components: {
-    Hamburger,
-    UserAvatar,
-    NotificationBell,
-  },
-  data() {
-    // 現在のルートroute.meta.showHeaderを取得
+const userStore = useUserStore()
+const loginid = ref(userStore.id)
 
-    // Piniaからloginidを取得して動的に遷移先を決定
-    const userStore = useUserStore()
-    const loginid = ref(userStore.id)
-
-    if (!loginid.value) {
-      loginid.value = '0'
-    }
-    return {
-      loginid,
-    }
-  },
+if (!loginid.value) {
+  loginid.value = '0'
 }
 </script>
 

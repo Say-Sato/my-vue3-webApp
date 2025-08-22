@@ -1,17 +1,10 @@
-<script lang="ts">
+<script setup lang="ts">
 import TextInput from '@/basics/TextInput.vue'
 
-export default {
-  components: {
-    TextInput,
-  },
-  methods: {
-    handleInput(event: Event) {
-      // event.target は HTMLInputElement なので、型をキャストします
-      const target = event.target as HTMLInputElement
-      console.log(target.value)
-    },
-  },
+const handleInput = (event: Event) => {
+  // event.target は HTMLInputElement なので、型をキャストします
+  const target = event.target as HTMLInputElement
+  console.log(target.value)
 }
 </script>
 

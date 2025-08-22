@@ -1,9 +1,4 @@
-<script lang="ts">
-export default {
-  name: 'ArticleComment',
-  // その他のオプション
-}
-</script>
+<script setpu lang="ts"></script>
 
 <template>
   <div class="">

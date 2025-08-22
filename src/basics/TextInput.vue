@@ -1,61 +1,52 @@
-<script lang="ts">
-import { defineComponent, ref, computed } from 'vue'
+<script setup lang="ts">
+import { ref, computed, defineProps, defineEmits } from 'vue'
 
-export default defineComponent({
-  name: 'InputComponent',
-  props: {
-    id: {
-      type: String,
-      default: '',
-    },
-    className: {
-      type: String,
-      default: '',
-    },
-    name: {
-      type: String,
-      default: '',
-    },
-    type: {
-      type: String,
-      default: 'text',
-    },
-    text: {
-      type: String,
-      default: '',
-    },
-    modelValue: {
-      type: String,
-      default: '',
-    },
+// props 定義（デフォルト値付き）
+const props = withDefaults(
+  defineProps<{
+    id?: string
+    className?: string
+    name?: string
+    type?: string
+    text?: string
+    modelValue?: string
+  }>(),
+  {
+    id: '',
+    className: '',
+    name: '',
+    type: 'text',
+    text: '',
+    modelValue: '',
   },
-  setup(props, { emit }) {
-    const showPassword = ref(false)
+)
 
-    const currentType = computed(() => {
-      if (props.type === 'password') {
-        return showPassword.value ? 'text' : 'password'
-      }
-      return props.type
-    })
+// emit 定義
+const emit = defineEmits<{
+  (e: 'update:modelValue', value: string): void
+}>()
 
-    const handleInput = (event: Event) => {
-      const value = (event.target as HTMLInputElement).value ?? ''
-      emit('update:modelValue', value)
-    }
+// パスワード表示切替用
+const showPassword = ref(false)
 
-    const togglePasswordVisibility = () => {
-      showPassword.value = !showPassword.value
-    }
-
-    return {
-      showPassword,
-      currentType,
-      handleInput,
-      togglePasswordVisibility,
-    }
-  },
+// input type を切り替える computed
+const currentType = computed(() => {
+  if (props.type === 'password') {
+    return showPassword.value ? 'text' : 'password'
+  }
+  return props.type
 })
+
+// input イベントハンドラ
+const handleInput = (event: Event) => {
+  const value = (event.target as HTMLInputElement).value ?? ''
+  emit('update:modelValue', value)
+}
+
+// パスワード表示切替関数
+const togglePasswordVisibility = () => {
+  showPassword.value = !showPassword.value
+}
 </script>
 
 <template>

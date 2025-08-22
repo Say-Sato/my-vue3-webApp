@@ -1,139 +1,120 @@
-<script lang="ts">
-import { watch, defineComponent, ref, computed, onMounted } from 'vue'
+<script setup lang="ts">
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import TextInput from '@/basics/TextInput.vue'
 import IconButton from '@/basics/IconButton.vue'
 import RadioInput from '@/basics/RadioInput.vue'
 import PhotoDragDrop from '@/basics/PhotoDragDrop.vue'
 
-export default defineComponent({
-  components: {
-    TextInput,
-    RadioInput,
-    PhotoDragDrop,
-    IconButton,
-  },
-  props: {
-    title: String,
-    tags: String,
-    body: String,
-    publish: String,
-    adultsOnly: String,
-    images: Array as () => File[],
-  },
-  emits: [
-    'submit',
-    'update:title',
-    'update:tags',
-    'update:body',
-    'update:publish',
-    'update:adultsOnly',
-    'update:images',
-  ],
-  setup(props, { emit }) {
-    const route = useRoute()
+// props 定義
+const props = defineProps<{
+  title?: string
+  tags?: string
+  body?: string
+  publish?: string
+  adultsOnly?: string
+  images?: File[]
+}>()
 
-    const hideEdit = computed(() => {
-      return !/^\/posts\/edit\/\d+$/.test(route.path)
-    })
+// emit 定義
+const emit = defineEmits<{
+  (e: 'submit'): void
+  (e: 'update:title', value: string): void
+  (e: 'update:tags', value: string): void
+  (e: 'update:body', value: string): void
+  (e: 'update:publish', value: string): void
+  (e: 'update:adultsOnly', value: string): void
+  (e: 'update:images', value: File[]): void
+}>()
 
-    const localTitle = computed<string>({
-      get: () => props.title ?? '',
-      set: newValue => emit('update:title', newValue),
-    })
+// ルート
+const route = useRoute()
 
-    const localBody = computed({
-      get: () => props.body ?? '',
-      set: newValue => emit('update:body', newValue),
-    })
+// 編集画面判定
+const hideEdit = computed(() => !/^\/posts\/edit\/\d+$/.test(route.path))
 
-    const localPublish = computed({
-      get: () => props.publish,
-      set: newValue => emit('update:publish', newValue),
-    })
-
-    const localAdultsOnly = computed({
-      get: () => props.adultsOnly,
-      set: newValue => emit('update:adultsOnly', newValue),
-    })
-
-    const localImages = computed<File[]>({
-      get: () => props.images ?? [],
-      set: newValue => emit('update:images', newValue),
-    })
-
-    const tagInput = ref('')
-    const tagList = ref<string[]>([])
-    const errorMessage = ref<string>('')
-
-    const convertTagsToList = (tags: string) => {
-      return tags ? tags.split(',').map(tag => tag.trim()) : []
-    }
-
-    onMounted(() => {
-      tagList.value = convertTagsToList(props.tags || '')
-    })
-
-    watch(
-      () => props.tags,
-      newTags => {
-        tagList.value = convertTagsToList(newTags || '')
-      },
-    )
-
-    const addTag = () => {
-      const newTag = tagInput.value.trim()
-
-      if (
-        newTag &&
-        !tagList.value.includes(newTag) &&
-        !newTag.includes(',') &&
-        !newTag.includes(' ') &&
-        !newTag.includes('　')
-      ) {
-        tagList.value.push(newTag)
-        tagInput.value = ''
-        errorMessage.value = ''
-        emitTagsUpdate()
-      } else if (!newTag) {
-        errorMessage.value = 'タグが入力されていません。'
-      } else if (tagList.value.includes(newTag)) {
-        errorMessage.value = 'タグが重複しています。'
-      } else {
-        errorMessage.value = '使用できない文字が含まれています。'
-      }
-    }
-
-    const removeTag = (index: number) => {
-      tagList.value.splice(index, 1)
-      emitTagsUpdate()
-    }
-
-    const emitTagsUpdate = () => {
-      emit('update:tags', tagList.value.join(','))
-    }
-
-    const handleSubmit = () => {
-      emitTagsUpdate()
-      emit('submit')
-    }
-
-    return {
-      localTitle,
-      localBody,
-      localPublish,
-      localAdultsOnly,
-      localImages,
-      tagInput,
-      tagList,
-      errorMessage,
-      addTag,
-      removeTag,
-      handleSubmit,
-      hideEdit,
-    }
-  },
+// computed for two-way binding
+const localTitle = computed<string>({
+  get: () => props.title ?? '',
+  set: newValue => emit('update:title', newValue),
 })
+
+const localBody = computed<string>({
+  get: () => props.body ?? '',
+  set: newValue => emit('update:body', newValue),
+})
+
+const localPublish = computed<string>({
+  get: () => props.publish ?? '',
+  set: newValue => emit('update:publish', newValue),
+})
+
+const localAdultsOnly = computed<string>({
+  get: () => props.adultsOnly ?? '',
+  set: newValue => emit('update:adultsOnly', newValue),
+})
+
+const localImages = computed<File[]>({
+  get: () => props.images ?? [],
+  set: newValue => emit('update:images', newValue),
+})
+
+// タグ処理
+const tagInput = ref('')
+const tagList = ref<string[]>([])
+const errorMessage = ref('')
+
+const convertTagsToList = (tags: string) =>
+  tags ? tags.split(',').map(tag => tag.trim()) : []
+
+onMounted(() => {
+  tagList.value = convertTagsToList(props.tags ?? '')
+})
+
+watch(
+  () => props.tags,
+  newTags => {
+    tagList.value = convertTagsToList(newTags ?? '')
+  },
+)
+
+const addTag = () => {
+  const newTag = tagInput.value.trim()
+
+  if (
+    newTag &&
+    !tagList.value.includes(newTag) &&
+    !newTag.includes(',') &&
+    !newTag.includes(' ') &&
+    !newTag.includes('　')
+  ) {
+    tagList.value.push(newTag)
+    tagInput.value = ''
+    errorMessage.value = ''
+    emitTagsUpdate()
+  } else if (!newTag) {
+    errorMessage.value = 'タグが入力されていません。'
+  } else if (tagList.value.includes(newTag)) {
+    errorMessage.value = 'タグが重複しています。'
+  } else {
+    errorMessage.value = '使用できない文字が含まれています。'
+  }
+}
+
+const removeTag = (index: number) => {
+  tagList.value.splice(index, 1)
+  emitTagsUpdate()
+}
+
+const emitTagsUpdate = () => {
+  emit('update:tags', tagList.value.join(','))
+}
+
+// submit
+const handleSubmit = () => {
+  emitTagsUpdate()
+  emit('submit')
+}
 </script>
 
 <template>
@@ -153,9 +134,9 @@ export default defineComponent({
       <div class="form-group">
         <TextInput
           id="title"
-          class="title"
+          className="title"
           name="title"
-          placeholder="タイトル"
+          text="タイトル"
           v-model="localTitle"
           required
         />
@@ -171,9 +152,9 @@ export default defineComponent({
       <div class="form-group tag-input">
         <TextInput
           id="tags"
-          class="tags"
+          className="tags"
           name="tags"
-          placeholder="タグ"
+          text="タグ"
           v-model="tagInput"
         />
         <div class="add-button-wrapper">
@@ -196,10 +177,10 @@ export default defineComponent({
       <div class="form-group">
         <TextInput
           id="body"
-          class="body"
+          className="body"
           name="body"
           type="textarea"
-          placeholder="本文"
+          text="本文"
           v-model="localBody"
         />
       </div>

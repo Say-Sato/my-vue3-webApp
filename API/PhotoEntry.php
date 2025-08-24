@@ -89,23 +89,23 @@ foreach ($fileArray as $file) {
         // エラーあったらスキップ or すぐ終了してもOK
         continue;
     }
-    
+
     $imageTmpPath = $file['tmp_name'];
     $imageMimeType = mime_content_type($imageTmpPath);
-    
+
     if (!array_key_exists($imageMimeType, $allowedMimeTypes)) {
         // 対応してない形式はスキップ
         continue;
     }
-    
+
     $extension = $allowedMimeTypes[$imageMimeType];
     $uniqueFileName = uniqid('image_', true) . $extension;
     $savePath = $_SERVER['DOCUMENT_ROOT'] . '/' . $subFolder . '/' . $uniqueFileName;
-    
+
     if (!move_uploaded_file($imageTmpPath, $savePath)) {
         continue;
     }
-    
+
     // 保存成功したファイル情報を配列に追加
     $domainName = 'yellowokapi2.sakura.ne.jp';
     $imageUrl = "http://$domainName/$subFolder/$uniqueFileName";
@@ -116,4 +116,3 @@ if (count($savedFiles) === 0) {
     echo json_encode(["error" => "ファイルの保存に失敗しました。"], JSON_UNESCAPED_UNICODE);
     exit;
 }
-?>

@@ -111,4 +111,3 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         echo json_encode(["error" => "更新対象がありません。"], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
     }
 }
-?>

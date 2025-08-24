@@ -92,4 +92,3 @@ try {
 } finally {
     $dbh = null;
 }
-?>

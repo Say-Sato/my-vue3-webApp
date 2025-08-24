@@ -15,7 +15,7 @@ $data = []; // 配列の初期化
 if ($id !== null) {
     try {
         $dbh = new PDO($dsn, $user, $password);
-        
+
         // 指定されたIDのレコードを選択
         $query = "SELECT
         -- illust テーブルの全カラム（エイリアス付き）
@@ -48,10 +48,10 @@ if ($id !== null) {
         ORDER BY illust.created DESC;";
         $stmt = $dbh->prepare($query);
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-        
+
         // クエリを実行
         $stmt->execute();
-        
+
         // 結果をすべて取得して$data配列に格納
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         if ($rows) {
@@ -79,8 +79,7 @@ if ($id !== null) {
         // JSON形式で返す
         header('Content-Type: application/json');
         echo json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-
-    } catch(PDOException $e) {
+    } catch (PDOException $e) {
         // エラーメッセージもJSON形式で返す
         header('Content-Type: application/json', true, 500);
         echo json_encode(["error" => "データベースの接続に失敗しました: " . $e->getMessage()], JSON_UNESCAPED_UNICODE);
@@ -93,4 +92,3 @@ if ($id !== null) {
     echo json_encode(["error" => "ユーザーIDが入っていません。"], JSON_UNESCAPED_UNICODE);
     die();
 }
-?>

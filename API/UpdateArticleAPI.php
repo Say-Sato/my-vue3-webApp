@@ -21,11 +21,11 @@ if (preg_match('/\/(\d+)$/', $requestUri, $matches)) {
 }
 
 // DBへ接続
-try{
-$dbh = new PDO($dsn, $user, $password);
-$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+try {
+    $dbh = new PDO($dsn, $user, $password);
+    $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-// クエリ
+    // クエリ
     $query = "UPDATE illust
               SET title = :title,
                   url = :url,
@@ -42,16 +42,16 @@ $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         // パラメータをバインド
         $data = [
-        'id' => $id,
-        ':title' => $title,
-        ':url' => $imageUrl,
-        ':body' => $body,
-        ':R18' => $R18,
-        ':public' => $public,
-        ':s_url' => $imageUrl
+            'id' => $id,
+            ':title' => $title,
+            ':url' => $imageUrl,
+            ':body' => $body,
+            ':R18' => $R18,
+            ':public' => $public,
+            ':s_url' => $imageUrl
         ];
 
-    // クエリを実行
+        // クエリを実行
         $result = $stmt->execute($data);
 
         if (!$result) {
@@ -61,18 +61,14 @@ $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             include('./TagsInsert.php');
             echo json_encode(["true" => "データの更新が完了しました。"], JSON_UNESCAPED_UNICODE);
         }
-
     } else {
         //POSTリクエスト失敗時
         echo json_encode(["error" => "POSTリクエストを送信してください。"], JSON_UNESCAPED_UNICODE);
     }
-
-}catch(PDOException $e){
-    echo json_encode(["error" => "データベースの接続に失敗しました。".$e->getMessage()], JSON_UNESCAPED_UNICODE);
+} catch (PDOException $e) {
+    echo json_encode(["error" => "データベースの接続に失敗しました。" . $e->getMessage()], JSON_UNESCAPED_UNICODE);
     die();
 }
 
 // 接続を閉じる
 $dbh = null;
-?>
-

@@ -84,4 +84,3 @@ EOT;
 
 // レスポンス返却
 echo json_encode($response, JSON_UNESCAPED_UNICODE);
-?>

@@ -25,7 +25,7 @@ try {
         $adultsOnly = isset($_POST['R18']) ? htmlspecialchars($_POST['R18']) : '未指定';
 
         //Int型としてDBへ格納
-        if($userid){
+        if ($userid) {
             $p_id = intval($userid);
         } else {
             echo json_encode(["error" => "投稿するにはログインしてください。"], JSON_UNESCAPED_UNICODE);
@@ -71,19 +71,16 @@ try {
             "タグ名称" => $tagList,
             "タグのID" => $tagIds
         ], JSON_UNESCAPED_UNICODE);
-
     } else {
         echo json_encode(["error" => "POSTリクエストを送信してください。"], JSON_UNESCAPED_UNICODE);
         die();
     }
-
 } catch (PDOException $e) {
-    echo json_encode(["error" => "データベースエラー: " . $e->getMessage()
+    echo json_encode([
+        "error" => "データベースエラー: " . $e->getMessage()
     ], JSON_UNESCAPED_UNICODE);
     die();
 }
 
 // 接続を閉じる
 $dbh = null;
-?>
-

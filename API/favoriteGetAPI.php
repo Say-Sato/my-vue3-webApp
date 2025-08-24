@@ -15,7 +15,7 @@ try {
     $dbh = new PDO($dsn, $user, $password);
     $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    if($id){
+    if ($id) {
         // ログインしているユーザーIDに該当するいいねをすべて取得
         $query = "SELECT i_id FROM favorite WHERE u_id = :u_id ORDER BY liked_times DESC";
         $stmt = $dbh->prepare($query);
@@ -24,11 +24,10 @@ try {
         $stmt->execute();
 
         //i_idカラムを配列として取得
-        $result = $stmt->fetchAll(PDO::FETCH_COLUMN,0);
+        $result = $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
 
         echo json_encode(["i_id" => $result], JSON_UNESCAPED_UNICODE);
-
-    } elseif($id == 0) {
+    } elseif ($id == 0) {
         // すべてのイラストごとにいいね数を取得
         $query = "SELECT i_id, COUNT(u_id) AS liked_count
                 FROM favorite
@@ -40,11 +39,9 @@ try {
 
         echo json_encode($result, JSON_UNESCAPED_UNICODE);
     }
-
 } catch (PDOException $e) {
     echo json_encode(["error" => "データベースエラー: " . $e->getMessage()], JSON_UNESCAPED_UNICODE);
     die();
 }
 // 接続を閉じる
 $dbh = null;
-?>

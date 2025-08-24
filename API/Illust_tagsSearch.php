@@ -29,4 +29,3 @@ foreach ($tagIds as $tag) {
         $tagsNotInResult[] = $tag;
     }
 }
-?>

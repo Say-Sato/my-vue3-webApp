@@ -37,7 +37,7 @@ if ($id) {
         $stmt->execute([
             ':post_id' => $id,
         ]);
-        
+
         $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         echo json_encode([
@@ -59,9 +59,8 @@ if ($id) {
             FROM comments
             INNER JOIN profile ON comments.user_id = profile.id
             ORDER BY comments.created_at ASC;");
-        $stmt->execute([
-        ]);
-        
+        $stmt->execute([]);
+
         $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         echo json_encode([
@@ -72,4 +71,3 @@ if ($id) {
         echo json_encode(['error' => 'コメント取得失敗', 'message' => $e->getMessage()], JSON_UNESCAPED_UNICODE);
     }
 }
-?>

@@ -14,10 +14,10 @@ if (preg_match('/\/(\d+)$/', $requestUri, $matches)) {
 if ($id !== null) {
     try {
         $dbh = new PDO($dsn, $user, $password);
-        
+
         // 指定されたIDのレコードを選択
         $query = // 指定されたIDのレコードを選択
-        $query = "DELETE illust, illust_tags, images, favorite, comments
+            $query = "DELETE illust, illust_tags, images, favorite, comments
                 FROM illust
                 LEFT JOIN illust_tags ON illust.id = illust_tags.i_id
                 LEFT JOIN images ON illust.id = images.post_id
@@ -27,14 +27,14 @@ if ($id !== null) {
 
         $stmt = $dbh->prepare($query);
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-        
+
         // クエリを実行
         if ($stmt->execute()) {
             echo json_encode(["true" => "データの削除が完了しました。"], JSON_UNESCAPED_UNICODE);
         } else {
             echo json_encode(["error" => "データの削除に失敗しました。"], JSON_UNESCAPED_UNICODE);
         }
-    } catch(PDOException $e) {
+    } catch (PDOException $e) {
         // エラーメッセージもJSON形式で返す
         header('Content-Type: application/json', true, 500);
         echo json_encode(["error" => "データベースの接続に失敗しました: " . $e->getMessage()], JSON_UNESCAPED_UNICODE);
@@ -47,5 +47,3 @@ if ($id !== null) {
     echo json_encode(["error" => "IDが渡されていません。"], JSON_UNESCAPED_UNICODE);
     die();
 }
-?>
-

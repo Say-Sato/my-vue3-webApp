@@ -55,12 +55,8 @@ try {
 
     header('Content-Type: application/json; charset=utf-8');
     echo json_encode($results, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-
 } catch (PDOException $e) {
     http_response_code(500);
     echo json_encode(['error' => 'データベース接続失敗: ' . $e->getMessage()], JSON_UNESCAPED_UNICODE);
     exit;
 }
-?>
-
-

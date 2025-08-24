@@ -24,7 +24,7 @@ if (preg_match('#([^/]+\.php)/(\d+)/(\d+)/(delete|insert)$#', $requestUri, $matc
         $conditionStmt->bindParam(':i_id', $i_id);
         $conditionStmt->bindParam(':u_id', $u_id);
         $conditionStmt->execute();
-        
+
         $conditionResult = $conditionStmt->fetch(PDO::FETCH_ASSOC);
         if ($conditionResult && isset($conditionResult['exists_flag'])) {
             $deveropFrag = (int)$conditionResult['exists_flag']; // 明示的にintにしときなさい♡
@@ -56,7 +56,7 @@ if (preg_match('#([^/]+\.php)/(\d+)/(\d+)/(delete|insert)$#', $requestUri, $matc
         }
 
         $dbh->commit(); // コミット（確定）
-        
+
         // ここで少し待つ（MySQLの反映待ち）
         usleep(300000); // 0.3秒遅延（1000000 = 1秒）
 
@@ -76,13 +76,11 @@ if (preg_match('#([^/]+\.php)/(\d+)/(\d+)/(delete|insert)$#', $requestUri, $matc
 
         echo json_encode(["success" => $msg, "status" => $status], JSON_UNESCAPED_UNICODE);
         die();
-
     } catch (PDOException $e) {
         $dbh->rollBack(); // エラー発生時にロールバック
         echo json_encode(["error" => "データベースエラー: " . $e->getMessage()], JSON_UNESCAPED_UNICODE);
         die();
     }
-
 } elseif (preg_match('#/([^/]+\.php)/(\d+)/(\d+)$#', $requestUri, $matches)) {
     $i_id = $matches[2];
     $u_id = $matches[3];
@@ -97,5 +95,3 @@ if (preg_match('#([^/]+\.php)/(\d+)/(\d+)/(delete|insert)$#', $requestUri, $matc
 
 // 接続を閉じる
 $dbh = null;
-?>
-

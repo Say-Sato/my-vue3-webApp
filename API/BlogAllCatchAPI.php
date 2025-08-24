@@ -62,9 +62,15 @@ if ($id !== null) {
 
         foreach ($rows as $row) {
             switch ($row['role']) {
-                case 'prev':    $prev = $row; break;
-                case 'current': $current = $row; break;
-                case 'next':    $next = $row; break;
+                case 'prev':
+                    $prev = $row;
+                    break;
+                case 'current':
+                    $current = $row;
+                    break;
+                case 'next':
+                    $next = $row;
+                    break;
             }
         }
 
@@ -111,7 +117,6 @@ if ($id !== null) {
             http_response_code(404);
             echo json_encode(["error" => "ID:{$id}のデータが見つかりません。"], JSON_UNESCAPED_UNICODE);
         }
-
     } catch (PDOException $e) {
         header('Content-Type: application/json', true, 500);
         echo json_encode(["error" => "データベース接続失敗: " . $e->getMessage()]);
@@ -122,7 +127,7 @@ if ($id !== null) {
     // IDが指定されていない場合公開に設定されているすべてのデータを返す
     try {
         $dbh = new PDO($dsn, $user, $password);
-        
+
         // illust + profile + tags を一括取得
         $query = "SELECT illust.*, profile.name AS p_name,
                         profile.profile_photo AS p_photo,
@@ -137,7 +142,7 @@ if ($id !== null) {
         $stmt->execute();
 
         $data = [];
-        
+
         // メインループで各イラストごとの配列を作成
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $item = [
@@ -183,8 +188,7 @@ if ($id !== null) {
         // JSON形式で返す
         header('Content-Type: application/json');
         echo json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-
-    } catch(PDOException $e) {
+    } catch (PDOException $e) {
         // エラーメッセージもJSON形式で返す
         header('Content-Type: application/json', true, 500);
         echo json_encode(["error" => "データベースの接続に失敗しました: " . $e->getMessage()]);
@@ -194,4 +198,3 @@ if ($id !== null) {
         $dbh = null; // PDOオブジェクトをnullにすることで接続を閉じる
     }
 }
-?>

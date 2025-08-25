@@ -1,343 +1,185 @@
 <script setup lang="ts">
-//import { ref, watch, onMounted, computed, defineEmits, defineProps } from 'vue'
-import { ref, watch, onMounted, defineEmits, defineProps } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
-import type { PropType } from 'vue'
-
-import TextInput from '@/basics/TextInput.vue'
-import RadioInput from '@/basics/RadioInput.vue'
 import IconButton from '@/basics/IconButton.vue'
-import BirthDate from '@/basics/BirthDate.vue'
 
-const props = defineProps<{
-  userName: string
-  certificate18: string
-  profilePhoto?: PropType<File[]>
-  password: string
-  body: string
-  birthDate: string
-}>()
-
-const emit = defineEmits<{
-  (e: 'submit'): void
-  (e: 'update:userName', value: string): void
-  (e: 'update:certificate18', value: string): void
-  (e: 'update:profilePhoto', value: File[]): void
-  (e: 'update:password', value: string): void
-  (e: 'update:body', value: string): void
-  (e: 'update:birthDate', value: string): void
-}>()
-// ローカルの状態を定義（フォーム入力用）
-const localUserName = ref(props.userName ?? '')
-const localPassword = ref(props.password ?? '')
-const localCertificate18 = ref(props.certificate18 ?? '0')
-const localBody = ref(props.body ?? '')
-const localBirthDate = ref(props.birthDate ?? '')
-const localProfilePhoto = ref<File[]>([])
-
-// 編集前の元の値を保持（変更検知用）
-const originalUserName = ref('')
-const originalPassword = ref('')
-const originalBirthDate = ref('')
-const originalCertificate18 = ref('')
-const originalBody = ref('')
-
-// 編集モードや変更済みフラグ
-const isEditingUserName = ref(false)
-const isEditedUserName = ref(false)
-//const isEditingPassword = ref(false)
-const isEditedPassword = ref(false)
-const isEditingBirthDate = ref(false)
-const isEditedBirthDate = ref(false)
-const isEditingBody = ref(false)
-const isEditedBody = ref(false)
-//const isEditingCertificate18 = ref(false)
-const isEditedCertificate18 = ref(true)
-
-// その他
-//const passwordHide = ref(true) // パスワード表示状態の制御
-const errorMessage = ref('') // エラーメッセージ表示用
+// ストアとルーターを初期化
 const userStore = useUserStore()
-const id = ref(userStore.id)
+const router = useRouter()
+const userId = ref(userStore.id)
 
-// propsの変化を監視してローカル値を更新
-watch(
-  () => props.userName,
-  val => (localUserName.value = val ?? ''),
-)
-watch(
-  () => props.password,
-  val => (localPassword.value = val ?? ''),
-)
-watch(
-  () => props.certificate18,
-  val => (localCertificate18.value = val ?? ''),
-)
-watch(
-  () => props.body,
-  val => (localBody.value = val ?? ''),
-)
-watch(
-  () => props.birthDate,
-  val => (localBirthDate.value = val ?? ''),
-)
+// プロフィールデータを格納するリアクティブな変数
+const userName = ref('')
+const profileBody = ref('')
+const birthDate = ref('')
+const errorMessage = ref('')
+const login_id = ref('')
+const password = ref('')
+const certificate18 = ref('')
 
-// 各項目の編集状態を切り替える処理
-/*const toggleEdit = (field: string) => {
-  switch (field) {
-    case 'userName':
-      if (!isEditingUserName.value) originalUserName.value = localUserName.value
-      else
-        isEditedUserName.value = localUserName.value !== originalUserName.value
-      isEditingUserName.value = !isEditingUserName.value
-      break
-    case 'password':
-      if (!isEditingPassword.value) originalPassword.value = localPassword.value
-      else {
-        isEditedPassword.value = localPassword.value !== originalPassword.value
-        if (!isEditingPassword.value) passwordHide.value = true
-      }
-      isEditingPassword.value = !isEditingPassword.value
-      break
-    case 'birthDate':
-      if (!isEditingBirthDate.value)
-        originalBirthDate.value = localBirthDate.value
-      else
-        isEditedBirthDate.value =
-          localBirthDate.value !== originalBirthDate.value
-      isEditingBirthDate.value = !isEditingBirthDate.value
-      break
-    case 'body':
-      if (!isEditingBody.value) originalBody.value = localBody.value
-      else isEditedBody.value = localBody.value !== originalBody.value
-      isEditingBody.value = !isEditingBody.value
-      break
-    case 'certificate18':
-      if (!isEditingCertificate18.value)
-        originalCertificate18.value = localCertificate18.value
-      else
-        isEditedCertificate18.value =
-          localCertificate18.value !== originalCertificate18.value
-      isEditingCertificate18.value = !isEditingCertificate18.value
-      break
-  }
-}*/
-// フォームの送信処理
-const handleSubmit = async () => {
-  const formData = new FormData()
-
-  // 編集された項目のみ送信する
-  const entries = [
-    ['userName', isEditedUserName.value, localUserName.value],
-    ['password', isEditedPassword.value, localPassword.value],
-    ['certificate18', isEditedCertificate18.value, localCertificate18.value],
-    ['body', isEditedBody.value, localBody.value],
-    ['birthDate', isEditedBirthDate.value, localBirthDate.value],
-  ] as const
-
-  for (const [key, edited, value] of entries) {
-    if (edited) formData.append(key, value)
-  }
-
-  if (localProfilePhoto.value.length > 0) {
-    formData.append('profilePhoto', localProfilePhoto.value[0])
-  }
-
-  try {
-    const response = await fetch(
-      `https://yellowokapi2.sakura.ne.jp/Vue/api/ProfileEditAPI.php/${id.value}`,
-      {
-        method: 'POST',
-        body: formData,
-      },
-    )
-
-    const contentType = response.headers.get('Content-Type') || ''
-    if (!contentType.includes('application/json')) {
-      throw new Error('サーバーからJSON形式の返答がありませんでした。')
-    }
-
-    const result = await response.json()
-
-    if (!response.ok) {
-      throw new Error(result.message || `HTTP ${response.status}`)
-    }
-
-    console.log('送信成功:', result)
-    alert('データが正常に送信されました')
-    emit('submit')
-  } catch (error) {
-    console.error('更新失敗:', error)
-    errorMessage.value = '更新に失敗しました。もう一度お試しください。'
-  }
-}
-
-// 初期データをサーバーから取得
+// コンポーネントがマウントされたらAPIからプロフィール情報を取得
 onMounted(async () => {
+  if (!userId.value) {
+    errorMessage.value = 'ユーザーIDが見つかりません。'
+    return
+  }
   try {
     const response = await fetch(
-      `https://yellowokapi2.sakura.ne.jp/Vue/api/ProfileAllCatchAPI.php/${id.value}`,
+      `https://yellowokapi2.sakura.ne.jp/Vue/api/ProfileAllCatchAPI.php/${userId.value}`,
     )
-    const contentType = response.headers.get('Content-Type') || ''
-    if (!contentType.includes('application/json'))
-      throw new Error('JSONとして受け取れませんでした。')
-
+    if (!response.ok) {
+      throw new Error('プロフィールの取得に失敗しました。')
+    }
     const data = await response.json()
-    localUserName.value = data.name ?? ''
-    localPassword.value = data.password ?? ''
-    localBody.value = data.body ?? ''
-    localBirthDate.value = data.birthDate ?? ''
-    localCertificate18.value = String(data.certificate18 ?? '0')
-
-    // 比較用に取得値を保持
-    originalUserName.value = data.name ?? ''
-    originalPassword.value = data.password ?? ''
-    originalBody.value = data.body ?? ''
-    originalBirthDate.value = data.birthDate ?? ''
-    originalCertificate18.value = String(data.certificate18 ?? '0')
+    userName.value = data.name || '未設定'
+    profileBody.value = data.body || '未設定'
+    birthDate.value = data.birthDate || '未設定'
+    login_id.value = data.login_id || '未設定'
+    password.value = data.password || '未設定'
+    certificate18.value = data.certificate18 || '未設定'
   } catch (error) {
-    console.error('初期データの取得に失敗:', error)
-    errorMessage.value = '初期データの取得に失敗しました。'
+    console.error('プロフィールの取得エラー:', error)
+    errorMessage.value = 'プロフィールの読み込み中にエラーが発生しました。'
   }
 })
+
+// 編集ページに遷移する関数
+const goToEditPage = () => {
+  router.push('/profile/edit')
+}
 </script>
 
 <template>
-  <div class="container">
-    <div class="register-card">
-      <div class="wrapper">
-        <form @submit.prevent="handleSubmit">
-          <div v-if="errorMessage" class="error-message">
-            {{ errorMessage }}
-          </div>
-
-          <div>
-            <label for="image">プロフィール画像</label>
-          </div>
-
-          <!-- 生年月日 -->
-          <div>
-            <p>
-              生年月日<br />
-              {{ localBirthDate ? localBirthDate : 'なし' }}
-            </p>
-            <template v-if="isEditingBirthDate">
-              <BirthDate v-model="localBirthDate" />
-            </template>
-          </div>
-
-          <!-- 名前 -->
-          <div>
-            <br /><label for="userName">名前</label>
-            <template v-if="isEditingUserName">
-              <TextInput
-                id="userName"
-                className="userName"
-                name="userName"
-                type="text"
-                v-model="localUserName"
-              />
-            </template>
-            <template v-else>
-              <br /><span>{{ localUserName }}</span>
-            </template>
-          </div>
-
-          <div>
-            <br /><label for="body">プロフィール本文</label>
-            <template v-if="isEditingBody">
-              <TextInput
-                id="body"
-                className="body"
-                name="body"
-                type="textarea"
-                v-model="localBody"
-              />
-            </template>
-            <template v-else>
-              <br /><span>{{ localBody }}</span>
-            </template>
-          </div>
-
-          <!-- パスワード -->
-          <div>
-            <br /><label for="password">パスワード</label>
-            <br />
-            <span>●●●●●●</span>
-            <br />
-          </div>
-
-          <!-- 年齢制限表示設定 -->
-          <br />
-          <p>年齢制限ありの画像を表示する</p>
-          <div class="radio-buttons">
-            <span class="radio">
-              <RadioInput
-                id="show"
-                name="certificate18"
-                value="1"
-                label="表示"
-                v-model="localCertificate18"
-              />
-            </span>
-            <span class="radio">
-              <RadioInput
-                id="hide"
-                name="certificate18"
-                value="0"
-                label="非表示"
-                v-model="localCertificate18"
-              />
-            </span>
-          </div>
-          <div class="submit-edit">
-            <IconButton label="編集する" />
-          </div>
-        </form>
+  <div class="profile-container">
+    <div class="profile-card">
+      <h1 class="profile-title">Profile</h1>
+      <div v-if="errorMessage" class="error-message">
+        {{ errorMessage }}
+      </div>
+      <div v-else class="profile-content">
+        <div class="profile-item">
+          <label>ユーザー名</label>
+          <p>{{ userName }}</p>
+        </div>
+        <div class="profile-item">
+          <label>自己紹介</label>
+          <p class="profile-body">{{ profileBody }}</p>
+        </div>
+        <div class="profile-item">
+          <label>生年月日</label>
+          <p>{{ birthDate }}</p>
+        </div>
+        <div class="profile-item">
+          <label>ログインID</label>
+          <p>{{ login_id }}</p>
+        </div>
+        <div class="profile-item">
+          <label>パスワード</label>
+          <p>{{ password ? '●●●●●●' : '未設定' }}</p>
+        </div>
+        <div class="profile-item">
+          <label>年齢制限付きの画像</label>
+          <p>{{ certificate18 ? '表示する' : '表示しない' }}</p>
+        </div>
+      </div>
+      <div class="button-area">
+        <IconButton label="編集する" @click="goToEditPage" />
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-.container {
-  width: 100%;
+.profile-container {
   display: flex;
   justify-content: center;
-  align-items: center;
-  padding-top: 20px;
+  align-items: flex-start;
+  padding: 40px 20px;
+  min-height: 100vh;
+  box-sizing: border-box;
 }
 
-.register-card {
-  background: white;
-  padding: 40px 30px;
-  border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  min-width: 320px;
-  max-width: 380px;
+.profile-card {
+  background: #ffffff;
+  padding: 30px 40px;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
   width: 100%;
+  max-width: 600px;
+  text-align: left;
 }
 
-.wrapper {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+.profile-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.profile-content {
   margin-bottom: 30px;
 }
 
-.label {
-  display: block;
-  text-align: left;
-  font-size: 14px;
-  font-weight: 600;
-  margin-bottom: 8px;
-  color: #222;
+.profile-item {
+  margin-bottom: 20px;
 }
 
-.submit-edit {
+.profile-item label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 8px;
+}
+
+.profile-item p {
+  font-size: 16px;
+  color: #333;
+  margin: 0;
+  padding: 10px;
+  background-color: #f9f9f9;
+  border-radius: 6px;
+  border: 1px solid #eee;
+}
+
+.profile-item .profile-body {
+  white-space: pre-wrap; /* 改行を反映させる */
+  line-height: 1.6;
+}
+
+.edit-button {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  background-color: #007bff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.edit-button:hover {
+  background-color: #0056b3;
+}
+
+.error-message {
+  color: #d9534f;
+  background-color: #f2dede;
+  border: 1px solid #ebccd1;
+  padding: 15px;
+  border-radius: 8px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.button-area {
   display: flex;
   justify-content: flex-end; /* 右寄せ */
-  padding-top: 20px;
-  margin-bottom: -20px;
+  margin-top: 40px;
 }
 </style>

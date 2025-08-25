@@ -5,15 +5,13 @@ header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 include('./BlogPDO.php');
 
-// リクエストURIからタグを取得
-$requestUri = $_SERVER['REQUEST_URI'];
-$tag = null;
+header('Content-Type: application/json');
 
-if (preg_match('/php\/(.+)$/', $requestUri, $matches)) {
-    $tag = urldecode($matches[1]);
-}
+// クエリパラメータから tag を取得
+$tag = isset($_GET['tag']) ? urldecode($_GET['tag']) : null;
 
-$tagList = $tag ? explode(',', $tag) : []; // 空チェック
+// カンマ区切りで複数タグを配列化
+$tagList = array_map('urldecode', array_map('trim', explode(',', $tag)));
 
 try {
     // データベース接続
@@ -79,16 +77,15 @@ try {
             // イラストのデータを取得
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 $illusts[] = [
-                    "id" => $row['id'],
-                    "p_id" => $row['p_id'],
-                    "title" => $row['title'],
-                    "url" => $row['url'],
-                    "body" => $row['body'],
+                    "illust_id" => $row['id'],
+                    "profile_id" => $row['p_id'],
+                    "illust_title" => $row['title'],
+                    "thumbnail_url" => $row['url'],
+                    "illust_body" => $row['body'],
                     "R18" => $row['R18'],
                     "public" => $row['public'],
-                    "s_url" => $row['s_url'],
-                    "p_name" => $row['p_name'],
-                    "p_photo" => $row['p_photo'],
+                    "profile_name" => $row['p_name'],
+                    "profile_photo" => $row['p_photo'],
                 ];
             }
 

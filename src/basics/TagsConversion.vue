@@ -25,7 +25,10 @@ watch(
   <div class="tags-container">
     <ul>
       <li v-for="(tag, index) in tags" :key="index">
-        <a :href="'/tags/' + tag" target="_blank">#{{ tag }}</a>
+        <!-- クエリパラメータ形式に変更 -->
+        <a :href="`/search?tag=${encodeURIComponent(tag)}`" target="_blank">
+          #{{ tag }}
+        </a>
       </li>
     </ul>
   </div>

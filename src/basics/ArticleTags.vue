@@ -54,7 +54,12 @@ watch(
   <div class="tags-container">
     <ul>
       <li v-for="(tag, index) in tags" :key="index">
-        <a :href="'/tags/' + tagNames[index]" target="_blank"> #{{ tag }} </a>
+        <router-link
+          :to="{ path: '/search', query: { tag: tagNames[index] } }"
+          class="router-link"
+        >
+          #{{ tag }}
+        </router-link>
       </li>
     </ul>
   </div>
@@ -100,5 +105,9 @@ li:hover {
 a {
   color: #333; /* リンクの文字色 */
   text-decoration: none; /* 下線なし */
+}
+
+.router-link {
+  color: #333;
 }
 </style>

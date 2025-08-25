@@ -60,7 +60,7 @@ const router = createRouter({
       component: () => import('@/views/ArticleEditPage.vue'),
     },
     {
-      path: '/tags/:word',
+      path: '/search',
       name: 'search',
       component: () => import('@/views/SearchPage.vue'),
     },

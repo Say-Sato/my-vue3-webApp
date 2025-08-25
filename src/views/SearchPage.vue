@@ -1,9 +1,16 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, defineProps } from 'vue'
+import { useRoute } from 'vue-router'
 import ImageGallery from '../components/FVImageGallery.vue'
 import SectionTitle from '@/basics/SectionTitle.vue'
 import SearchField from '../components/SearchField.vue'
 import type { Favorite } from '@/types/PostResponse'
+
+const route = useRoute() // Vue Router から現在のルートを取得
+
+const props = defineProps<{
+  keyword: string
+}>()
 
 // タグを保持する変数
 const tag = ref('')
@@ -11,24 +18,34 @@ const posts = ref<Favorite[]>([])
 const tagsName = ref('')
 
 const fetchData = async () => {
-  // URLから検索ワード、タグを取得
-  const pathParts = window.location.pathname.split('/')
-  tag.value = decodeURIComponent(pathParts[pathParts.length - 1])
+  // クエリパラメータから tag を取得
+  const queryTag = route.query.tag as string | undefined
+
+  // tag が存在しない場合は fetch を中止
+  if (!queryTag || queryTag.trim() === '') {
+    console.log('タグが指定されていません。fetchを中止します。')
+    return
+  }
+
+  tag.value = decodeURIComponent(queryTag)
 
   try {
     const response = await fetch(
-      `https://yellowokapi2.sakura.ne.jp/Vue/api/TagCatchAPI.php/${tag.value}`,
+      `https://yellowokapi2.sakura.ne.jp/Vue/api/TagCatchAPI.php?tag=${tag.value}`,
     )
 
     const data = await response.json()
-
     console.log('APIレスポンス:', data)
 
-    posts.value = data // posts 配列にデータを格納
-    posts.value = data.map((post: Favorite) => ({
-      ...post,
-      showProfile: true,
-    }))
+    if (Array.isArray(data)) {
+      posts.value = data.map((post: Favorite) => ({
+        ...post,
+        showProfile: true,
+      }))
+    } else {
+      console.error('APIから配列が返っていません:', data)
+      posts.value = []
+    }
 
     // 最初の要素の tags を格納
     if (data.length > 0 && data[0].tags) {
@@ -48,12 +65,16 @@ onMounted(fetchData)
 <template>
   <div class="container">
     <SearchField />
+    {{ props.keyword }}
   </div>
   <div v-if="posts.length > 0">
     <!-- タグの表示 -->
     <div class="post-item" v-if="posts.length > 0">
       <SectionTitle
-        :title="tagsName + 'の検索結果：' + '●●件' || 'error:タグ読み取り失敗'"
+        :title="
+          tagsName + 'の検索結果：' + `${posts.length}件` ||
+          'error:タグ読み取り失敗'
+        "
       />
     </div>
 

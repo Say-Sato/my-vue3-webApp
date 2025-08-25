@@ -1,6 +1,5 @@
 <script setup lang="ts">
-//import { ref, watch, onMounted, computed, defineEmits, defineProps } from 'vue'
-import { ref, watch, onMounted, defineEmits, defineProps } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import { useUserStore } from '@/stores/user'
 import type { PropType } from 'vue'
 
@@ -9,6 +8,7 @@ import RadioInput from '@/basics/RadioInput.vue'
 import IconButton from '@/basics/IconButton.vue'
 import BirthDate from '@/basics/BirthDate.vue'
 import PhotoDragDrop from '@/basics/PhotoDragDrop.vue'
+import FormWrapper from '@/basics/FormWrapper.vue'
 
 const props = defineProps<{
   userName: string
@@ -28,6 +28,7 @@ const emit = defineEmits<{
   (e: 'update:body', value: string): void
   (e: 'update:birthDate', value: string): void
 }>()
+
 // ローカルの状態を定義（フォーム入力用）
 const localUserName = ref(props.userName ?? '')
 const localPassword = ref(props.password ?? '')
@@ -36,28 +37,13 @@ const localBody = ref(props.body ?? '')
 const localBirthDate = ref(props.birthDate ?? '')
 const localProfilePhoto = ref<File[]>([])
 
-// 編集前の元の値を保持（変更検知用）
-const originalUserName = ref('')
-const originalPassword = ref('')
-const originalBirthDate = ref('')
-const originalCertificate18 = ref('')
-const originalBody = ref('')
-
-// 編集モードや変更済みフラグ
-//const isEditingUserName = ref(false)
 const isEditedUserName = ref(false)
-//const isEditingPassword = ref(false)
 const isEditedPassword = ref(false)
-//const isEditingBirthDate = ref(false)
 const isEditedBirthDate = ref(false)
-//const isEditingBody = ref(false)
 const isEditedBody = ref(false)
-//const isEditingCertificate18 = ref(false)
 const isEditedCertificate18 = ref(true)
 
-// その他
-//const passwordHide = ref(true) // パスワード表示状態の制御
-const errorMessage = ref('') // エラーメッセージ表示用
+const errorMessage = ref('')
 const userStore = useUserStore()
 const id = ref(userStore.id)
 
@@ -83,51 +69,10 @@ watch(
   val => (localBirthDate.value = val ?? ''),
 )
 
-// 各項目の編集状態を切り替える処理
-/*const toggleEdit = (field: string) => {
-  switch (field) {
-    case 'userName':
-      if (!isEditingUserName.value) originalUserName.value = localUserName.value
-      else
-        isEditedUserName.value = localUserName.value !== originalUserName.value
-      isEditingUserName.value = !isEditingUserName.value
-      break
-    case 'password':
-      if (!isEditingPassword.value) originalPassword.value = localPassword.value
-      else {
-        isEditedPassword.value = localPassword.value !== originalPassword.value
-        if (!isEditingPassword.value) passwordHide.value = true
-      }
-      isEditingPassword.value = !isEditingPassword.value
-      break
-    case 'birthDate':
-      if (!isEditingBirthDate.value)
-        originalBirthDate.value = localBirthDate.value
-      else
-        isEditedBirthDate.value =
-          localBirthDate.value !== originalBirthDate.value
-      isEditingBirthDate.value = !isEditingBirthDate.value
-      break
-    case 'body':
-      if (!isEditingBody.value) originalBody.value = localBody.value
-      else isEditedBody.value = localBody.value !== originalBody.value
-      isEditingBody.value = !isEditingBody.value
-      break
-    case 'certificate18':
-      if (!isEditingCertificate18.value)
-        originalCertificate18.value = localCertificate18.value
-      else
-        isEditedCertificate18.value =
-          localCertificate18.value !== originalCertificate18.value
-      isEditingCertificate18.value = !isEditingCertificate18.value
-      break
-  }
-}*/
 // フォームの送信処理
 const handleSubmit = async () => {
   const formData = new FormData()
 
-  // 編集された項目のみ送信する
   const entries = [
     ['userName', isEditedUserName.value, localUserName.value],
     ['password', isEditedPassword.value, localPassword.value],
@@ -164,7 +109,6 @@ const handleSubmit = async () => {
       throw new Error(result.message || `HTTP ${response.status}`)
     }
 
-    console.log('送信成功:', result)
     alert('データが正常に送信されました')
     emit('submit')
   } catch (error) {
@@ -189,13 +133,6 @@ onMounted(async () => {
     localBody.value = data.body ?? ''
     localBirthDate.value = data.birthDate ?? ''
     localCertificate18.value = String(data.certificate18 ?? '0')
-
-    // 比較用に取得値を保持
-    originalUserName.value = data.name ?? ''
-    originalPassword.value = data.password ?? ''
-    originalBody.value = data.body ?? ''
-    originalBirthDate.value = data.birthDate ?? ''
-    originalCertificate18.value = String(data.certificate18 ?? '0')
   } catch (error) {
     console.error('初期データの取得に失敗:', error)
     errorMessage.value = '初期データの取得に失敗しました。'
@@ -204,118 +141,90 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="container">
-    <div class="register-card">
-      <div class="wrapper">
-        <form @submit.prevent="handleSubmit">
-          <div v-if="errorMessage" class="error-message">
-            {{ errorMessage }}
-          </div>
+  <FormWrapper>
+    <div class="wrapper">
+      <form @submit.prevent="handleSubmit">
+        <div v-if="errorMessage" class="error-message">
+          {{ errorMessage }}
+        </div>
 
-          <div>
-            <label for="image">プロフィール画像</label>
-            <PhotoDragDrop v-model="localProfilePhoto" :maxCount="1" />
-          </div>
+        <div>
+          <label for="image">プロフィール画像</label>
+          <PhotoDragDrop v-model="localProfilePhoto" :maxCount="1" />
+        </div>
 
-          <!-- 生年月日 -->
-          <div>
-            <p>生年月日</p>
-            <BirthDate v-model="localBirthDate" />
-          </div>
+        <div>
+          <p>生年月日</p>
+          <BirthDate v-model="localBirthDate" />
+        </div>
 
-          <!-- 名前 -->
-          <div>
-            <br /><label for="userName">名前</label>
-            <TextInput
-              id="userName"
-              class="userName"
-              name="userName"
-              type="text"
-              v-model="localUserName"
-            />
-          </div>
-          <div>
-            <br /><label for="body">プロフィール本文</label>
-            <TextInput
-              id="body"
-              class="body"
-              name="body"
-              type="textarea"
-              v-model="localBody"
-            />
-          </div>
-
-          <!-- パスワード -->
-
-          <br /><label for="password">パスワード</label>
-
-          <!-- 編集中で表示状態：パスワード入力欄 -->
-
+        <div>
+          <br /><label for="userName">名前</label>
           <TextInput
-            id="password"
-            class="password"
-            name="password"
-            type="password"
-            v-model="localPassword"
+            id="userName"
+            class="userName"
+            name="userName"
+            type="text"
+            v-model="localUserName"
           />
+        </div>
+        <div>
+          <br /><label for="body">プロフィール本文</label>
+          <TextInput
+            id="body"
+            class="body"
+            name="body"
+            type="textarea"
+            v-model="localBody"
+          />
+        </div>
 
-          <!-- 年齢制限表示設定 -->
-          <br />
-          <p>年齢制限ありの画像を表示する</p>
-          <div class="radio-buttons">
-            <span class="radio">
-              <RadioInput
-                id="show"
-                name="certificate18"
-                value="1"
-                label="表示"
-                v-model="localCertificate18"
-              />
-            </span>
-            <span class="radio">
-              <RadioInput
-                id="hide"
-                name="certificate18"
-                value="0"
-                label="非表示"
-                v-model="localCertificate18"
-              />
-            </span>
-          </div>
-          <div class="submit-edit">
-            <IconButton label="キャンセル" backgroundColor="#ccc" />
-            <IconButton type="submit" label="保存する" />
-          </div>
-        </form>
-      </div>
+        <br /><label for="password">パスワード</label>
+        <TextInput
+          id="password"
+          class="password"
+          name="password"
+          type="password"
+          v-model="localPassword"
+        />
+
+        <br />
+        <p>年齢制限ありの画像を表示する</p>
+        <RadioInput
+          id="show"
+          name="certificate18"
+          value="1"
+          label="表示"
+          v-model="localCertificate18"
+        />
+        <RadioInput
+          id="hide"
+          name="certificate18"
+          value="0"
+          label="非表示"
+          v-model="localCertificate18"
+        />
+        <div class="submit-edit">
+          <IconButton label="キャンセル" backgroundColor="#ccc" />
+          <IconButton type="submit" label="保存する" />
+        </div>
+      </form>
     </div>
-  </div>
+  </FormWrapper>
 </template>
 
 <style scoped>
-.container {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding-top: 20px;
-}
-
-.register-card {
-  background: white;
-  padding: 40px 30px;
-  border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  min-width: 320px;
-  max-width: 380px;
-  width: 100%;
-}
-
 .wrapper {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  margin-bottom: 30px;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 20px;
 }
 
 .label {
@@ -329,8 +238,18 @@ onMounted(async () => {
 
 .submit-edit {
   display: flex;
-  justify-content: space-between; /* 左右に配置 */
-  align-items: center; /* 高さ揃え */
+  justify-content: space-between;
+  align-items: center;
   margin-top: 40px;
+}
+
+.error-message {
+  color: #d9534f;
+  background-color: #f2dede;
+  border: 1px solid #ebccd1;
+  padding: 15px;
+  border-radius: 8px;
+  text-align: center;
+  margin-bottom: 20px;
 }
 </style>

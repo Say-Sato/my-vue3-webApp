@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import IconButton from '@/basics/IconButton.vue'
+import FormWrapper from '@/basics/FormWrapper.vue'
 
 // ストアとルーターを初期化
 const userStore = useUserStore()
@@ -51,65 +52,44 @@ const goToEditPage = () => {
 </script>
 
 <template>
-  <div class="profile-container">
-    <div class="profile-card">
-      <h1 class="profile-title">Profile</h1>
-      <div v-if="errorMessage" class="error-message">
-        {{ errorMessage }}
+  <FormWrapper>
+    <h1 class="profile-title">Profile</h1>
+    <div v-if="errorMessage" class="error-message">
+      {{ errorMessage }}
+    </div>
+    <div v-else class="profile-content">
+      <div class="profile-item">
+        <label>ユーザー名</label>
+        <p>{{ userName }}</p>
       </div>
-      <div v-else class="profile-content">
-        <div class="profile-item">
-          <label>ユーザー名</label>
-          <p>{{ userName }}</p>
-        </div>
-        <div class="profile-item">
-          <label>自己紹介</label>
-          <p class="profile-body">{{ profileBody }}</p>
-        </div>
-        <div class="profile-item">
-          <label>生年月日</label>
-          <p>{{ birthDate }}</p>
-        </div>
-        <div class="profile-item">
-          <label>ログインID</label>
-          <p>{{ login_id }}</p>
-        </div>
-        <div class="profile-item">
-          <label>パスワード</label>
-          <p>{{ password ? '●●●●●●' : '未設定' }}</p>
-        </div>
-        <div class="profile-item">
-          <label>年齢制限付きの画像</label>
-          <p>{{ certificate18 ? '表示する' : '表示しない' }}</p>
-        </div>
+      <div class="profile-item">
+        <label>自己紹介</label>
+        <p class="profile-body">{{ profileBody }}</p>
       </div>
-      <div class="button-area">
-        <IconButton label="編集する" @click="goToEditPage" />
+      <div class="profile-item">
+        <label>生年月日</label>
+        <p>{{ birthDate }}</p>
+      </div>
+      <div class="profile-item">
+        <label>ログインID</label>
+        <p>{{ login_id }}</p>
+      </div>
+      <div class="profile-item">
+        <label>パスワード</label>
+        <p>{{ password ? '●●●●●●' : '未設定' }}</p>
+      </div>
+      <div class="profile-item">
+        <label>年齢制限付きの画像</label>
+        <p>{{ certificate18 ? '表示する' : '表示しない' }}</p>
       </div>
     </div>
-  </div>
+    <div class="button-area">
+      <IconButton label="編集する" @click="goToEditPage" />
+    </div>
+  </FormWrapper>
 </template>
 
 <style scoped>
-.profile-container {
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  padding: 40px 20px;
-  min-height: 100vh;
-  box-sizing: border-box;
-}
-
-.profile-card {
-  background: #ffffff;
-  padding: 30px 40px;
-  border-radius: 12px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
-  width: 100%;
-  max-width: 600px;
-  text-align: left;
-}
-
 .profile-title {
   font-size: 28px;
   font-weight: 700;

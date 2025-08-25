@@ -5,6 +5,7 @@ import TextInput from '@/basics/TextInput.vue'
 import IconButton from '@/basics/IconButton.vue'
 import RadioInput from '@/basics/RadioInput.vue'
 import PhotoDragDrop from '@/basics/PhotoDragDrop.vue'
+import FormWrapper from '@/basics/FormWrapper.vue'
 
 // props 定義
 const props = defineProps<{
@@ -118,8 +119,8 @@ const handleSubmit = () => {
 </script>
 
 <template>
-  <div class="form-container">
-    <form @submit.prevent="handleSubmit" class="upload-form">
+  <FormWrapper>
+    <form @submit.prevent="handleSubmit">
       <!-- 画像アップロード -->
       <div v-if="hideEdit" class="image-upload">
         <PhotoDragDrop v-model="localImages" :maxCount="10" />
@@ -237,28 +238,10 @@ const handleSubmit = () => {
         <IconButton label="プレビュー" type="submit" />
       </div>
     </form>
-  </div>
+  </FormWrapper>
 </template>
 
 <style scoped>
-/* 全体のセンター揃え */
-.form-container {
-  display: flex;
-  justify-content: center;
-  padding: 20px;
-}
-
-/* 白いカード風 */
-.upload-form {
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  padding: 24px;
-  width: 100%;
-  max-width: 600px;
-  box-sizing: border-box;
-}
-
 /* 画像アップロード */
 /* 共通フォーム要素 */
 .form-group {
@@ -337,11 +320,6 @@ const handleSubmit = () => {
   margin: 12px 0 6px;
   font-weight: bold;
   font-size: 14px;
-}
-.radio-buttons {
-  display: flex;
-  gap: 20px;
-  margin-bottom: 12px;
 }
 
 /* 送信ボタン */

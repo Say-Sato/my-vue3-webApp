@@ -61,6 +61,17 @@ const fetchData = async () => {
   }
 }
 
+// ✅ 表示するコメント（3件 or 全件）
+const visibleComments = computed(() => {
+  if (!posts.value?.comment) return []
+  return showAll.value ? posts.value.comment : posts.value.comment.slice(0, 3)
+})
+
+// ✅ コメント数
+const commentCount = computed(() =>
+  posts.value ? posts.value.comment.length : 0,
+)
+
 onMounted(() => {
   // マウント時にすでに post_id が入っていれば即 fetch
   if (props.post_id) {
@@ -78,16 +89,10 @@ watch(
   },
 )
 
-// ✅ 表示するコメント（3件 or 全件）
-const visibleComments = computed(() => {
-  if (!posts.value) return []
-  return showAll.value ? posts.value.comment : posts.value.comment.slice(0, 3)
+//
+watch(commentCount, () => {
+  fetchData()
 })
-
-// ✅ コメント数
-const commentCount = computed(() =>
-  posts.value ? posts.value.comment.length : 0,
-)
 </script>
 
 <template>

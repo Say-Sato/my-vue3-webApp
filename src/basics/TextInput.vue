@@ -23,7 +23,7 @@ const props = withDefaults(
 
 // emit 定義
 const emit = defineEmits<{
-  (e: 'update:modelValue', value: string): void
+  'update:modelValue': [value: string]
 }>()
 
 // パスワード表示切替用

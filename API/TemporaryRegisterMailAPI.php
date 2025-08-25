@@ -36,7 +36,8 @@ if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
 
     // DBに仮登録データを保存
     try {
-        $stmt = $pdo->prepare('INSERT INTO temporary_users (email, token, expire, is_used) VALUES (:email, :token, :expire, 0)');
+        $stmt = $pdo->prepare('INSERT INTO temporary_users (email, token, expire, is_used) 
+        VALUES (:email, :token, :expire, 0)');
         $stmt->execute([
             ':email' => $email,
             ':token' => $token,

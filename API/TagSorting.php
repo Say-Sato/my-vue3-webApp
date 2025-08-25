@@ -39,9 +39,9 @@ try {
         // 検索クエリの処理
         $sortPlaceholders = implode(',', array_fill(0, count($tagList), '?'));
         $sortQuery = "SELECT i_id, GROUP_CONCAT(t_id ORDER BY t_id) AS tag_ids
-    FROM illust_tags
-    WHERE illust_tags.t_id IN ($sortPlaceholders)
-    GROUP BY i_id";
+        FROM illust_tags
+        WHERE illust_tags.t_id IN ($sortPlaceholders)
+        GROUP BY i_id";
         $sortStmt = $dbh->prepare($sortQuery);
         $sortStmt->execute($tagList);
 

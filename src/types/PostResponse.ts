@@ -56,6 +56,7 @@ export type PostEdit = {
 
 // PostGallery（PostResponse を拡張）
 export interface PostGallery extends PostResponse {
+  profile_login_id: string
   tags: number[]
   images: Image[]
   prev_id: number

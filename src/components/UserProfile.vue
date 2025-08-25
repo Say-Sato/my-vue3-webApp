@@ -1,18 +1,15 @@
 <script setup lang="ts">
 //import { computed } from 'vue'
 import { defineProps } from 'vue'
-import { useUserStore } from '@/stores/user'
 
 import IconButton from '@/basics/IconButton.vue'
 
 // ✅ propsを定義（nameとid）
 const props = defineProps<{
   name?: string
-  id?: number | string
+  profile_login_id?: string
   p_photo?: string
 }>()
-
-const userStore = useUserStore()
 
 // ✅ props > store > fallback の順で表示名を決定
 /*const newId = computed(() => {
@@ -38,7 +35,7 @@ const userStore = useUserStore()
 
       <div class="info">
         <p class="userName">{{ props.name || 'unknown' }}</p>
-        <p class="userId">ID: {{ userStore.login_id }}</p>
+        <p class="userId">ID: {{ props.profile_login_id || '****' }}</p>
       </div>
 
       <IconButton

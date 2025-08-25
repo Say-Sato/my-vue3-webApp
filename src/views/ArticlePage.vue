@@ -59,7 +59,9 @@ onBeforeUnmount(() => {
         </span>
       </div>
 
-      <div class="dtl">{{ post?.illust_body || '本文が入っていません' }}</div>
+      <div class="dtl">
+        {{ post?.illust_body || '本文が入っていません' }}
+      </div>
       <ArticleTags :tagsMsg="post?.tags ?? []" />
 
       <div v-if="post" class="prev-next-wrapper">
@@ -75,6 +77,7 @@ onBeforeUnmount(() => {
       <Profile
         :name="post?.profile_name ?? 'deleted user'"
         :p_photo="post?.profile_photo"
+        :profile_login_id="post?.profile_login_id"
       />
       <div class="sidebar-divider"></div>
       <Comment :post_id="post?.illust_id || 0" />
@@ -84,6 +87,7 @@ onBeforeUnmount(() => {
       <Profile
         :name="post?.profile_name ?? 'deleted user'"
         :p_photo="post?.profile_photo"
+        :profile_id="post?.profile_login_id"
       />
       <div class="sidebar-divider"></div>
       <Comment :post_id="post?.illust_id || 0" />

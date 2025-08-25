@@ -20,6 +20,7 @@ if ($id !== null) {
             (SELECT 
                 id, title, 'prev' AS role,
                 NULL AS p_id, NULL AS body, NULL AS url, NULL AS created,
+                NULL AS p_login_id,
                 NULL AS p_name, NULL AS p_photo, NULL AS tag_ids,
                 NULL AS R18, NULL AS public, NULL AS s_url
             FROM illust
@@ -30,7 +31,7 @@ if ($id !== null) {
             (SELECT 
                 illust.id, illust.title, 'current' AS role,
                 illust.p_id, illust.body, illust.url, illust.created,
-                profile.name AS p_name, profile.profile_photo AS p_photo,
+                profile.login_id AS p_login_id, profile.name AS p_name, profile.profile_photo AS p_photo,
                 GROUP_CONCAT(illust_tags.t_id) AS tag_ids,
                 illust.R18, illust.public, illust.s_url
             FROM illust
@@ -42,6 +43,7 @@ if ($id !== null) {
             (SELECT 
                 id, title, 'next' AS role,
                 NULL AS p_id, NULL AS body, NULL AS url, NULL AS created,
+                NULL AS p_login_id,
                 NULL AS p_name, NULL AS p_photo, NULL AS tag_ids,
                 NULL AS R18, NULL AS public, NULL AS s_url
             FROM illust
@@ -78,6 +80,7 @@ if ($id !== null) {
             $data = [
                 "illust_id"         => $current['id'],
                 "profile_id"       => $current['p_id'],
+                "profile_login_id" => $current['p_login_id'],
                 "illust_title"      => $current['title'],
                 "tags"       => isset($current['tag_ids']) ? array_map('intval', explode(',', $current['tag_ids'])) : [],
                 "thumbnail_url"        => $current['url'],
@@ -119,7 +122,7 @@ if ($id !== null) {
         }
     } catch (PDOException $e) {
         header('Content-Type: application/json', true, 500);
-        echo json_encode(["error" => "データベース接続失敗: " . $e->getMessage()]);
+        echo json_encode(["error" => "データベース接続失敗: " . $e->getMessage()], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
     } finally {
         $dbh = null;
     }
@@ -130,7 +133,7 @@ if ($id !== null) {
 
         // illust + profile + tags を一括取得
         $query = "SELECT illust.*, profile.name AS p_name,
-                        profile.profile_photo AS p_photo,
+                        profile.profile_photo AS p_photo, profile.login_id AS p_login_id,
                         GROUP_CONCAT(illust_tags.t_id) AS tag_ids
                 FROM illust
                 JOIN profile ON illust.p_id = profile.id
@@ -148,6 +151,7 @@ if ($id !== null) {
             $item = [
                 "illust_id" => (int)$row['id'],
                 "profile_id" => (int)$row['p_id'],
+                "profile_login_id" => $row['p_login_id'],
                 "illust_title" => $row['title'],
                 "tags" => $row['tag_ids'] ? array_map('intval', explode(',', $row['tag_ids'])) : [],
                 "thumbnail_url" => $row['url'],
@@ -191,7 +195,7 @@ if ($id !== null) {
     } catch (PDOException $e) {
         // エラーメッセージもJSON形式で返す
         header('Content-Type: application/json', true, 500);
-        echo json_encode(["error" => "データベースの接続に失敗しました: " . $e->getMessage()]);
+        echo json_encode(["error" => "データベースの接続に失敗しました: " . $e->getMessage()], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
         die();
     } finally {
         // DB接続を閉じる

@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { onMounted, ref, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
-import IconButton from '@/basics/IconButton.vue' // 必要ならインポート
+import type { Image } from '@/types/PostResponse' // 型定義の場所に合わせてね
+import IconButton from '@/basics/IconButton.vue'
+import ImageList from '@/components/ArticleImageList.vue'
 
 // props 定義
 const props = defineProps<{
@@ -26,10 +28,7 @@ const formPublish = ref(props.publish)
 const formAdultsOnly = ref(props.adultsOnly)
 const imageFiles = ref<File[]>(props.images || [])
 const previewUrls = ref<string[]>([])
-
-// 🔍 デバッグログ
-console.log('props.images:', props.images)
-console.log('imageFiles (before preview gen):', imageFiles.value)
+const previewImage = ref<Image[]>([])
 
 // プレビュー画像生成
 previewUrls.value = imageFiles.value.map((file, i) => {
@@ -43,8 +42,6 @@ previewUrls.value = imageFiles.value.map((file, i) => {
     return ''
   }
 })
-
-console.log('previewUrls:', previewUrls.value)
 
 // submit 処理
 const handleSubmit = async () => {
@@ -92,8 +89,20 @@ const updateScreenSize = () => {
   isWideScreen.value = window.innerWidth > 800
 }
 
+const fetchData = () => {
+  previewImage.value = [] // 初期化しておく
+  for (let i = 0; i < previewUrls.value.length; i++) {
+    previewImage.value.push({
+      image_id: i,
+      image_url: previewUrls.value[i],
+      sort_order: i,
+    })
+  }
+}
+
 onMounted(() => {
   window.addEventListener('resize', updateScreenSize)
+  fetchData()
 })
 onBeforeUnmount(() => {
   window.removeEventListener('resize', updateScreenSize)
@@ -108,53 +117,27 @@ onBeforeUnmount(() => {
         <!-- メインエリア -->
         <div class="container-main">
           <!-- 画像エリア -->
-          <div class="image-wrapper" v-if="previewUrls.length">
-            <img
-              v-for="(url, index) in previewUrls"
-              :key="index"
-              :src="url"
-              alt="プレビュー画像"
-              class="preview-image"
-            />
-          </div>
-
+          <ImageList :images="previewImage ?? []" />
           <div class="title-favorite-wrapper">
-            <!-- タイトル -->
-            <h2 class="preview-title">{{ formTitle || 'タイトルなし' }}</h2>
+            <h1 class="title">{{ formTitle || 'タイトルなし' }}</h1>
             <span class="favorite">
-              <IconButton label="いいね" />
+              <IconButton
+                label="いいね"
+                icon-class="fa-regular fa-heart"
+                color="red"
+              />
             </span>
           </div>
 
-          <div class="dtl">
-            <!-- 本文 -->
-            {{ formBody || '本文が入っていません' }}
-          </div>
-          <!-- ボタン群 -->
-          <div class="action-buttons">
-            <button class="btn">通知オン</button>
-            <button class="btn">いいね</button>
-            <button class="btn">フォロー</button>
-            <button class="btn">フォロー</button>
-            <button class="btn">フォロー</button>
-            <button class="btn">フォロー</button>
-          </div>
-        </div>
-
-        <!-- サイドエリア（画面幅に応じて表示切り替え） -->
-        <div v-if="isWideScreen" class="sidebar">
-          <div class="sidebar-divider"></div>
-        </div>
-
-        <div v-else class="sidebar-mobile">
-          <div class="sidebar-divider"></div>
+          <div class="dtl">{{ formBody || '本文が入っていません' }}</div>
+          <!--<ArticleTags :tagsMsg="tagsArray" />-->
         </div>
       </div>
 
       <!-- フッターボタン -->
       <div class="footer-buttons">
-        <button class="btn cancel">キャンセル</button>
-        <button class="btn submit" @click="handleSubmit">投稿する</button>
+        <IconButton label="戻る" @click="$router.back()" />
+        <IconButton label="投稿する" @click="handleSubmit" />
       </div>
     </div>
   </div>
@@ -163,73 +146,88 @@ onBeforeUnmount(() => {
 <style scoped>
 .container {
   display: flex;
-  flex-direction: row;
   justify-content: center;
   align-items: flex-start;
   width: 100%;
+  padding-top: 60px; /* ヘッダーとの重なりを避ける */
   box-sizing: border-box;
-  position: relative;
+  z-index: 9999;
 }
 
 /* プレビューカード本体 */
 .preview-card {
-  position: absolute;
-  top: 40px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 70%;
-  max-width: 800px;
+  width: 90%;
+  max-width: 960px;
   background: #fff;
-  border-radius: 20px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-  padding: 30px;
-  text-align: center;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  padding: 20px;
   z-index: 10;
 }
 
-.image-wrapper {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 20px;
-}
-
-.preview-image {
-  max-width: 100%;
-  max-height: 400px;
-  border-radius: 10px;
-}
-
-.preview-title {
-  font-size: 22px;
-  font-weight: bold;
-  margin: 10px 0;
-}
-
-.preview-body {
-  font-size: 14px;
-  color: #444;
-  margin: 15px 0 25px;
-}
-
 .main-layout {
+  display: flex;
   flex-direction: column;
-  align-items: center; /* ← 中央揃えにするため追加 */
+  align-items: center;
 }
 
 .container-main {
-  width: 100%; /* ← 上書き */
-  max-width: 800px; /* ← 任意で制限 */
-  padding: 20px 0 0 0; /* ← paddingリセット */
-  margin: 0 auto; /* ← 左右中央 */
-  border-right: none; /* ← 線を消す */
-}
-
-.sidebar {
-  display: none;
-}
-
-.sidebar-mobile {
   width: 100%;
-  padding: 20px 0 0 0;
+}
+
+.title-favorite-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.favorite {
+  margin-left: 20px;
+}
+
+.dtl {
+  line-height: 1.6;
+  margin-bottom: 24px;
+  white-space: pre-wrap; /* 改行を反映 */
+}
+
+.dtl::after {
+  content: '';
+  display: block;
+  width: 100%;
+  height: 1px;
+  background-color: #eee;
+  margin-top: 24px;
+}
+
+.footer-buttons {
+  display: flex;
+  justify-content: space-between; /* 左右に配置 */
+  align-items: center; /* 高さ揃え */
+  margin-top: 40px;
+}
+
+.btn {
+  padding: 10px 20px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.btn.cancel {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.btn.submit {
+  background-color: #3498db;
+  color: white;
 }
 </style>

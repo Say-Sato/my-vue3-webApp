@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
+import { useRouter } from 'vue-router'
 
 const router = useRouter()
-const route = useRoute()
 const inputText = ref('') // input用文字列
 const keywords = ref<string[]>([]) // 分割後配列
 
@@ -16,6 +15,11 @@ onMounted(() => {
 // inputTextの変更を監視してlocalStorageに保存
 watch(inputText, newVal => {
   localStorage.setItem('searchInput', newVal)
+})
+
+// アンマウント時にlocalStorageを削除
+onBeforeUnmount(() => {
+  localStorage.removeItem('searchInput')
 })
 
 const submitSearch = () => {
@@ -31,9 +35,6 @@ const submitSearch = () => {
   keywords.value = Array.from(new Set(words))
   const strSpace: string = keywords.value.join(' ')
   inputText.value = strSpace
-
-  // 現在のルートが特定ページ以外なら動作しない
-  if (route.path !== '/search') return
 
   router.push({
     path: '/search',

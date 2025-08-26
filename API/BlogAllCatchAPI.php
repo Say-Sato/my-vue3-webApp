@@ -19,9 +19,8 @@ if ($id !== null) {
         $query = "
             (SELECT 
                 id, title, 'prev' AS role,
-                NULL AS p_id, NULL AS body, NULL AS url, NULL AS created,
-                NULL AS p_login_id,
-                NULL AS p_name, NULL AS p_photo, NULL AS tag_ids,
+                NULL AS p_id, NULL AS body, NULL AS created,
+                NULL AS p_login_id, NULL AS p_name, NULL AS p_photo, NULL AS tag_ids,
                 NULL AS R18, NULL AS public, NULL AS s_url
             FROM illust
             WHERE id < :id
@@ -30,7 +29,7 @@ if ($id !== null) {
             UNION ALL
             (SELECT 
                 illust.id, illust.title, 'current' AS role,
-                illust.p_id, illust.body, illust.url, illust.created,
+                illust.p_id, illust.body, illust.created,
                 profile.login_id AS p_login_id, profile.name AS p_name, profile.profile_photo AS p_photo,
                 GROUP_CONCAT(illust_tags.t_id) AS tag_ids,
                 illust.R18, illust.public, illust.s_url
@@ -42,9 +41,8 @@ if ($id !== null) {
             UNION ALL
             (SELECT 
                 id, title, 'next' AS role,
-                NULL AS p_id, NULL AS body, NULL AS url, NULL AS created,
-                NULL AS p_login_id,
-                NULL AS p_name, NULL AS p_photo, NULL AS tag_ids,
+                NULL AS p_id, NULL AS body, NULL AS created,
+                NULL AS p_login_id, NULL AS p_name, NULL AS p_photo, NULL AS tag_ids,
                 NULL AS R18, NULL AS public, NULL AS s_url
             FROM illust
             WHERE id > :id
@@ -78,39 +76,45 @@ if ($id !== null) {
 
         if ($current) {
             $data = [
-                "illust_id"         => $current['id'],
-                "profile_id"       => $current['p_id'],
+                "illust_id"       => $current['id'],
+                "profile_id"      => $current['p_id'],
                 "profile_login_id" => $current['p_login_id'],
-                "illust_title"      => $current['title'],
-                "tags"       => isset($current['tag_ids']) ? array_map('intval', explode(',', $current['tag_ids'])) : [],
-                "thumbnail_url"        => $current['url'],
-                "illust_body"       => $current['body'],
-                "R18"        => $current['R18'],
-                "public"     => $current['public'],
-                "profile_name"     => $current['p_name'],
-                "profile_photo"    => $current['p_photo'],
-                "prev_id"    => $prev['id'] ?? null,
-                "next_id"    => $next['id'] ?? null,
-                "images"     => []
+                "illust_title"    => $current['title'],
+                "tags"            => isset($current['tag_ids']) ? array_map('intval', explode(',', $current['tag_ids'])) : [],
+                "thumbnail_url"   => null, // 最初の画像で上書きする
+                "illust_body"     => $current['body'],
+                "R18"             => $current['R18'],
+                "public"          => $current['public'],
+                "profile_name"    => $current['p_name'],
+                "profile_photo"   => $current['p_photo'],
+                "prev_id"         => $prev['id'] ?? null,
+                "next_id"         => $next['id'] ?? null,
+                "images"          => []
             ];
 
             // 対応画像の取得
             $imgQuery = "
-                SELECT url AS image_url, id AS image_id, sort_order
-                FROM images
-                WHERE post_id = :id
-                ORDER BY sort_order ASC";
+        SELECT url AS image_url, id AS image_id, sort_order
+        FROM images
+        WHERE post_id = :id
+        ORDER BY sort_order ASC
+    ";
             $imgStmt = $dbh->prepare($imgQuery);
             $imgStmt->bindParam(':id', $id, PDO::PARAM_INT);
             $imgStmt->execute();
             $images = $imgStmt->fetchAll(PDO::FETCH_ASSOC);
 
-            foreach ($images as $img) {
+            foreach ($images as $index => $img) {
                 $data['images'][] = [
                     'image_id'   => (int)$img['image_id'],
                     'image_url'  => $img['image_url'],
                     'sort_order' => (int)$img['sort_order']
                 ];
+
+                // 最初の画像でthumbnail_urlを設定
+                if ($index === 0) {
+                    $data['thumbnail_url'] = $img['image_url'];
+                }
             }
 
             // JSON返却
@@ -133,7 +137,7 @@ if ($id !== null) {
 
         // illust + profile + tags を一括取得
         $query = "SELECT illust.*, profile.name AS p_name,
-                        profile.profile_photo AS p_photo, profile.login_id AS p_login_id,
+                        profile.profile_photo AS p_photo,
                         GROUP_CONCAT(illust_tags.t_id) AS tag_ids
                 FROM illust
                 JOIN profile ON illust.p_id = profile.id
@@ -146,15 +150,11 @@ if ($id !== null) {
 
         $data = [];
 
-        // タグ名をカンマ区切りで結合
-        $tagWord = implode(',', $tagWords);
-
         // メインループで各イラストごとの配列を作成
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $item = [
                 "illust_id" => (int)$row['id'],
                 "profile_id" => (int)$row['p_id'],
-                "profile_login_id" => $row['p_login_id'],
                 "illust_title" => $row['title'],
                 "tags" => $row['tag_ids'] ? array_map('intval', explode(',', $row['tag_ids'])) : [],
                 "thumbnail_url" => $row['url'],

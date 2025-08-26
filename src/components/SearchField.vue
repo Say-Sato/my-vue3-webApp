@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 
 const router = useRouter()
+const route = useRoute()
 const inputText = ref('') // input用文字列
 const keywords = ref<string[]>([]) // 分割後配列
 
@@ -30,6 +31,9 @@ const submitSearch = () => {
   keywords.value = Array.from(new Set(words))
   const strSpace: string = keywords.value.join(' ')
   inputText.value = strSpace
+
+  // 現在のルートが特定ページ以外なら動作しない
+  if (route.path !== '/search') return
 
   router.push({
     path: '/search',

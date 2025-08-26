@@ -80,7 +80,7 @@ const goToEditPage = () => {
       </div>
       <div class="profile-item">
         <label>年齢制限付きの画像</label>
-        <p>{{ certificate18 ? '表示する' : '表示しない' }}</p>
+        <p>{{ Number(certificate18) ? '表示する' : '表示しない' }}</p>
       </div>
     </div>
     <div class="button-area">

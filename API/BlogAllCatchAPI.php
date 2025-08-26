@@ -146,6 +146,9 @@ if ($id !== null) {
 
         $data = [];
 
+        // タグ名をカンマ区切りで結合
+        $tagWord = implode(',', $tagWords);
+
         // メインループで各イラストごとの配列を作成
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $item = [

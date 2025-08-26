@@ -1,41 +1,28 @@
 <script setup lang="ts">
-import { onMounted, ref, defineProps } from 'vue'
+import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import ImageGallery from '../components/FVImageGallery.vue'
 import SectionTitle from '@/basics/SectionTitle.vue'
 import SearchField from '../components/SearchField.vue'
 import type { Favorite } from '@/types/PostResponse'
 
-const route = useRoute() // Vue Router から現在のルートを取得
+const route = useRoute()
 
-const props = defineProps<{
-  keyword: string
-}>()
-
-// タグを保持する変数
 const tag = ref('')
+const words = ref('')
 const posts = ref<Favorite[]>([])
 const tagsName = ref('')
 
-const fetchData = async () => {
-  // クエリパラメータから tag を取得
-  const queryTag = route.query.tag as string | undefined
-
-  // tag が存在しない場合は fetch を中止
-  if (!queryTag || queryTag.trim() === '') {
-    console.log('タグが指定されていません。fetchを中止します。')
-    return
-  }
-
+// ---- fetchDataを tag用 / words用 に分割 ----
+const fetchByTag = async (queryTag: string) => {
   tag.value = decodeURIComponent(queryTag)
 
   try {
     const response = await fetch(
       `https://yellowokapi2.sakura.ne.jp/Vue/api/TagCatchAPI.php?tag=${tag.value}`,
     )
-
     const data = await response.json()
-    console.log('APIレスポンス:', data)
+    console.log('APIレスポンス(tag):', data)
 
     if (Array.isArray(data)) {
       posts.value = data.map((post: Favorite) => ({
@@ -47,25 +34,64 @@ const fetchData = async () => {
       posts.value = []
     }
 
-    // 最初の要素の tags を格納
     if (data.length > 0 && data[0].tags) {
       tagsName.value = String(data[0].tags)
     }
-
-    console.log('格納されたタグ:', tagsName.value)
   } catch (error) {
-    console.error('Error fetching data:', error)
+    console.error('Error fetching data (tag):', error)
   }
 }
 
-// APIからデータを取得
-onMounted(fetchData)
+const fetchByWords = async (queryWords: string) => {
+  words.value = decodeURIComponent(queryWords)
+
+  try {
+    const response = await fetch(
+      `https://yellowokapi2.sakura.ne.jp/Vue/api/Illust_tagsSearchAPI.php?words=${words.value}`,
+    )
+    const data = await response.json()
+    //console.log('APIレスポンス(words):', data)
+
+    if (Array.isArray(data)) {
+      posts.value = data.map((post: Favorite) => ({
+        ...post,
+        showProfile: true,
+      }))
+    } else {
+      console.error('APIから配列が返っていません:', data)
+      posts.value = []
+    }
+
+    if (data.length > 0) {
+      tagsName.value = words.value
+    }
+  } catch (error) {
+    console.error('Error fetching data (words):', error)
+  }
+}
+
+// ---- watchでクエリを監視して呼び分け ----
+watch(
+  () => route.query,
+  newQuery => {
+    const queryTag = (newQuery.tag as string) || ''
+    const queryWords = (newQuery.words as string) || ''
+
+    if (queryTag.trim() && !queryWords.trim()) {
+      fetchByTag(queryTag)
+    } else if (queryWords.trim() && !queryTag.trim()) {
+      fetchByWords(queryWords)
+    } else {
+      console.error('タグかワードのどちらか一方を指定してください')
+    }
+  },
+  { deep: true, immediate: true }, // 初回マウント時も実行
+)
 </script>
 
 <template>
   <div class="container">
     <SearchField />
-    {{ props.keyword }}
   </div>
   <div v-if="posts.length > 0">
     <!-- タグの表示 -->

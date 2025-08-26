@@ -1,26 +1,39 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
-const inputText = ref('') // input用は文字列
-const keywords = ref<string[]>([]) // 分割後の配列
+const inputText = ref('') // input用文字列
+const keywords = ref<string[]>([]) // 分割後配列
+
+// ページ読み込み時にlocalStorageから値を取得
+onMounted(() => {
+  const saved = localStorage.getItem('searchInput')
+  if (saved) inputText.value = saved
+})
+
+// inputTextの変更を監視してlocalStorageに保存
+watch(inputText, newVal => {
+  localStorage.setItem('searchInput', newVal)
+})
 
 const submitSearch = () => {
   if (!inputText.value.trim()) return
 
-  // 空白で分割して余計な空白を削除
-  keywords.value = inputText.value
+  // 空白で分割して余計な空白を削除、重複はSetで排除
+  const words = inputText.value
     .split(/\s+/)
     .map(word => word.trim())
     .filter(word => word.length > 0)
 
-  // クエリ文字列に結合して URL に渡す
-  const queryParam = encodeURIComponent(keywords.value.join(' '))
+  // 重複を排除
+  keywords.value = Array.from(new Set(words))
+  const strSpace: string = keywords.value.join(' ')
+  inputText.value = strSpace
 
   router.push({
-    name: 'SearchResult',
-    query: { q: queryParam },
+    path: '/search',
+    query: { words: keywords.value.join(',') },
   })
 }
 </script>
@@ -50,8 +63,6 @@ const submitSearch = () => {
       </svg>
     </button>
   </div>
-  <!-- デバッグ用: 分割後の配列表示 -->
-  {{ keywords }}
 </template>
 
 <style scoped>

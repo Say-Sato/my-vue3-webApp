@@ -4,29 +4,29 @@ import IconButton from '@/basics/IconButton.vue'
 import { useUserStore } from '@/stores/user'
 
 const props = defineProps<{
-  i_id: number
+  f_id: number
 }>()
-const isLiked = ref(false)
+const isFollowed = ref(false)
 const isFetching = ref(true)
 const responseData = ref<number[]>([])
-const likeNum = ref('')
-const likeId = ref('')
+const followerNum = ref('')
+const followId = ref('')
 const userStore = useUserStore()
 
 // Piniaから ユニークなid を取得
-likeNum.value = userStore.id ?? '0'
+followerNum.value = userStore.id ?? '0'
 
-const fetchLatestLikeStatus = async () => {
+const fetchLatestFollowStatus = async () => {
   try {
-    const url = `https://yellowokapi2.sakura.ne.jp/Vue/api/FavoriteGetAPI.php/${likeNum.value}`
-    console.log(`リクエストURL (fetchLatestLikeStatus): ${url}`)
+    const url = `https://yellowokapi2.sakura.ne.jp/Vue/api/FollowGetAPI.php/${followerNum.value}`
+    console.log(`リクエストURL (fetchLatestFollowStatus): ${url}`)
 
     const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ id: props.i_id }),
+      body: JSON.stringify({ id: props.f_id }),
     })
 
     if (!response.ok) {
@@ -34,34 +34,34 @@ const fetchLatestLikeStatus = async () => {
     }
 
     const responseJson = await response.json()
-    console.log('APIレスポンス (favoriteGetAPI):', responseJson)
+    console.log('APIレスポンス (FollowGetAPI):', responseJson)
 
-    responseData.value = Array.isArray(responseJson.i_id)
-      ? responseJson.i_id.map(Number) // 数値配列に変換
+    responseData.value = Array.isArray(responseJson.followed_id)
+      ? responseJson.followed_id.map(Number) // 数値配列に変換
       : []
 
     // 型を合わせたうえで includes 判定
-    isLiked.value = responseData.value.includes(Number(props.i_id))
-    console.log('最新のいいね状態 (isLiked):', isLiked.value)
+    isFollowed.value = responseData.value.includes(Number(props.f_id))
+    console.log('最新のフォロー状態 (isFollowed):', isFollowed.value)
   } catch (error) {
-    console.error('Error fetching latest like status:', error)
+    console.error('Error fetching latest follow status:', error)
   }
 }
 
 let isProcessing = false
 
-const toggleLike = async () => {
+const toggleFollow = async () => {
   if (isProcessing) return
   isProcessing = true
 
   try {
-    await fetchLatestLikeStatus()
-    console.log('Before toggle, isLiked:', isLiked.value)
+    await fetchLatestFollowStatus()
+    console.log('Before toggle, isFollowed:', isFollowed.value)
 
-    const actionValue = isLiked.value ? 'delete' : 'insert'
+    const actionValue = isFollowed.value ? 'delete' : 'insert'
     console.log(`トグル処理: ${actionValue}`)
 
-    const likeurl = `https://yellowokapi2.sakura.ne.jp/Vue/api/favoriteToggleAPI.php/${likeId.value}/${actionValue}`
+    const likeurl = `https://yellowokapi2.sakura.ne.jp/Vue/api/FollowToggleAPI.php/${followId.value}/${actionValue}`
     console.log(`リクエストURL (fetchLatestToggleStatus): ${likeurl}`)
 
     const response = await fetch(likeurl, {
@@ -69,7 +69,7 @@ const toggleLike = async () => {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ id: props.i_id }),
+      body: JSON.stringify({ id: props.f_id }),
     })
 
     if (!response.ok) {
@@ -78,7 +78,7 @@ const toggleLike = async () => {
 
     const responseJson = await response.json()
     if (responseJson.success) {
-      await fetchLatestLikeStatus()
+      await fetchLatestFollowStatus()
       console.log('成功:', responseJson.success)
     } else {
       console.error('エラー: ' + JSON.stringify(responseJson))
@@ -91,20 +91,24 @@ const toggleLike = async () => {
 }
 
 watch(
-  () => props.i_id,
-  async newVal => {
-    if (typeof newVal === 'number' && newVal > 0 && likeNum.value !== '') {
-      likeId.value = `${newVal}/${likeNum.value}`
-      await fetchLatestLikeStatus()
+  () => props.f_id,
+  async followedVal => {
+    if (
+      typeof followedVal === 'number' &&
+      followedVal > 0 &&
+      followerNum.value !== ''
+    ) {
+      followId.value = `${followerNum.value}/${followedVal}`
+      await fetchLatestFollowStatus()
     }
   },
   { immediate: true },
 )
 
 onMounted(async () => {
-  if (props.i_id > 0 && likeNum.value !== '') {
-    likeId.value = `${props.i_id}/${likeNum.value}`
-    await fetchLatestLikeStatus()
+  if (props.f_id > 0 && followerNum.value !== '') {
+    followId.value = `${props.f_id}/${followerNum.value}`
+    await fetchLatestFollowStatus()
     isFetching.value = false
   }
 })
@@ -119,12 +123,14 @@ onMounted(async () => {
   </head>
   <div class="liked-container">
     <IconButton
-      :label="isLiked ? 'いいね済み' : 'いいね'"
-      :iconClass="isLiked ? 'fa-solid fa-heart' : 'fa-regular fa-heart'"
-      :color="isLiked ? 'white' : 'red'"
-      :backgroundColor="isLiked ? '#e5348c' : '#1e1e1e'"
+      :label="isFollowed ? 'フォロー中' : 'フォロー'"
+      :iconClass="
+        isFollowed ? 'fa-solid fa-user-check' : 'fa-solid fa-user-plus'
+      "
+      color="white"
+      :backgroundColor="isFollowed ? '#ccc' : '#1e1e1e'"
       textColor="white"
-      @click="toggleLike"
+      @click="toggleFollow"
     />
   </div>
 </template>

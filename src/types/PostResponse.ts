@@ -16,6 +16,7 @@ export type PostResponse = {
   illust_title: string
   illust_body: string
   thumbnail_url: string
+  profile_id: number
   profile_name: string
   profile_photo: string
   profile_login_id: string
@@ -56,7 +57,6 @@ export type PostEdit = {
 
 // PostGallery（PostResponse を拡張）
 export interface PostGallery extends PostResponse {
-  profile_login_id: string
   tags: number[]
   images: Image[]
   prev_id: number

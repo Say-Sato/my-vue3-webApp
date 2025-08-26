@@ -75,6 +75,7 @@ onBeforeUnmount(() => {
     <!-- サイドエリア（画面幅に応じて表示切り替え） -->
     <div v-if="isWideScreen" class="sidebar">
       <Profile
+        :profile_id="post?.profile_id ?? 0"
         :name="post?.profile_name ?? 'deleted user'"
         :p_photo="post?.profile_photo"
         :profile_login_id="post?.profile_login_id"
@@ -85,9 +86,10 @@ onBeforeUnmount(() => {
 
     <div v-else class="sidebar-mobile">
       <Profile
+        :profile_id="post?.profile_id ?? 0"
         :name="post?.profile_name ?? 'deleted user'"
         :p_photo="post?.profile_photo"
-        :profile_id="post?.profile_login_id"
+        :profile_login_id="post?.profile_login_id"
       />
       <div class="sidebar-divider"></div>
       <Comment :post_id="post?.illust_id || 0" />

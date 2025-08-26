@@ -3,7 +3,7 @@ import { onMounted, ref, watch, onBeforeUnmount } from 'vue'
 import { useRoute } from 'vue-router'
 
 import ArticleTags from '@/basics/ArticleTags.vue'
-import Favorite from '@/components/FavoriteIcon.vue'
+import Favorite from '@/components/FavoriteButton.vue'
 import ImageList from '@/components/ArticleImageList.vue'
 import PrevNextButtons from '@/components/PrevNextButtons.vue'
 import Profile from '@/components/UserProfile.vue'

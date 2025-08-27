@@ -45,7 +45,7 @@ if ($id !== null) {
         -- sort_orderが0の画像（メイン画像想定）
         images.sort_order = 0
         AND illust.p_id = :id
-        ORDER BY illust.created DESC;";
+        ORDER BY illust.created_at DESC;";
         $stmt = $dbh->prepare($query);
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
 

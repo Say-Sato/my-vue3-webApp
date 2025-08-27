@@ -19,7 +19,7 @@ if ($id !== null) {
         $query = "
             (SELECT 
                 id, title, 'prev' AS role,
-                NULL AS p_id, NULL AS body, NULL AS created,
+                NULL AS p_id, NULL AS body, NULL AS created_at,
                 NULL AS p_login_id, NULL AS p_name, NULL AS p_photo, NULL AS tag_ids,
                 NULL AS R18, NULL AS public, NULL AS s_url
             FROM illust
@@ -29,7 +29,7 @@ if ($id !== null) {
             UNION ALL
             (SELECT 
                 illust.id, illust.title, 'current' AS role,
-                illust.p_id, illust.body, illust.created,
+                illust.p_id, illust.body, illust.created_at,
                 profile.login_id AS p_login_id, profile.name AS p_name, profile.profile_photo AS p_photo,
                 GROUP_CONCAT(illust_tags.t_id) AS tag_ids,
                 illust.R18, illust.public, illust.s_url
@@ -41,7 +41,7 @@ if ($id !== null) {
             UNION ALL
             (SELECT 
                 id, title, 'next' AS role,
-                NULL AS p_id, NULL AS body, NULL AS created,
+                NULL AS p_id, NULL AS body, NULL AS created_at,
                 NULL AS p_login_id, NULL AS p_name, NULL AS p_photo, NULL AS tag_ids,
                 NULL AS R18, NULL AS public, NULL AS s_url
             FROM illust
@@ -144,7 +144,7 @@ if ($id !== null) {
                 LEFT JOIN illust_tags ON illust.id = illust_tags.i_id
                 WHERE public = 0
                 GROUP BY illust.id
-                ORDER BY created DESC";
+                ORDER BY created_at DESC";
         $stmt = $dbh->prepare($query);
         $stmt->execute();
 

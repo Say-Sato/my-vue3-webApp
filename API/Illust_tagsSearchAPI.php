@@ -44,7 +44,9 @@ foreach ($wordList as $word) {
 // ワード数と同じ回数出現するIDが、AND検索の結果となる
 $intersectQuery = "
     SELECT id FROM (
-        " . implode(" UNION ALL ", array_map(function($q) { return "($q)"; }, $subQueries)) . "
+        " . implode(" UNION ALL ", array_map(function ($q) {
+    return "($q)";
+}, $subQueries)) . "
     ) AS t
     GROUP BY id
     HAVING COUNT(id) = ?
@@ -57,7 +59,7 @@ $sql = "
         i.body AS illust_body,
         i.R18 AS R18,
         i.public AS public,
-        i.created AS created,
+        i.created_at AS created_at,
         GROUP_CONCAT(DISTINCT t.name ORDER BY t.name SEPARATOR ',') AS tags,
         im.url AS thumbnail_url,
         p.profile_photo AS profile_photo,

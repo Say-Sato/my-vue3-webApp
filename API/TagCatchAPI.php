@@ -68,7 +68,7 @@ try {
             JOIN profile ON illust.p_id = profile.id
             WHERE illust.id IN ($placeholders)
             GROUP BY illust.id
-            ORDER BY illust.updated DESC";
+            ORDER BY illust.updated_at DESC";
             $stmt = $dbh->prepare($query);
             $stmt->execute($searchIdList);
 

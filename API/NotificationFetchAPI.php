@@ -5,23 +5,24 @@ include('./BlogPDO.php'); // PDO接続
 try {
     $dbh = new PDO($dsn, $user, $password);
 
-    //$userId = $_GET['user_id'];
-    //$lastChecked = $_GET['last_checked'] ?? '1970-01-01 00:00:00';
-    $lastChecked = '1970-01-01 00:00:00';
+    //$lastChecked = '1970-01-01 00:00:00';
 
     // リクエストURIからIDを取得
-    $requestUri = $_SERVER['REQUEST_URI'];
+    /*$requestUri = $_SERVER['REQUEST_URI'];
     $userId = null;
 
     // URIが'/api/NotificationFetchAPI.php/id'形式の場合
     if (preg_match('/php\/(\d+)$/', $requestUri, $matches)) {
         $userId = urldecode($matches[1]);
-    }
+    }*/
 
-    if (!$userId) {
-        echo json_encode(["error" => "ログインされていません。"], JSON_UNESCAPED_UNICODE);
+    if (!isset($_GET['user_id']) || empty($_GET['user_id'])) {
+        echo json_encode(["error" => "必要なパラメータがセットされていません。"], JSON_UNESCAPED_UNICODE);
         die();
     }
+
+    $userId = $_GET['user_id'];
+    $lastChecked = date('Y-m-d H:i:s', strtotime($_GET['last_checked'] ?? '1970-01-01 00:00:00'));
 
     // ユーザー設定取得
     $stmtSettings = $dbh->prepare("SELECT * FROM notification_settings WHERE user_id = :user_id");
@@ -68,10 +69,11 @@ try {
 
     // フラグに応じてSQLを追加
     $sqlParts = [];
-    if (!empty($flags['notify_comment']))   $sqlParts[] = $sql_comments;
-    if (!empty($flags['notify_follow']))    $sqlParts[] = $sql_follows;
-    if (!empty($flags['notify_favorite']))  $sqlParts[] = $sql_favorites;
-    if (!empty($flags['notify_illust']))    $sqlParts[] = $sql_illusts;
+    if (!empty($flags['notify_comment']) && $flags['notify_comment'] == 1)
+        $sqlParts[] = $sql_comments;
+    if (!empty($flags['notify_follow']) && $flags['notify_follow'] == 1)    $sqlParts[] = $sql_follows;
+    if (!empty($flags['notify_favorite']) && $flags['notify_favorite'] == 1)  $sqlParts[] = $sql_favorites;
+    if (!empty($flags['notify_illust']) && $flags['notify_illust'] == 1)    $sqlParts[] = $sql_illusts;
 
     // SQLを実行
     if (!empty($sqlParts)) {

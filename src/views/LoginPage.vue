@@ -47,7 +47,13 @@ const fetchData = async () => {
       }
 
       // ログイン情報を localStorage に保存
-      userStore.login(data.id, data.name, data.admin, data.login_id)
+      userStore.login(
+        data.id,
+        data.name,
+        data.admin,
+        data.login_id,
+        '1970-01-01 00:00:00',
+      )
       console.log('ユニークID:', userStore.id)
       console.log('ユーザー名:', userStore.login_id)
       console.log('ユーザー名:', userStore.name)

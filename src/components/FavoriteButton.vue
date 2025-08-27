@@ -19,7 +19,6 @@ likeNum.value = userStore.id ?? '0'
 const fetchLatestLikeStatus = async () => {
   try {
     const url = `https://yellowokapi2.sakura.ne.jp/Vue/api/FavoriteGetAPI.php/${likeNum.value}`
-    console.log(`リクエストURL (fetchLatestLikeStatus): ${url}`)
 
     const response = await fetch(url, {
       method: 'POST',
@@ -42,7 +41,6 @@ const fetchLatestLikeStatus = async () => {
 
     // 型を合わせたうえで includes 判定
     isLiked.value = responseData.value.includes(Number(props.i_id))
-    console.log('最新のいいね状態 (isLiked):', isLiked.value)
   } catch (error) {
     console.error('Error fetching latest like status:', error)
   }
@@ -56,13 +54,10 @@ const toggleLike = async () => {
 
   try {
     await fetchLatestLikeStatus()
-    console.log('Before toggle, isLiked:', isLiked.value)
 
     const actionValue = isLiked.value ? 'delete' : 'insert'
-    console.log(`トグル処理: ${actionValue}`)
 
     const likeurl = `https://yellowokapi2.sakura.ne.jp/Vue/api/favoriteToggleAPI.php/${likeId.value}/${actionValue}`
-    console.log(`リクエストURL (fetchLatestToggleStatus): ${likeurl}`)
 
     const response = await fetch(likeurl, {
       method: 'POST',
@@ -79,7 +74,6 @@ const toggleLike = async () => {
     const responseJson = await response.json()
     if (responseJson.success) {
       await fetchLatestLikeStatus()
-      console.log('成功:', responseJson.success)
     } else {
       console.error('エラー: ' + JSON.stringify(responseJson))
     }

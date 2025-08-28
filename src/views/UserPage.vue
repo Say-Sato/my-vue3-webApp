@@ -1,24 +1,11 @@
 <script setup lang="ts">
-import { onMounted, ref, computed } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import ImageGallery from '../components/FVImageGallery.vue'
-
-// 元APIのレスポンス型
-export type PostResponse = {
-  illust_id: number
-  illust_title: string
-  illust_R18: number
-  profile_name: string
-  profile_photo: string
-  image_url: string
-  illust_profile_id: number
-  illust_body: string
-  illust_s_url: string
-  profile_login_id: string
-}
+import type { Favorite } from '@/types/PostResponse'
 
 const route = useRoute()
-const posts = ref<PostResponse[]>([])
+const posts = ref<Favorite[]>([])
 const id = ref(route.params.id)
 
 const fetchData = async () => {
@@ -33,23 +20,6 @@ const fetchData = async () => {
 }
 
 onMounted(fetchData)
-
-// 新しいImageGalleryのPost型に変換
-const processedPosts = computed(() =>
-  posts.value.map(post => ({
-    id: post.illust_id,
-    p_id: post.illust_profile_id,
-    title: post.illust_title,
-    url: post.image_url,
-    body: post.illust_body,
-    R18: post.illust_R18,
-    public: 1, // APIに無いので仮で公開状態を1に
-    s_url: post.illust_s_url,
-    p_name: post.profile_name,
-    p_photo: post.profile_photo,
-    showProfile: false, // 必要に応じて条件分岐
-  })),
-)
 </script>
 
 <template>
@@ -74,7 +44,7 @@ const processedPosts = computed(() =>
   <div class="title">
     <h1>投稿一覧</h1>
   </div>
-  <ImageGallery :posts="processedPosts" />
+  <ImageGallery :posts="posts" />
 </template>
 
 <style scoped>

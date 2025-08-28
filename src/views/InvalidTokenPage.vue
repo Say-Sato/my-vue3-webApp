@@ -1,4 +1,4 @@
-<script lang="ts" setup>
+<script setup lang="ts">
 import MessageCard from '@/components/MessageCard.vue'
 
 function handleBack() {

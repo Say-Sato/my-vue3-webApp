@@ -33,7 +33,12 @@ const router = createRouter({
     },
     {
       path: '/profile',
-      name: 'testPage',
+      name: 'ProfilePage',
+      component: () => import('@/views/ProfilePage.vue'),
+    },
+    {
+      path: '/profile/edit',
+      name: 'ProfileEditPage',
       component: () => import('@/views/ProfileEditPage.vue'),
     },
     {
@@ -55,7 +60,7 @@ const router = createRouter({
       component: () => import('@/views/ArticleEditPage.vue'),
     },
     {
-      path: '/tags/:word',
+      path: '/search',
       name: 'search',
       component: () => import('@/views/SearchPage.vue'),
     },

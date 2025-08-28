@@ -70,3 +70,21 @@ const years = Array.from({ length: currentYear - 1900 + 1 }, (_, i) => 1900 + i)
     </select>
   </div>
 </template>
+
+<style scoped>
+.birthday-select select {
+  padding: 10px 16px; /* ← パディングを大きめに */
+  border-radius: 15px; /* ← 角を丸く */
+  border: 1px solid #ccc;
+  font-size: 16px;
+  margin-right: 8px; /* セレクト同士に少し間隔 */
+  background-color: #fff;
+  cursor: pointer;
+}
+
+.birthday-select select:focus {
+  outline: none;
+  border-color: #66aaff; /* フォーカス時の色を青系に */
+  box-shadow: 0 0 4px rgba(102, 170, 255, 0.6);
+}
+</style>

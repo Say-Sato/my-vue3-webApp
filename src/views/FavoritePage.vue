@@ -3,23 +3,10 @@ import { onMounted, ref } from 'vue'
 import { useUserStore } from '@/stores/user'
 import SectionTitle from '@/basics/SectionTitle.vue'
 import ImageGallery from '../components/FVImageGallery.vue'
-
-export type PostResponse = {
-  id: number
-  p_id: number
-  title: string
-  url: string
-  body: string
-  public: number
-  R18: number
-  s_url: string
-  p_name: string
-  p_photo: string
-  showProfile: boolean
-}
+import type { Favorite } from '@/types/PostResponse'
 
 const userStore = useUserStore()
-const posts = ref<PostResponse[]>([])
+const posts = ref<Favorite[]>([])
 const id = ref(userStore.id ?? 0) // nullやundefined回避
 
 const fetchData = async () => {
@@ -45,7 +32,7 @@ const fetchData = async () => {
       `https://yellowokapi2.sakura.ne.jp/Vue/api/FavoritePageGetAPI.php?ids=${idsParam}`,
     )
     if (!res2.ok) throw new Error(`Failed to fetch Posts: ${res2.status}`)
-    const json2 = (await res2.json()) as PostResponse[]
+    const json2 = (await res2.json()) as Favorite[]
 
     posts.value = json2
 

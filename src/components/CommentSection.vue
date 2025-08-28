@@ -3,20 +3,7 @@ import { onMounted, ref, computed, watch } from 'vue'
 import { useUserStore } from '@/stores/user'
 import TextInput from '@/basics/TextInput.vue'
 import IconButton from '@/basics/IconButton.vue'
-
-export type comment = {
-  comment_id: number
-  user_id: number
-  comment_body: string
-  profile_photo: string
-  profile_name: string
-  deleted_at: string
-}
-
-export type PostResponse = {
-  success: boolean
-  comment: comment[]
-}
+import type { CommentResponse } from '@/types/PostResponse'
 
 // ✅ propsを定義（post_id）
 const props = defineProps<{
@@ -24,7 +11,7 @@ const props = defineProps<{
 }>()
 
 const userStore = useUserStore()
-const posts = ref<PostResponse | null>(null)
+const posts = ref<CommentResponse | null>(null)
 const showAll = ref(false)
 // 入力値
 const commentBody = ref('')
@@ -74,6 +61,17 @@ const fetchData = async () => {
   }
 }
 
+// ✅ 表示するコメント（3件 or 全件）
+const visibleComments = computed(() => {
+  if (!posts.value?.comment) return []
+  return showAll.value ? posts.value.comment : posts.value.comment.slice(0, 3)
+})
+
+// ✅ コメント数
+const commentCount = computed(() =>
+  posts.value ? posts.value.comment.length : 0,
+)
+
 onMounted(() => {
   // マウント時にすでに post_id が入っていれば即 fetch
   if (props.post_id) {
@@ -91,16 +89,10 @@ watch(
   },
 )
 
-// ✅ 表示するコメント（3件 or 全件）
-const visibleComments = computed(() => {
-  if (!posts.value) return []
-  return showAll.value ? posts.value.comment : posts.value.comment.slice(0, 3)
+//
+watch(commentCount, () => {
+  fetchData()
 })
-
-// ✅ コメント数
-const commentCount = computed(() =>
-  posts.value ? posts.value.comment.length : 0,
-)
 </script>
 
 <template>
@@ -130,12 +122,15 @@ const commentCount = computed(() =>
       class="comment-list"
       :class="{ scrollable: showAll && commentCount > 10 }"
     >
-      <template v-for="c in visibleComments" :key="c.id">
-        <div class="comment-item">
+      <template v-for="c in visibleComments" :key="c.comment_id">
+        <!-- 削除されていないコメント -->
+        <div class="comment-item" v-if="!c.deleted_at">
           <img
             :src="
-              'https://yellowokapi2.sakura.ne.jp/Blog/index' +
-                c.profile_photo || 'https://placehold.jp/40x40.png'
+              c.profile_photo
+                ? 'https://yellowokapi2.sakura.ne.jp/Blog/index' +
+                  c.profile_photo
+                : 'https://placehold.jp/40x40.png'
             "
             alt="ユーザーアイコン"
             class="comment-icon"
@@ -145,7 +140,27 @@ const commentCount = computed(() =>
             <p class="comment-text">{{ c.comment_body }}</p>
             <div class="comment-actions">
               <!--<span class="comment-report">通報</span>
-              <span class="comment-reply">返信</span>-->
+        <span class="comment-reply">返信</span>-->
+            </div>
+          </div>
+        </div>
+
+        <!-- 削除済コメント -->
+        <div class="comment-item" v-else>
+          <img
+            src="https://placehold.jp/40x40.png"
+            alt="削除ユーザーアイコン"
+            class="comment-icon"
+          />
+          <div class="comment-body">
+            <p class="comment-user">deleted</p>
+            <p class="comment-text" style="font-style: italic; color: #999">
+              このコメントは削除されました
+            </p>
+            <div class="comment-actions">
+              <span style="font-size: 0.8em; color: #bbb"
+                >※このコメントは削除済みです</span
+              >
             </div>
           </div>
         </div>

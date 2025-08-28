@@ -80,4 +80,3 @@ if (!empty($tagIdsToDelete)) {
         ]);
     }
 }
-?>

@@ -1,23 +1,11 @@
 <script setup lang="ts">
-type Post = {
-  id: number
-  p_id: number
-  title: string
-  url: string
-  body: string
-  R18: number
-  public: number
-  s_url: string
-  p_name: string
-  p_photo: string
-  showProfile: boolean
-}
+import type { Favorite } from '@/types/PostResponse'
 
-const props = defineProps<{ posts: Post[] }>()
+const props = defineProps<{ posts: Favorite[] }>()
 
 // タイトルを9文字で省略
-const truncatedTitle = (title: string) =>
-  title.length > 9 ? title.slice(0, 9) + '…' : title
+const truncatedTitle = (illust_title: string) =>
+  illust_title.length > 9 ? illust_title.slice(0, 9) + '…' : illust_title
 
 // プロフィール写真のフルURL化
 const fullProfilePhoto = (p_photo: string) =>
@@ -26,26 +14,30 @@ const fullProfilePhoto = (p_photo: string) =>
 
 <template>
   <div class="gallery-container">
-    <div v-for="post in props.posts" :key="post.id" class="card">
-      <router-link :to="`/posts/${post.id}`">
-        <img :src="post.url" :alt="post.title" class="card-image" />
+    <div v-for="post in props.posts" :key="post.illust_id" class="card">
+      <router-link :to="`/posts/${post.illust_id}`">
+        <img
+          :src="post.thumbnail_url"
+          :alt="post.illust_title"
+          class="card-image"
+        />
       </router-link>
 
       <div class="card-body">
-        <router-link :to="`/posts/${post.id}`">
+        <router-link :to="`/posts/${post.illust_id}`">
           <h3 class="card-title">
-            {{ truncatedTitle(post.title) }}
+            {{ truncatedTitle(post.illust_title) }}
           </h3>
         </router-link>
 
-        <router-link :to="`/user-profile/${post.p_id}`">
+        <router-link :to="`/user-profile/${post.profile_id}`">
           <div class="profile-info" v-if="post.showProfile">
             <img
-              :src="fullProfilePhoto(post.p_photo)"
-              :alt="post.p_name"
+              :src="fullProfilePhoto(post.profile_photo)"
+              :alt="post.profile_name"
               class="profile-photo"
             />
-            <span class="profile-name">{{ post.p_name }}</span>
+            <span class="profile-name">{{ post.profile_name }}</span>
           </div>
         </router-link>
       </div>

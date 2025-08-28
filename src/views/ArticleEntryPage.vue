@@ -1,61 +1,38 @@
-<script lang="ts">
-import { defineComponent, ref } from 'vue'
+<script setup lang="ts">
+import { ref } from 'vue'
 import FormComponent from '@/pages/EntryPageView.vue'
 import PostPreview from '@/views/ArticlePreviewPage.vue'
 import { useUserStore } from '@/stores/user'
 
-export default defineComponent({
-  components: {
-    FormComponent,
-    PostPreview,
-  },
-  setup() {
-    const id = ref('')
-    const title = ref('')
-    const tags = ref('')
-    const body = ref('')
-    const publish = ref('')
-    const adultsOnly = ref('')
-    const images = ref<File[]>([]) // ← 配列に変更
-    const submitted = ref(false)
-    const tagList = ref<string[]>([])
-    const userStore = useUserStore()
+const id = ref('')
+const title = ref('')
+const tags = ref('')
+const body = ref('')
+const publish = ref('')
+const adultsOnly = ref('')
+const images = ref<File[]>([]) // ← 配列に変更
+const submitted = ref(false)
+const tagList = ref<string[]>([])
+const userStore = useUserStore()
 
-    id.value = userStore.id ?? '3'
+id.value = userStore.id ?? '3'
 
-    const handleImagesChange = (newFiles: File[]) => {
-      images.value = newFiles
-    }
+const handleImagesChange = (newFiles: File[]) => {
+  images.value = newFiles
+}
 
-    const updateTags = (newTags: string): void => {
-      tagList.value = newTags.split(',').map(tag => tag.trim())
-      tags.value = tagList.value.join(', ')
-    }
+const updateTags = (newTags: string): void => {
+  tagList.value = newTags.split(',').map(tag => tag.trim())
+  tags.value = tagList.value.join(', ')
+}
 
-    const handleSubmit = () => {
-      submitted.value = true
-    }
+const handleSubmit = () => {
+  submitted.value = true
+}
 
-    const handleReset = () => {
-      submitted.value = false
-    }
-
-    return {
-      id,
-      title,
-      tags,
-      body,
-      publish,
-      adultsOnly,
-      images,
-      submitted,
-      handleImagesChange,
-      handleSubmit,
-      handleReset,
-      updateTags,
-    }
-  },
-})
+const handleReset = () => {
+  submitted.value = false
+}
 </script>
 
 <template>

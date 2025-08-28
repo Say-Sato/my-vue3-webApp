@@ -1,100 +1,84 @@
-<script lang="ts">
+<script setup lang="ts">
 import { ref, computed } from 'vue'
 
-export default {
-  setup() {
-    // cは必須入力項目
-    const c = ref<number | null>(null)
-    const a = ref<number | null>(null)
-    const b = ref<number | null>(null)
-    const resultAvailable = ref<boolean>(false) // 計算結果が利用可能かどうか
+// cは必須入力項目
+const c = ref<number | null>(null)
+const a = ref<number | null>(null)
+const b = ref<number | null>(null)
+const resultAvailable = ref<boolean>(false) // 計算結果が利用可能かどうか
 
-    // プルダウンの使用フラグ
-    const useDropdown = ref<boolean>(false)
+// プルダウンの使用フラグ
+const useDropdown = ref<boolean>(false)
 
-    // プルダウンで選択可能なスコアのオプション
-    const scoreOptions = [9800000, 9900000, 9950000, 10000000]
+// プルダウンで選択可能なスコアのオプション
+const scoreOptions = [9800000, 9900000, 9950000, 10000000]
 
-    // 計算が可能かどうかをチェックするためのcomputedプロパティ
-    const canCalculate = computed(() => {
-      return c.value !== null && (a.value !== null || b.value !== null)
-    })
+// 計算が可能かどうかをチェックするためのcomputedプロパティ
+const canCalculate = computed(() => {
+  return c.value !== null && (a.value !== null || b.value !== null)
+})
 
-    // 小数点2位で繰り上げる関数
-    const roundUpToTwoDecimalPlaces = (value: number): number => {
-      return Math.ceil(value * 10) / 10
-    }
+// 小数点2位で繰り上げる関数
+const roundUpToTwoDecimalPlaces = (value: number): number => {
+  return Math.ceil(value * 10) / 10
+}
 
-    // 計算を実行する関数
-    const performCalculation = () => {
-      if (a.value !== null && c.value !== null) {
-        // aが入力されている場合、bを計算
-        b.value = calculateBFromA(a.value, c.value)
-      } else if (b.value !== null && c.value !== null) {
-        // bが入力されている場合、aを計算
-        a.value = calculateAFromB(b.value, c.value)
-      }
-      resultAvailable.value = true // 計算結果が利用可能
-    }
+// 計算を実行する関数
+const performCalculation = () => {
+  if (a.value !== null && c.value !== null) {
+    // aが入力されている場合、bを計算
+    b.value = calculateBFromA(a.value, c.value)
+  } else if (b.value !== null && c.value !== null) {
+    // bが入力されている場合、aを計算
+    a.value = calculateAFromB(b.value, c.value)
+  }
+  resultAvailable.value = true // 計算結果が利用可能
+}
 
-    // aとcの値からbを計算する関数
-    //ポテンシャル上昇の条件分岐
-    const calculateBFromA = (aValue: number, cValue: number): number | null => {
-      if (cValue === aValue + 2.0) {
-        // 条件1: b = PM の場合
-        return 10000000
-      } else if (cValue <= aValue + 1.0 && cValue < aValue + 2.0) {
-        // 条件2: EX <= b < PM の場合
-        return (cValue - aValue - 1.0) * 200000 + 9800000
-      } else if (cValue > aValue + 2.0) {
-        // 条件3: 譜面定数がポテンシャルより2.0以上低い場合
-        return 0
-      } else {
-        // 条件3: 上記以外 (b < EX以下)
-        return (cValue - aValue) * 300000 + 9500000
-      }
-    }
+// aとcの値からbを計算する関数
+//ポテンシャル上昇の条件分岐
+const calculateBFromA = (aValue: number, cValue: number): number | null => {
+  if (cValue === aValue + 2.0) {
+    // 条件1: b = PM の場合
+    return 10000000
+  } else if (cValue <= aValue + 1.0 && cValue < aValue + 2.0) {
+    // 条件2: EX <= b < PM の場合
+    return (cValue - aValue - 1.0) * 200000 + 9800000
+  } else if (cValue > aValue + 2.0) {
+    // 条件3: 譜面定数がポテンシャルより2.0以上低い場合
+    return 0
+  } else {
+    // 条件3: 上記以外 (b < EX以下)
+    return (cValue - aValue) * 300000 + 9500000
+  }
+}
 
-    // bとcの値からaを計算する関数
-    const calculateAFromB = (bValue: number, cValue: number): number => {
-      let result: number
+// bとcの値からaを計算する関数
+const calculateAFromB = (bValue: number, cValue: number): number => {
+  let result: number
 
-      if (bValue >= 10000000) {
-        // 条件1: b >= 10000000 の場合
-        result = cValue - 2.0
-      } else if (bValue >= 9800000 && bValue < 10000000) {
-        // 条件2: 9800000 <= b < 10000000 の場合
-        result = cValue - 1.0 - (bValue - 9800000) / 200000
-      } else {
-        // 条件3: 上記以外 (b < 9800000)
-        result = cValue - (bValue - 9500000) * 300000
-      }
+  if (bValue >= 10000000) {
+    // 条件1: b >= 10000000 の場合
+    result = cValue - 2.0
+  } else if (bValue >= 9800000 && bValue < 10000000) {
+    // 条件2: 9800000 <= b < 10000000 の場合
+    result = cValue - 1.0 - (bValue - 9800000) / 200000
+  } else {
+    // 条件3: 上記以外 (b < 9800000)
+    result = cValue - (bValue - 9500000) * 300000
+  }
 
-      // 小数点2位で繰り上げ
-      return roundUpToTwoDecimalPlaces(result)
-    }
+  // 小数点2位で繰り上げ
+  return roundUpToTwoDecimalPlaces(result)
+}
 
-    // フォームの内容をリセットする関数
-    const resetForm = () => {
-      c.value = null
-      a.value = null
-      b.value = null
-      resultAvailable.value = false
-      useDropdown.value = false
-    }
-
-    return {
-      a,
-      b,
-      c,
-      resultAvailable,
-      canCalculate,
-      performCalculation,
-      useDropdown,
-      scoreOptions,
-      resetForm, // resetFormを返す
-    }
-  },
+// フォームの内容をリセットする関数
+const resetForm = () => {
+  c.value = null
+  a.value = null
+  b.value = null
+  resultAvailable.value = false
+  useDropdown.value = false
 }
 </script>
 

@@ -1,6 +1,6 @@
 <!-- ArticlePage.vue -->
 <script setup lang="ts">
-import type { Image } from '@/views/ArticleCatchPage.vue' // 型定義の場所に合わせてね
+import type { Image } from '@/types/PostResponse' // 型定義の場所に合わせてね
 
 defineProps<{
   images: Image[]

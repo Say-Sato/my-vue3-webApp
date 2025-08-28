@@ -7,12 +7,12 @@ include('./BlogPDO.php');
 $requestUri = $_SERVER['REQUEST_URI'];
 $id = null;
 
-$imageUrl = isset($_POST['imageBase64']) ? $_POST['imageBase64'] : '未指定';
-$title = isset($_POST['title']) ? htmlspecialchars($_POST['title']) : '未指定';
+$imageUrl = isset($_POST['thumbnail_url']) ? $_POST['thumbnail_url'] : '未指定';
+$title = isset($_POST['illust_title']) ? htmlspecialchars($_POST['illust_title']) : '未指定';
 $tags = isset($_POST['tags']) ? htmlspecialchars($_POST['tags']) : '未指定';
-$body = isset($_POST['body']) ? htmlspecialchars($_POST['body']) : '未指定';
-$publish = isset($_POST['publish']) ? htmlspecialchars($_POST['publish']) : '未指定';
-$adultsOnly = isset($_POST['adultsOnly']) ? htmlspecialchars($_POST['adultsOnly']) : '未指定';
+$body = isset($_POST['illust_body']) ? htmlspecialchars($_POST['illust_body']) : '';
+$publish = isset($_POST['public']) ? htmlspecialchars($_POST['public']) : '未指定';
+$adultsOnly = isset($_POST['R18']) ? htmlspecialchars($_POST['R18']) : '未指定';
 
 // URIが'/api/UpdateArticleAPI.php/id'形式の場合
 if (preg_match('/\/(\d+)$/', $requestUri, $matches)) {
@@ -21,11 +21,11 @@ if (preg_match('/\/(\d+)$/', $requestUri, $matches)) {
 }
 
 // DBへ接続
-try{
-$dbh = new PDO($dsn, $user, $password);
-$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+try {
+    $dbh = new PDO($dsn, $user, $password);
+    $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-// クエリ
+    // クエリ
     $query = "UPDATE illust
               SET title = :title,
                   url = :url,
@@ -42,16 +42,16 @@ $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         // パラメータをバインド
         $data = [
-        'id' => $id,
-        ':title' => $title,
-        ':url' => $imageUrl,
-        ':body' => $body,
-        ':R18' => $R18,
-        ':public' => $public,
-        ':s_url' => $imageUrl
+            'id' => $id,
+            ':title' => $title,
+            ':url' => $imageUrl,
+            ':body' => $body,
+            ':R18' => $R18,
+            ':public' => $public,
+            ':s_url' => $imageUrl
         ];
 
-    // クエリを実行
+        // クエリを実行
         $result = $stmt->execute($data);
 
         if (!$result) {
@@ -61,18 +61,14 @@ $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             include('./TagsInsert.php');
             echo json_encode(["true" => "データの更新が完了しました。"], JSON_UNESCAPED_UNICODE);
         }
-
     } else {
         //POSTリクエスト失敗時
         echo json_encode(["error" => "POSTリクエストを送信してください。"], JSON_UNESCAPED_UNICODE);
     }
-
-}catch(PDOException $e){
-    echo json_encode(["error" => "データベースの接続に失敗しました。".$e->getMessage()], JSON_UNESCAPED_UNICODE);
+} catch (PDOException $e) {
+    echo json_encode(["error" => "データベースの接続に失敗しました。" . $e->getMessage()], JSON_UNESCAPED_UNICODE);
     die();
 }
 
 // 接続を閉じる
 $dbh = null;
-?>
-

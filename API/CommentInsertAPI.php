@@ -35,12 +35,11 @@ try {
     $stmt = $dbh->prepare("SELECT * FROM comments WHERE id = :id");
     $stmt->execute([':id' => $lastId]);
     $comment = $stmt->fetch(PDO::FETCH_ASSOC); // 連想配列で取得
-    
+
     echo json_encode([
         'success' => true,
         'comment' => $comment
     ], JSON_UNESCAPED_UNICODE);
-
 } catch (PDOException $e) {
     echo json_encode(['error' => 'コメント登録失敗', 'message' => $e->getMessage()], JSON_UNESCAPED_UNICODE);
 }

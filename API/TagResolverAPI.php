@@ -42,7 +42,6 @@ try {
         "tagName" => implode(',', $tagNames), // カンマ区切りのタグ名
         "tagIds" => $tagList
     ], JSON_UNESCAPED_UNICODE);
-
 } catch (PDOException $e) {
     echo json_encode(["error" => "データベースエラー: " . $e->getMessage()], JSON_UNESCAPED_UNICODE);
     die();
@@ -50,4 +49,3 @@ try {
 
 // 接続を閉じる
 $dbh = null;
-?>

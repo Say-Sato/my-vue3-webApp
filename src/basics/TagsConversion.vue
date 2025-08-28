@@ -1,41 +1,34 @@
-<script lang="ts">
-import { ref, watch, defineComponent } from 'vue'
+<script setup lang="ts">
+import { ref, watch, defineProps } from 'vue'
 
-export default defineComponent({
-  //親コンポーネントのカスタム属性ArticleTagsからタグの値を受け取る
-  props: {
-    tagsMsg: {
-      type: Array as () => string[],
-      default: () => [],
-    },
+const props = defineProps<{
+  tagsMsg: string[]
+  default: () => []
+}>()
+const tags = ref<string[]>([])
+
+// props.tagsMsg を監視して tags に反映
+watch(
+  () => props.tagsMsg,
+  (newTagsMsg: string[]) => {
+    if (Array.isArray(newTagsMsg)) {
+      tags.value = newTagsMsg
+    } else {
+      tags.value = []
+    }
   },
-
-  setup(props) {
-    const tags = ref<string[]>([])
-
-    // props.tagsMsg を監視して tags に反映
-    watch(
-      () => props.tagsMsg,
-      (newTagsMsg: string[]) => {
-        if (Array.isArray(newTagsMsg)) {
-          tags.value = newTagsMsg
-        } else {
-          tags.value = []
-        }
-      },
-      { immediate: true },
-    )
-
-    return { tags }
-  },
-})
+  { immediate: true },
+)
 </script>
 
 <template>
   <div class="tags-container">
     <ul>
       <li v-for="(tag, index) in tags" :key="index">
-        <a :href="'/tags/' + tag" target="_blank">#{{ tag }}</a>
+        <!-- クエリパラメータ形式に変更 -->
+        <a :href="`/search?tag=${encodeURIComponent(tag)}`" target="_blank">
+          #{{ tag }}
+        </a>
       </li>
     </ul>
   </div>

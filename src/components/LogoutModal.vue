@@ -1,41 +1,34 @@
-<script lang="ts">
+<script setup lang="ts">
 import ModalComponent from '@/components/ConfirmModal.vue'
 import { useUserStore } from '@/stores/user'
+import { useRouter } from 'vue-router'
 
-export default {
-  name: 'ArticleDeleteComponent',
-  components: {
-    ModalComponent,
-  },
-  data() {
-    return {
-      isModalVisible: false, // モーダルの表示状態を管理
-      modalMessage: '本当にログアウトしますか？',
-      modalConfirmText: 'ログアウト',
-      modalCancelText: 'キャンセル',
-    }
-  },
-  methods: {
-    showModal(event: Event) {
-      event.stopPropagation() // クリック伝播を止める
-      this.isModalVisible = true
-    },
-    onModalConfirm() {
-      const userStore = useUserStore()
+import { ref } from 'vue'
+const isModalVisible = ref(false) // モーダルの表示状態を管理
+const modalMessage = ref('本当にログアウトしますか？')
+const modalConfirmText = ref('ログアウト')
+const modalCancelText = ref('キャンセル')
+const router = useRouter()
 
-      this.isModalVisible = false
+const showModal = (event: Event) => {
+  event.stopPropagation() // クリック伝播を止める
+  isModalVisible.value = true
+}
 
-      // userStoreの初期化
-      userStore.logout()
+const onModalConfirm = () => {
+  const userStore = useUserStore()
 
-      // ルーターで指定ページへ遷移
-      this.$router.push('/home') // 任意の遷移先に変えてね
-    },
+  isModalVisible.value = false
 
-    onModalCancel() {
-      this.isModalVisible = false
-    },
-  },
+  // userStoreの初期化
+  userStore.logout()
+
+  // ルーターで指定ページへ遷移
+  router.push('/home') // 任意の遷移先に変えてね
+}
+
+const onModalCancel = () => {
+  isModalVisible.value = false
 }
 </script>
 

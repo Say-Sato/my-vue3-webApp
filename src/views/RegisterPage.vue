@@ -2,8 +2,11 @@
 import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
-const route = useRoute()
+import TextInput from '@/basics/TextInput.vue'
+import IconButton from '@/basics/IconButton.vue'
+
 const router = useRouter()
+const route = useRoute()
 
 const token = route.query.token as string
 const isValid = ref<boolean | null>(null)
@@ -41,11 +44,6 @@ onMounted(async () => {
 
 const loginId = ref('')
 const password = ref('')
-const isPasswordVisible = ref(false)
-
-function togglePassword() {
-  isPasswordVisible.value = !isPasswordVisible.value
-}
 
 const submitForm = async () => {
   console.log('登録:', { loginId: loginId.value, password: password.value })
@@ -83,34 +81,37 @@ const submitForm = async () => {
   <div v-if="isValid === null">
     <p>トークン確認中…</p>
   </div>
-  <div v-else-if="isValid">
-    <div class="register-container">
-      <div class="form-card">
-        <h1 class="form-title">ようこそ！</h1>
-        <p class="form-description">
+  <div class="container" v-else-if="isValid">
+    <div class="register-card">
+      <div class="wrapper">
+        <h2 class="title">ようこそ！</h2>
+        <p class="description">
           メール確認ありがとうございます！<br />
           続けて、ログイン用のIDとパスワードを設定してください。<br />
           この設定が終わると、登録が完了します。
         </p>
 
         <form @submit.prevent="submitForm">
-          <label class="form-label">ログインID</label>
-          <input v-model="loginId" type="text" class="form-input" />
-
-          <label class="form-label">パスワード</label>
-          <div class="password-wrapper">
-            <input
-              v-model="password"
-              :type="isPasswordVisible ? 'text' : 'password'"
-              class="form-input"
-            />
-            <button type="button" class="eye-icon" @click="togglePassword">
-              <span v-if="isPasswordVisible">🙈</span>
-              <span v-else>👁️</span>
-            </button>
+          <label for="loginid">ログインID</label>
+          <TextInput
+            id="loginid"
+            className="loginid"
+            name="loginid"
+            v-model="loginId"
+            required
+          /><br />
+          <label for="password">パスワード</label>
+          <TextInput
+            id="password"
+            className="password"
+            name="password"
+            type="password"
+            v-model="password"
+            required
+          /><br />
+          <div class="submit-register">
+            <IconButton label="登録" type="submit" class="submit-button" />
           </div>
-
-          <button type="submit" class="submit-button">登録</button>
         </form>
       </div>
     </div>
@@ -118,79 +119,58 @@ const submitForm = async () => {
 </template>
 
 <style scoped>
-.register-container {
+.container {
+  width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
-  background: #fff;
+  padding-top: 20px;
 }
 
-.form-card {
-  background: #fff;
-  padding: 2rem;
-  border-radius: 1rem;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-  width: 320px;
+.register-card {
+  background: white;
+  padding: 40px 30px;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  min-width: 320px;
+  max-width: 380px;
+  width: 100%;
 }
 
-.form-title {
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin-bottom: 1rem;
-  text-align: center;
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 30px;
 }
 
-.form-description {
-  font-size: 0.9rem;
+.description {
+  font-size: 14px;
   color: #333;
-  margin-bottom: 1.5rem;
-  line-height: 1.6;
-  text-align: center;
+  margin-bottom: 30px;
+  line-height: 1.5;
 }
 
-.form-label {
+.label {
   display: block;
-  margin-bottom: 0.5rem;
-  font-size: 0.85rem;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
   color: #222;
 }
 
-.form-input {
-  width: 100%;
-  padding: 0.5rem 0.75rem;
-  margin-bottom: 1rem;
-  border: 2px solid #000;
-  border-radius: 9999px;
-  outline: none;
-  font-size: 1rem;
+.wrapper h2 {
+  text-align: center;
+  margin-top: 0; /* 上の余白を消す */
+  margin-bottom: 0; /* 下の余白をちょっとだけにする */
+  padding: 0; /* 念のため */
 }
 
-.password-wrapper {
-  position: relative;
+.submit-register {
   display: flex;
-  align-items: center;
-}
-
-.eye-icon {
-  position: absolute;
-  right: 0.75rem;
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 1.2rem;
-}
-
-.submit-button {
-  display: block;
-  width: 100%;
-  background: #111;
-  color: #fff;
-  padding: 0.5rem;
-  font-size: 1rem;
-  border-radius: 9999px;
-  border: none;
-  cursor: pointer;
-  margin-top: 0.5rem;
+  justify-content: flex-end; /* 右寄せ */
+  padding-top: 20px;
+  margin-bottom: -20px;
 }
 </style>

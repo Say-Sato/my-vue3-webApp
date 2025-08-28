@@ -1,13 +1,8 @@
+<script setup lang="ts"></script>
+
 <template>
   <img class="user-avatar" src="../assets/images/innu.jpg" alt="User Icon" />
 </template>
-
-<script lang="ts">
-import { defineComponent } from 'vue'
-export default defineComponent({
-  name: 'UserAvatar',
-})
-</script>
 
 <style scoped>
 .user-avatar {

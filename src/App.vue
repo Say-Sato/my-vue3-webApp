@@ -1,4 +1,4 @@
-<script lang="ts">
+<script setup lang="ts">
 //import MainTodo from '@/components/MainTodo.vue'
 //router-viewでMainTodo.vueを呼び出している
 import TheHeader from '@/containers/TheHeader.vue' // ヘッダー
@@ -8,25 +8,11 @@ import TheFooter from '@/basics/TheFooter.vue' // フッター
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 
-export default {
-  components: {
-    TheHeader,
-    TheFooter,
-    //UserProfile,
-  },
-  data() {
-    const route = useRoute()
+const route = useRoute()
 
-    // 現在のルートroute.meta.showHeaderを取得
-    const showProfile = computed(() => route.meta.showProfile !== false)
-    const showHeader = computed(() => route.meta.showHeader !== false)
-
-    return {
-      showProfile,
-      showHeader,
-    }
-  },
-}
+// 現在のルートroute.meta.showHeaderを取得
+const showProfile = computed(() => route.meta.showProfile !== false)
+const showHeader = computed(() => route.meta.showHeader !== false)
 </script>
 
 <template>

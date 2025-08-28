@@ -1,71 +1,117 @@
-<script lang="ts">
-import TextInput from '@/basics/TextInput.vue'
+<script setup lang="ts">
+import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
+import { useRouter } from 'vue-router'
 
-export default {
-  components: {
-    TextInput,
-  },
-  methods: {
-    handleInput(event: Event) {
-      // event.target は HTMLInputElement なので、型をキャストします
-      const target = event.target as HTMLInputElement
-      console.log(target.value)
-    },
-  },
+const router = useRouter()
+const inputText = ref('') // input用文字列
+const keywords = ref<string[]>([]) // 分割後配列
+
+// ページ読み込み時にlocalStorageから値を取得
+onMounted(() => {
+  const saved = localStorage.getItem('searchInput')
+  if (saved) inputText.value = saved
+})
+
+// inputTextの変更を監視してlocalStorageに保存
+watch(inputText, newVal => {
+  localStorage.setItem('searchInput', newVal)
+})
+
+// アンマウント時にlocalStorageを削除
+onBeforeUnmount(() => {
+  localStorage.removeItem('searchInput')
+})
+
+const submitSearch = () => {
+  if (!inputText.value.trim()) return
+
+  // 空白で分割して余計な空白を削除、重複はSetで排除
+  const words = inputText.value
+    .split(/\s+/)
+    .map(word => word.trim())
+    .filter(word => word.length > 0)
+
+  // 重複を排除
+  keywords.value = Array.from(new Set(words))
+  const strSpace: string = keywords.value.join(' ')
+  inputText.value = strSpace
+
+  router.push({
+    path: '/search',
+    query: { words: keywords.value.join(',') },
+  })
 }
 </script>
 
 <template>
-  <head>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+  <div class="search-bar">
+    <input
+      v-model="inputText"
+      placeholder="検索ワード"
+      class="search-input"
+      @keyup.enter="submitSearch"
     />
-  </head>
-  <div class="search-container">
-    <div>
-      <TextInput
-        id="searchtext"
-        className="searchtext"
-        name="searchtext"
-        @input="handleInput"
-      />
-    </div>
-    <!-- 検索アイコン -->
-    <button class="icon-button">
-      <i class="fas fa-search"></i>
+    <button @click="submitSearch" class="search-button">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="icon"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z"
+        />
+      </svg>
     </button>
   </div>
 </template>
 
 <style scoped>
-.search-container {
-  display: flex; /* 要素を横に並べる */
-  justify-content: flex-end; /* 右端に配置 */
-  align-items: center; /* 縦方向の中央揃え */
+.search-bar {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 400px;
+  border: 1px solid #ccc;
+  border-radius: 9999px;
+  overflow: hidden;
 }
 
-.icon-button {
-  background-color: #cbcbcb; /* ボタンの背景色を透明に */
-  border: 2px solid #7d7d7d; /* ボタンの枠線を黒色で指定 */
-  color: black; /* アイコンの色を黒に設定 */
-  padding: 8px 12px; /* 内側の余白 */
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 16px;
-  margin: 4px 2px;
+.search-input {
+  flex: 1;
+  padding: 8px 12px;
+  border: none;
+  font-size: 14px;
+  outline: none;
+}
+
+.search-input:focus {
+  outline: none;
+}
+
+.search-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 100%;
+  border: none;
+  border-left: 1px solid #ccc;
+  background: none;
   cursor: pointer;
-  border-radius: 20px; /* 角を丸くする */
+  color: #666;
 }
 
-.icon-button:hover {
-  background-color: #caf611; /* ホバー時の色 */
+.search-button:hover {
+  color: #111;
 }
 
-.icon-button i {
-  color: #fff;
-  /* 縁取り */
-  text-shadow: 1px 1px 0 #000;
+.icon {
+  width: 16px;
+  height: 16px;
 }
 </style>

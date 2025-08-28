@@ -3,39 +3,22 @@ import { onMounted, ref, watch, onBeforeUnmount } from 'vue'
 import { useRoute } from 'vue-router'
 
 import ArticleTags from '@/basics/ArticleTags.vue'
-import Favorite from '@/components/FavoriteIcon.vue'
+import Favorite from '@/components/FavoriteButton.vue'
 import ImageList from '@/components/ArticleImageList.vue'
 import PrevNextButtons from '@/components/PrevNextButtons.vue'
 import Profile from '@/components/UserProfile.vue'
 import Comment from '@/components/CommentSection.vue'
-
-export type Image = {
-  image_id: number
-  image_url: string
-  sort_order: number
-}
-
-export interface PostResponse {
-  id: number
-  title: string
-  body: string
-  tags: number[]
-  images: Image[]
-  prev_id: number
-  next_id: number
-  p_name: string
-  p_photo: string
-}
+import type { Image, PostGallery } from '@/types/PostResponse'
 
 const route = useRoute()
-const post = ref<PostResponse>()
+const post = ref<PostGallery>()
 
 const fetchData = async () => {
   const id = ref(route.params.id)
   const response = await fetch(
     `https://yellowokapi2.sakura.ne.jp/Vue/api/BlogAllCatchAPI.php/${id.value}`,
   )
-  const data: PostResponse = await response.json()
+  const data: PostGallery = await response.json()
   data.images.sort((a: Image, b: Image) => a.sort_order - b.sort_order)
   post.value = data
 }
@@ -70,13 +53,15 @@ onBeforeUnmount(() => {
       <ImageList :images="post?.images ?? []" />
 
       <div class="title-favorite-wrapper">
-        <h1 class="title">{{ post?.title }}</h1>
+        <h1 class="title">{{ post?.illust_title }}</h1>
         <span class="favorite">
-          <Favorite :i_id="post?.id ?? 0" />
+          <Favorite :i_id="post?.illust_id ?? 0" />
         </span>
       </div>
 
-      <div class="dtl">{{ post?.body || '本文が入っていません' }}</div>
+      <div class="dtl">
+        {{ post?.illust_body || '本文が入っていません' }}
+      </div>
       <ArticleTags :tagsMsg="post?.tags ?? []" />
 
       <div v-if="post" class="prev-next-wrapper">
@@ -90,20 +75,24 @@ onBeforeUnmount(() => {
     <!-- サイドエリア（画面幅に応じて表示切り替え） -->
     <div v-if="isWideScreen" class="sidebar">
       <Profile
-        :name="post?.p_name ?? 'deleted user'"
-        :p_photo="post?.p_photo"
+        :profile_id="post?.profile_id ?? 0"
+        :name="post?.profile_name ?? 'deleted user'"
+        :p_photo="post?.profile_photo"
+        :profile_login_id="post?.profile_login_id"
       />
       <div class="sidebar-divider"></div>
-      <Comment :post_id="post?.id || 0" />
+      <Comment :post_id="post?.illust_id || 0" />
     </div>
 
     <div v-else class="sidebar-mobile">
       <Profile
-        :name="post?.p_name ?? 'deleted user'"
-        :p_photo="post?.p_photo"
+        :profile_id="post?.profile_id ?? 0"
+        :name="post?.profile_name ?? 'deleted user'"
+        :p_photo="post?.profile_photo"
+        :profile_login_id="post?.profile_login_id"
       />
       <div class="sidebar-divider"></div>
-      <Comment :post_id="post?.id || 0" />
+      <Comment :post_id="post?.illust_id || 0" />
     </div>
   </div>
 </template>

@@ -17,15 +17,15 @@ try {
         $subFolder = 'Blog/mypage/portfolio/photo';
         include('./PhotoEntry.php');
         // 入力内容を取得
-        $userid = isset($_POST['userid']) ? htmlspecialchars($_POST['userid']) : '未指定';
-        $title = isset($_POST['title']) ? htmlspecialchars($_POST['title']) : '未指定';
+        $userid = isset($_POST['user_id']) ? htmlspecialchars($_POST['user_id']) : '未指定';
+        $title = isset($_POST['illust_title']) ? htmlspecialchars($_POST['illust_title']) : '未指定';
         $tags = isset($_POST['tags']) ? htmlspecialchars($_POST['tags']) : '未指定';
-        $body = isset($_POST['body']) ? htmlspecialchars($_POST['body']) : '';
-        $publish = isset($_POST['publish']) ? htmlspecialchars($_POST['publish']) : '未指定';
-        $adultsOnly = isset($_POST['adultsOnly']) ? htmlspecialchars($_POST['adultsOnly']) : '未指定';
+        $body = isset($_POST['ilust_body']) ? htmlspecialchars($_POST['ilust_body']) : '';
+        $publish = isset($_POST['public']) ? htmlspecialchars($_POST['public']) : '未指定';
+        $adultsOnly = isset($_POST['R18']) ? htmlspecialchars($_POST['R18']) : '未指定';
 
         //Int型としてDBへ格納
-        if($userid){
+        if ($userid) {
             $p_id = intval($userid);
         } else {
             echo json_encode(["error" => "投稿するにはログインしてください。"], JSON_UNESCAPED_UNICODE);
@@ -71,19 +71,16 @@ try {
             "タグ名称" => $tagList,
             "タグのID" => $tagIds
         ], JSON_UNESCAPED_UNICODE);
-
     } else {
         echo json_encode(["error" => "POSTリクエストを送信してください。"], JSON_UNESCAPED_UNICODE);
         die();
     }
-
 } catch (PDOException $e) {
-    echo json_encode(["error" => "データベースエラー: " . $e->getMessage()
+    echo json_encode([
+        "error" => "データベースエラー: " . $e->getMessage()
     ], JSON_UNESCAPED_UNICODE);
     die();
 }
 
 // 接続を閉じる
 $dbh = null;
-?>
-

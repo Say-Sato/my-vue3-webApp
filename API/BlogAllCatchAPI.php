@@ -19,8 +19,8 @@ if ($id !== null) {
         $query = "
             (SELECT 
                 id, title, 'prev' AS role,
-                NULL AS p_id, NULL AS body, NULL AS url, NULL AS created,
-                NULL AS p_name, NULL AS p_photo, NULL AS tag_ids,
+                NULL AS p_id, NULL AS body, NULL AS created_at,
+                NULL AS p_login_id, NULL AS p_name, NULL AS p_photo, NULL AS tag_ids,
                 NULL AS R18, NULL AS public, NULL AS s_url
             FROM illust
             WHERE id < :id
@@ -29,8 +29,8 @@ if ($id !== null) {
             UNION ALL
             (SELECT 
                 illust.id, illust.title, 'current' AS role,
-                illust.p_id, illust.body, illust.url, illust.created,
-                profile.name AS p_name, profile.profile_photo AS p_photo,
+                illust.p_id, illust.body, illust.created_at,
+                profile.login_id AS p_login_id, profile.name AS p_name, profile.profile_photo AS p_photo,
                 GROUP_CONCAT(illust_tags.t_id) AS tag_ids,
                 illust.R18, illust.public, illust.s_url
             FROM illust
@@ -41,8 +41,8 @@ if ($id !== null) {
             UNION ALL
             (SELECT 
                 id, title, 'next' AS role,
-                NULL AS p_id, NULL AS body, NULL AS url, NULL AS created,
-                NULL AS p_name, NULL AS p_photo, NULL AS tag_ids,
+                NULL AS p_id, NULL AS body, NULL AS created_at,
+                NULL AS p_login_id, NULL AS p_name, NULL AS p_photo, NULL AS tag_ids,
                 NULL AS R18, NULL AS public, NULL AS s_url
             FROM illust
             WHERE id > :id
@@ -62,49 +62,59 @@ if ($id !== null) {
 
         foreach ($rows as $row) {
             switch ($row['role']) {
-                case 'prev':    $prev = $row; break;
-                case 'current': $current = $row; break;
-                case 'next':    $next = $row; break;
+                case 'prev':
+                    $prev = $row;
+                    break;
+                case 'current':
+                    $current = $row;
+                    break;
+                case 'next':
+                    $next = $row;
+                    break;
             }
         }
 
         if ($current) {
             $data = [
-                "id"         => $current['id'],
-                "p_id"       => $current['p_id'],
-                "title"      => $current['title'],
-                "tags"       => isset($current['tag_ids']) ? array_map('intval', explode(',', $current['tag_ids'])) : [],
-                "url"        => $current['url'],
-                "body"       => $current['body'],
-                "R18"        => $current['R18'],
-                "public"     => $current['public'],
-                "s_url"      => $current['s_url'],
-                "p_name"     => $current['p_name'],
-                "p_photo"    => $current['p_photo'],
-                "prev_id"    => $prev['id'] ?? null,
-                "next_id"    => $next['id'] ?? null,
-                "prev_title" => $prev['title'] ?? null,
-                "next_title" => $next['title'] ?? null,
-                "images"     => []
+                "illust_id"       => $current['id'],
+                "profile_id"      => $current['p_id'],
+                "profile_login_id" => $current['p_login_id'],
+                "illust_title"    => $current['title'],
+                "tags"            => isset($current['tag_ids']) ? array_map('intval', explode(',', $current['tag_ids'])) : [],
+                "thumbnail_url"   => null, // 最初の画像で上書きする
+                "illust_body"     => $current['body'],
+                "R18"             => $current['R18'],
+                "public"          => $current['public'],
+                "profile_name"    => $current['p_name'],
+                "profile_photo"   => $current['p_photo'],
+                "prev_id"         => $prev['id'] ?? null,
+                "next_id"         => $next['id'] ?? null,
+                "images"          => []
             ];
 
             // 対応画像の取得
             $imgQuery = "
-                SELECT url AS image_url, id AS image_id, sort_order
-                FROM images
-                WHERE post_id = :id
-                ORDER BY sort_order ASC";
+        SELECT url AS image_url, id AS image_id, sort_order
+        FROM images
+        WHERE post_id = :id
+        ORDER BY sort_order ASC
+    ";
             $imgStmt = $dbh->prepare($imgQuery);
             $imgStmt->bindParam(':id', $id, PDO::PARAM_INT);
             $imgStmt->execute();
             $images = $imgStmt->fetchAll(PDO::FETCH_ASSOC);
 
-            foreach ($images as $img) {
+            foreach ($images as $index => $img) {
                 $data['images'][] = [
                     'image_id'   => (int)$img['image_id'],
                     'image_url'  => $img['image_url'],
                     'sort_order' => (int)$img['sort_order']
                 ];
+
+                // 最初の画像でthumbnail_urlを設定
+                if ($index === 0) {
+                    $data['thumbnail_url'] = $img['image_url'];
+                }
             }
 
             // JSON返却
@@ -114,10 +124,9 @@ if ($id !== null) {
             http_response_code(404);
             echo json_encode(["error" => "ID:{$id}のデータが見つかりません。"], JSON_UNESCAPED_UNICODE);
         }
-
     } catch (PDOException $e) {
         header('Content-Type: application/json', true, 500);
-        echo json_encode(["error" => "データベース接続失敗: " . $e->getMessage()]);
+        echo json_encode(["error" => "データベース接続失敗: " . $e->getMessage()], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
     } finally {
         $dbh = null;
     }
@@ -125,7 +134,7 @@ if ($id !== null) {
     // IDが指定されていない場合公開に設定されているすべてのデータを返す
     try {
         $dbh = new PDO($dsn, $user, $password);
-        
+
         // illust + profile + tags を一括取得
         $query = "SELECT illust.*, profile.name AS p_name,
                         profile.profile_photo AS p_photo,
@@ -135,26 +144,25 @@ if ($id !== null) {
                 LEFT JOIN illust_tags ON illust.id = illust_tags.i_id
                 WHERE public = 0
                 GROUP BY illust.id
-                ORDER BY created DESC";
+                ORDER BY created_at DESC";
         $stmt = $dbh->prepare($query);
         $stmt->execute();
 
         $data = [];
-        
+
         // メインループで各イラストごとの配列を作成
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $item = [
-                "id" => (int)$row['id'],
-                "p_id" => (int)$row['p_id'],
-                "title" => $row['title'],
+                "illust_id" => (int)$row['id'],
+                "profile_id" => (int)$row['p_id'],
+                "illust_title" => $row['title'],
                 "tags" => $row['tag_ids'] ? array_map('intval', explode(',', $row['tag_ids'])) : [],
-                "url" => $row['url'],
-                "body" => $row['body'],
+                "thumbnail_url" => $row['url'],
+                "illust_body" => $row['body'],
                 "R18" => $row['R18'],
                 "public" => $row['public'],
-                "s_url" => $row['s_url'],
-                "p_name" => $row['p_name'],
-                "p_photo" => $row['p_photo'],
+                "profile_name" => $row['p_name'],
+                "profile_photo" => $row['p_photo'],
                 "images" => [], // ← ここに画像リスト入れる
             ];
 
@@ -187,15 +195,13 @@ if ($id !== null) {
         // JSON形式で返す
         header('Content-Type: application/json');
         echo json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-
-    } catch(PDOException $e) {
+    } catch (PDOException $e) {
         // エラーメッセージもJSON形式で返す
         header('Content-Type: application/json', true, 500);
-        echo json_encode(["error" => "データベースの接続に失敗しました: " . $e->getMessage()]);
+        echo json_encode(["error" => "データベースの接続に失敗しました: " . $e->getMessage()], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
         die();
     } finally {
         // DB接続を閉じる
         $dbh = null; // PDOオブジェクトをnullにすることで接続を閉じる
     }
 }
-?>

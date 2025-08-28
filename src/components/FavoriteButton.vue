@@ -57,7 +57,7 @@ const toggleLike = async () => {
 
     const actionValue = isLiked.value ? 'delete' : 'insert'
 
-    const likeurl = `https://yellowokapi2.sakura.ne.jp/Vue/api/favoriteToggleAPI.php/${likeId.value}/${actionValue}`
+    const likeurl = `https://yellowokapi2.sakura.ne.jp/Vue/api/FavoriteToggleAPI.php/${likeId.value}/${actionValue}`
 
     const response = await fetch(likeurl, {
       method: 'POST',

@@ -7,7 +7,6 @@ import RadioInput from '@/basics/RadioInput.vue'
 import IconButton from '@/basics/IconButton.vue'
 import BirthDate from '@/basics/BirthDate.vue'
 import PhotoDragDrop from '@/basics/PhotoDragDrop.vue'
-import FormWrapper from '@/basics/FormWrapper.vue'
 
 const props = defineProps<{
   userName?: string
@@ -16,16 +15,12 @@ const props = defineProps<{
   password?: string
   body?: string
   birthDate?: string
+  editProfile: boolean
 }>()
 
 const emit = defineEmits<{
   (e: 'submit'): void
-  (e: 'update:userName', value: string): void
-  (e: 'update:certificate18', value: string): void
-  (e: 'update:profilePhoto', value: File[]): void
-  (e: 'update:password', value: string): void
-  (e: 'update:body', value: string): void
-  (e: 'update:birthDate', value: string): void
+  (e: 'update:editProfile', value: boolean): void
 }>()
 
 // ローカル状態
@@ -138,43 +133,49 @@ const handleSubmit = async () => {
 
     alert('データが正常に送信されました')
     emit('submit')
+    emit('update:editProfile', false)
   } catch (err) {
     console.error('更新失敗:', err)
     errorMessage.value = '更新に失敗しました。もう一度お試しください。'
   }
 }
+
+// キャンセルボタン処理
+const closeForm = () => {
+  emit('update:editProfile', false) // 親の editProfile を false にする
+}
 </script>
 
 <template>
-  <FormWrapper>
-    <form @submit.prevent="handleSubmit">
-      <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
+  <form @submit.prevent="handleSubmit">
+    <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
 
-      <div>
-        <label for="image">プロフィール画像</label>
-        <PhotoDragDrop v-model="localProfilePhoto" :maxCount="1" />
-      </div>
+    <div class="profile-item">
+      <label for="image">プロフィール画像</label>
+      <PhotoDragDrop v-model="localProfilePhoto" :maxCount="1" />
+    </div>
 
-      <div>
-        <p>生年月日</p>
-        <BirthDate v-model="localBirthDate" />
-      </div>
+    <div class="profile-item">
+      <label>生年月日</label>
+      <BirthDate v-model="localBirthDate" />
+    </div>
 
-      <div>
-        <label for="userName">名前</label>
-        <TextInput
-          id="userName"
-          name="userName"
-          type="text"
-          v-model="localUserName"
-        />
-      </div>
+    <div class="profile-item">
+      <label for="userName">名前</label>
+      <TextInput
+        id="userName"
+        name="userName"
+        type="text"
+        v-model="localUserName"
+      />
+    </div>
 
-      <div>
-        <label for="body">プロフィール本文</label>
-        <TextInput id="body" name="body" type="textarea" v-model="localBody" />
-      </div>
+    <div class="profile-item">
+      <label for="body">プロフィール本文</label>
+      <TextInput id="body" name="body" type="textarea" v-model="localBody" />
+    </div>
 
+    <div class="profile-item">
       <label for="password">パスワード</label>
       <TextInput
         id="password"
@@ -182,8 +183,10 @@ const handleSubmit = async () => {
         type="password"
         v-model="localPassword"
       />
+    </div>
 
-      <p>年齢制限ありの画像を表示する</p>
+    <div class="profile-item">
+      <label>年齢制限ありの画像を表示する</label>
       <RadioInput
         id="show"
         name="certificate18"
@@ -198,21 +201,19 @@ const handleSubmit = async () => {
         label="非表示"
         v-model="localCertificate18"
       />
-      <div class="submit-edit">
-        <IconButton label="キャンセル" backgroundColor="#ccc" />
-        <IconButton type="submit" label="保存する" />
-      </div>
-    </form>
-  </FormWrapper>
+    </div>
+    <div class="submit-edit">
+      <IconButton
+        label="キャンセル"
+        backgroundColor="#ccc"
+        @click="closeForm"
+      />
+      <IconButton type="submit" label="保存する" />
+    </div>
+  </form>
 </template>
 
 <style scoped>
-.wrapper {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
 .title {
   font-size: 24px;
   font-weight: 700;
@@ -220,13 +221,16 @@ const handleSubmit = async () => {
   margin-bottom: 20px;
 }
 
-.label {
+.profile-item label {
   display: block;
-  text-align: left;
   font-size: 14px;
   font-weight: 600;
+  color: #555;
   margin-bottom: 8px;
-  color: #222;
+}
+
+.profile-item {
+  margin-bottom: 20px;
 }
 
 .submit-edit {
@@ -234,6 +238,7 @@ const handleSubmit = async () => {
   justify-content: space-between;
   align-items: center;
   margin-top: 40px;
+  margin-bottom: 20px;
 }
 
 .error-message {

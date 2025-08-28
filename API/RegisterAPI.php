@@ -45,6 +45,12 @@ try {
         ':name' => $loginId
     ]);
 
+    // 最後にINSERTされたIDを取得
+    $lastId = (int)$dbh->lastInsertId();
+
+    // notificationSettings.php を呼び出す
+    include('./notificationSettings.php');
+
     // 成功時のレスポンス
     echo json_encode([
         'success' => 'true',

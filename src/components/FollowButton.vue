@@ -8,13 +8,14 @@ const props = defineProps<{
 }>()
 const isFollowed = ref(false)
 const isFetching = ref(true)
+const showFollow = ref(false)
 const responseData = ref<number[]>([])
 const followerNum = ref('')
 const followId = ref('')
 const userStore = useUserStore()
 
 // Piniaから ユニークなid を取得
-followerNum.value = userStore.id ?? '0'
+followerNum.value = userStore.id ?? 0
 
 const fetchLatestFollowStatus = async () => {
   try {
@@ -98,8 +99,13 @@ watch(
       followedVal > 0 &&
       followerNum.value !== ''
     ) {
-      followId.value = `${followerNum.value}/${followedVal}`
-      await fetchLatestFollowStatus()
+      if (Number(followerNum.value) !== followedVal) {
+        showFollow.value = true
+        followId.value = `${followerNum.value}/${followedVal}`
+        await fetchLatestFollowStatus()
+      } else {
+        showFollow.value = false
+      }
     }
   },
   { immediate: true },
@@ -121,7 +127,7 @@ onMounted(async () => {
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
     />
   </head>
-  <div class="liked-container">
+  <div class="liked-container" v-if="showFollow">
     <IconButton
       :label="isFollowed ? 'フォロー中' : 'フォロー'"
       :iconClass="

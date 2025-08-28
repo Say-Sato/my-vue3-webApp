@@ -10,7 +10,13 @@ if (preg_match('#([^/]+\.php)/(\d+)/(\d+)/(delete|insert)$#', $requestUri, $matc
     $user_id = $matches[2];
     $follow_id = $matches[3];          // 数値ID
     $action = $matches[4];      // "order" または "text"
-    //echo json_encode(["true" => "actionリクエストを受け取りました。i_id: $i_id, u_id: $u_id, text: $action"], JSON_UNESCAPED_UNICODE);
+
+    if ($user_id == $follow_id) {
+        // エラーメッセージ
+        echo json_encode(["error" => "エラー: フォローとフォロワーが同じです。follower_id: $user_id, followed_id: $follow_id"], JSON_UNESCAPED_UNICODE);
+        die();
+    }
+
 
     try {
         $dbh = new PDO($dsn, $user, $password);
@@ -26,7 +32,7 @@ if (preg_match('#([^/]+\.php)/(\d+)/(\d+)/(delete|insert)$#', $requestUri, $matc
 
         $conditionResult = $conditionStmt->fetch(PDO::FETCH_ASSOC);
         if ($conditionResult && isset($conditionResult['exists_flag'])) {
-            $deveropFrag = (int)$conditionResult['exists_flag']; // 明示的にintにしときなさい♡
+            $deveropFrag = (int)$conditionResult['exists_flag'];
         } else {
             $deveropFrag = 114514;
         }

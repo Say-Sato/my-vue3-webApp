@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+//import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import IconButton from '@/basics/IconButton.vue'
 import FormWrapper from '@/basics/FormWrapper.vue'
+import ProfileEditPage from '@/views/ProfileEditPage.vue'
 
 // ストアとルーターを初期化
 const userStore = useUserStore()
-const router = useRouter()
+//const router = useRouter()
 const userId = ref(userStore.id)
 
 // プロフィールデータを格納するリアクティブな変数
@@ -18,6 +19,7 @@ const errorMessage = ref('')
 const login_id = ref('')
 const password = ref('')
 const certificate18 = ref('')
+const editProfile = ref(false)
 
 // コンポーネントがマウントされたらAPIからプロフィール情報を取得
 onMounted(async () => {
@@ -38,7 +40,7 @@ onMounted(async () => {
     birthDate.value = data.birthDate || '未設定'
     login_id.value = data.login_id || '未設定'
     password.value = data.password || '未設定'
-    certificate18.value = data.certificate18 || '未設定'
+    certificate18.value = String(data.certificate18) || '未設定'
   } catch (error) {
     console.error('プロフィールの取得エラー:', error)
     errorMessage.value = 'プロフィールの読み込み中にエラーが発生しました。'
@@ -47,46 +49,56 @@ onMounted(async () => {
 
 // 編集ページに遷移する関数
 const goToEditPage = () => {
-  router.push('/profile/edit')
+  //router.push('/profile/edit')
 }
 </script>
 
 <template>
-  <FormWrapper>
-    <h1 class="profile-title">Profile</h1>
-    <div v-if="errorMessage" class="error-message">
-      {{ errorMessage }}
-    </div>
-    <div v-else class="profile-content">
-      <div class="profile-item">
-        <label>ユーザー名</label>
-        <p>{{ userName }}</p>
+  <span v-if="editProfile">
+    <FormWrapper>
+      <h1 class="profile-title">Profile</h1>
+      <div v-if="errorMessage" class="error-message">
+        {{ errorMessage }}
       </div>
-      <div class="profile-item">
-        <label>自己紹介</label>
-        <p class="profile-body">{{ profileBody }}</p>
+      <div v-else class="profile-content">
+        <div class="profile-item">
+          <label>ユーザー名</label>
+          <p>{{ userName }}</p>
+        </div>
+        <div class="profile-item">
+          <label>自己紹介</label>
+          <p class="profile-body">{{ profileBody }}</p>
+        </div>
+        <div class="profile-item">
+          <label>生年月日</label>
+          <p>{{ birthDate }}</p>
+        </div>
+        <div class="profile-item">
+          <label>ログインID</label>
+          <p>{{ login_id }}</p>
+        </div>
+        <div class="profile-item">
+          <label>パスワード</label>
+          <p>{{ password ? '●●●●●●' : '未設定' }}</p>
+        </div>
+        <div class="profile-item">
+          <label>年齢制限付きの画像</label>
+          <p>{{ Number(certificate18) ? '表示する' : '表示しない' }}</p>
+        </div>
       </div>
-      <div class="profile-item">
-        <label>生年月日</label>
-        <p>{{ birthDate }}</p>
+      <div class="button-area">
+        <IconButton label="編集する" @click="goToEditPage" />
       </div>
-      <div class="profile-item">
-        <label>ログインID</label>
-        <p>{{ login_id }}</p>
-      </div>
-      <div class="profile-item">
-        <label>パスワード</label>
-        <p>{{ password ? '●●●●●●' : '未設定' }}</p>
-      </div>
-      <div class="profile-item">
-        <label>年齢制限付きの画像</label>
-        <p>{{ Number(certificate18) ? '表示する' : '表示しない' }}</p>
-      </div>
-    </div>
-    <div class="button-area">
-      <IconButton label="編集する" @click="goToEditPage" />
-    </div>
-  </FormWrapper>
+    </FormWrapper>
+  </span>
+  <span v-else>
+    <ProfileEditPage
+      :userName="userName"
+      :certificate18="certificate18"
+      :password="password"
+      :body="profileBody"
+      :birthDate="birthDate"
+  /></span>
 </template>
 
 <style scoped>

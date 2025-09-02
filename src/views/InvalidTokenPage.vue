@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import MessageCard from '@/components/MessageCard.vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 function handleBack() {
   // 例：router.push('/') とか
-  alert('戻るボタンが押されたよ')
+  router.push(`/home`)
 }
 </script>
 

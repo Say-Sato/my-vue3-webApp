@@ -80,12 +80,14 @@ const router = createRouter({
       component: () => import('@/views/RegisterErrorPage.vue'),
     },
     {
-      path: '/register/complete',
+      path: '/register-complete',
       name: 'RegisterComplete',
       component: () => import('@/views/RegisterCompletePage.vue'),
-      props: route => ({
-        message: route.query.message || '登録が完了しました！',
-      }),
+    },
+    {
+      path: '/register/temporary-complete',
+      name: 'RegisterTemporaryComplete',
+      component: () => import('@/views/TemporaryRegisterCompletePage.vue'),
     },
     {
       path: '/invalid-token',

@@ -70,7 +70,7 @@ const deleteArticle = async () => {
       <IconButton
         label="削除"
         class="delete-button"
-        backgroundColor="#ff4d4f"
+        backgroundColor="danger"
         @click="showModal"
       />
       <ModalComponent

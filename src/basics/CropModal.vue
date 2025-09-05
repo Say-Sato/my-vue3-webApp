@@ -75,7 +75,12 @@ const handleCancel = () => {
           <img ref="imageRef" style="max-width: 100%" />
         </div>
         <div class="buttons">
-          <IconButton label="キャンセル" @click="handleCancel" type="button" />
+          <IconButton
+            label="キャンセル"
+            @click="handleCancel"
+            type="button"
+            backgroundColor="danger"
+          />
           <IconButton label="決定" @click="handleConfirm" type="button" />
         </div>
       </div>

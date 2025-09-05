@@ -200,7 +200,7 @@ const closeForm = () => {
     <div class="submit-notify">
       <IconButton
         label="キャンセル"
-        backgroundColor="#ccc"
+        backgroundColor="secondary"
         @click="closeForm"
       />
       <IconButton type="submit" label="保存する" />

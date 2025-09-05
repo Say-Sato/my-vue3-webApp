@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 
+import CropModal from '@/basics/CropModal.vue'
+
 // ✅ props: v-modelとしてFile[]を受け取る
 const props = defineProps<{
   modelValue: File[]
@@ -14,6 +16,8 @@ const emit = defineEmits<{
   (e: 'update:modelValue', value: File[]): void
 }>()
 
+const croppingFile = ref<File | null>(null)
+const showCropModal = ref(false)
 const imagePreviewUrls = ref<string[]>([])
 const fileInputRef = ref<HTMLInputElement | null>(null)
 const MAX_IMAGES =
@@ -28,17 +32,37 @@ const handleFile = (file: File) => {
     return
   }
 
+  // ✅ 1枚目はクロップモーダルを表示
+  if (props.modelValue.length === 0 && MAX_IMAGES === 1) {
+    croppingFile.value = file
+    showCropModal.value = true
+    return
+  }
+  addFile(file)
+}
+
+const addFile = (file: File) => {
   const reader = new FileReader()
   reader.onload = () => {
     if (imagePreviewUrls.value.length >= MAX_IMAGES) {
-      alert('画像は最大${MAX_IMAGES}枚まで')
+      alert(`画像は最大${MAX_IMAGES}枚まで`)
       return
     }
-
     imagePreviewUrls.value.push(reader.result as string)
     emit('update:modelValue', [...props.modelValue, file])
   }
   reader.readAsDataURL(file)
+}
+
+const handleCropped = (file: File) => {
+  addFile(file)
+  croppingFile.value = null
+  showCropModal.value = false // 処理完了後にモーダルを閉じる
+}
+
+const handleCropCancel = () => {
+  croppingFile.value = null
+  showCropModal.value = false
 }
 
 // ドロップエリア
@@ -136,7 +160,9 @@ watch(
         class="image-preview-wrapper"
       >
         <img :src="url" class="thumb" />
-        <button class="remove-button" @click="clearImage(index)">×</button>
+        <button class="remove-button" type="button" @click="clearImage(index)">
+          ×
+        </button>
       </div>
     </div>
   </div>
@@ -145,6 +171,14 @@ watch(
   <p class="upload-count-overlay">
     {{ imagePreviewUrls.length }}/{{ MAX_IMAGES }}
   </p>
+
+  <CropModal
+    v-if="croppingFile"
+    :file="croppingFile"
+    :show="showCropModal"
+    @cropped="handleCropped"
+    @cancel="handleCropCancel"
+  />
 </template>
 
 <style scoped>

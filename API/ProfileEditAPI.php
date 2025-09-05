@@ -24,7 +24,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $folderName = 'Blog/index';
         $insertName = 'profile_photo';
         $uniqueFileName = uniqid('image_', true) . '.' . pathinfo($uploadedFile['name'], PATHINFO_EXTENSION);
-        $savePath = $_SERVER['DOCUMENT_ROOT'] . '/' . $folderName . '/' . $uniqueFileName;
+        $savePath = $_SERVER['DOCUMENT_ROOT'] . '/' . $folderName . '/' . $insertName . '/' . $uniqueFileName;
 
         // フォルダが存在しない場合は作成（必要なら）
         if (!is_dir(dirname($savePath))) {

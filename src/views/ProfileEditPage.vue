@@ -205,7 +205,7 @@ const closeForm = () => {
     <div class="submit-edit">
       <IconButton
         label="キャンセル"
-        backgroundColor="#ccc"
+        backgroundColor="secondary"
         @click="closeForm"
         type="button"
       />

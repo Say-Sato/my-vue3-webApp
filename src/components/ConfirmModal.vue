@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { defineProps } from 'vue'
 
-// props定義（最初のまま！）
+// props定義（そのまま）
 const props = defineProps<{
   message: string
   confirmText: string
@@ -11,7 +11,6 @@ const props = defineProps<{
   isVisible: boolean
 }>()
 
-// メソッド（動作は今のコードベースに揃える）
 function handleCancel() {
   props.onCancel()
 }
@@ -22,8 +21,10 @@ function handleEnter() {
 </script>
 
 <template>
-  <div class="modal-overlay" v-if="isVisible">
-    <div class="modal-container">
+  <!-- overlayクリックでキャンセル発火 -->
+  <div class="modal-overlay" v-if="isVisible" @click="handleCancel">
+    <!-- 内側クリックはキャンセルされない -->
+    <div class="modal-container" @click.stop>
       <p class="modal-message">{{ message }}</p>
       <div class="modal-buttons">
         <button class="cancel-button" @click="handleCancel">

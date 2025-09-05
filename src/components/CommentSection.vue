@@ -111,7 +111,7 @@ watch(commentCount, () => {
     <div class="comment-submit">
       <IconButton
         label="送信"
-        backgroundColor="#cbcbcb"
+        backgroundColor="secondary"
         @click="submitComment"
       />
     </div>

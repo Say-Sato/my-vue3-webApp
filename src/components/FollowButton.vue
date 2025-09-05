@@ -134,7 +134,7 @@ onMounted(async () => {
         isFollowed ? 'fa-solid fa-user-check' : 'fa-solid fa-user-plus'
       "
       color="white"
-      :backgroundColor="isFollowed ? '#ccc' : '#1e1e1e'"
+      :backgroundColor="isFollowed ? 'secondary' : 'primary'"
       textColor="white"
       @click="toggleFollow"
     />

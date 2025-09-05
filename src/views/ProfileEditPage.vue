@@ -147,7 +147,7 @@ const closeForm = () => {
 </script>
 
 <template>
-  <form @submit.prevent="handleSubmit">
+  <form @keydown.enter.prevent>
     <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
 
     <div class="profile-item">
@@ -207,8 +207,9 @@ const closeForm = () => {
         label="キャンセル"
         backgroundColor="#ccc"
         @click="closeForm"
+        type="button"
       />
-      <IconButton type="submit" label="保存する" />
+      <IconButton label="保存する" @click="handleSubmit" type="button" />
     </div>
   </form>
 </template>

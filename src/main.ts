@@ -4,6 +4,7 @@ import './assets/main.css'
 import { createApp } from 'vue' // VueのcreateApp関数をインポート
 import { createPinia } from 'pinia'
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
+import 'cropperjs/dist/cropper.css'
 
 import App from './App.vue' // ルートコンポーネントをインポート
 import router from './router'

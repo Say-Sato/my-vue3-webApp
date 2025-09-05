@@ -67,6 +67,7 @@ export interface PostGallery extends PostResponse {
 // PostGallery（PostResponse を拡張）
 export interface Postvalidation extends PostResponse {
   R18: number
+  public: number
 }
 
 // FVImageGallery

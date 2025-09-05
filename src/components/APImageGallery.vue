@@ -4,103 +4,102 @@ import { defineProps } from 'vue'
 import type { Postvalidation } from '@/types/PostResponse'
 
 const props = defineProps<{ posts: Postvalidation[] }>()
+
+// タイトルを9文字で省略
+const truncatedTitle = (illust_title: string) =>
+  illust_title.length > 9 ? illust_title.slice(0, 9) + '…' : illust_title
 </script>
 
 <template>
-  <ul class="image-gallery">
-    <li v-for="post in props.posts" :key="post.illust_id" class="image-item">
-      <router-link :to="`/posts/edit/${post.illust_id}`">
-        <div class="box3">
-          <div class="image-wrapper">
-            <img
-              :src="post.thumbnail_url"
-              :alt="post.illust_title"
-              class="image"
-            />
-            <div v-if="post.R18" class="blur-overlay">R18</div>
-            <!-- ▼ 非公開ラベルの例（仮で非公開固定表示、動的に切り替える場合は別途条件式が必要） -->
-            <div class="private-label">非公開</div>
+  <div class="gallery-container">
+    <div v-for="post in props.posts" :key="post.illust_id" class="card">
+      <router-link :to="`/posts/${post.illust_id}`">
+        <div class="image-wrapper">
+          <img
+            :src="post.thumbnail_url"
+            :alt="truncatedTitle(post.illust_title)"
+            class="card-image"
+          />
+          <div class="label-container">
+            <div v-if="post.R18" class="blur-label">R18</div>
+            <div v-if="post.public" class="private-label">非公開</div>
           </div>
-          <!-- ▼ タイトル表示（仮） -->
-          <div class="image-title">{{ post.illust_title || 'タイトル仮' }}</div>
         </div>
       </router-link>
-    </li>
-  </ul>
+    </div>
+  </div>
 </template>
 
 <style scoped>
-.image-gallery {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  padding: 0;
-  margin: 0;
-  list-style: none;
-}
-
-.image-item {
-  width: calc(25% - 10px);
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-
-.image-wrapper {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 1 / 1;
-  overflow: hidden;
-}
-
-.image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: filter 0.3s ease;
-}
-
-.blur-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: rgba(0, 0, 0, 0.5);
-  color: white;
-  font-size: 20px;
-  font-weight: bold;
-  text-align: center;
-}
-
-.image-title {
-  margin-top: 4px;
-  font-size: 14px;
-  font-weight: 500;
-  text-align: center;
-  color: #000;
-}
-
-.private-label {
+.label-container {
   position: absolute;
   top: 8px;
   left: 8px;
+  display: flex;
+  gap: 4px;
+  pointer-events: none;
+}
+.blur-label {
+  background: rgba(220, 20, 60, 0.7); /* クリムゾン系の赤 */
+  color: white;
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.private-label {
   background: rgba(0, 0, 0, 0.6);
   color: white;
   font-size: 12px;
   padding: 2px 6px;
   border-radius: 4px;
-  pointer-events: none;
 }
 
+.gallery-container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* デフォルトは4列 */
+  gap: 16px;
+  padding: 16px 0;
+}
+
+.card {
+  position: relative; /* これ必須！ */
+}
+
+.image-wrapper {
+  position: relative; /* ラベルを画像に重ねたいならここにも付ける */
+}
+
+.card:hover {
+  transform: translateY(-4px);
+}
+
+.card-image {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+}
+
+.card-body {
+  padding: 8px;
+}
+
+.card-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 4px 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* スマホ対応（1100px以下は2列表示） */
 @media screen and (max-width: 800px) {
-  .image-item {
-    width: calc(50% - 10px);
+  .gallery-container {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
   }
 }
 </style>

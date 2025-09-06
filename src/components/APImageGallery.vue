@@ -105,7 +105,7 @@ const truncatedTitle = (illust_title: string) =>
   margin: 4px 0;
 }
 
-a {
+.card a {
   color: inherit;
   text-decoration: none;
 }

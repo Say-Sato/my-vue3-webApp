@@ -76,39 +76,4 @@ const processedPosts = computed(() =>
   <ImageGallery :posts="processedPosts" />
 </template>
 
-<style scoped>
-.profile-container {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 16px 0;
-  border-bottom: 1px solid #ccc;
-}
-
-.profile-photo {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-.profile-info {
-  flex: 1;
-}
-
-.profile-info h2 {
-  margin: 0;
-  font-size: 20px;
-}
-
-.profile-info p {
-  margin: 4px 0;
-  color: #555;
-}
-
-.profile-actions {
-  display: flex;
-  flex-direction: row;
-  gap: 8px;
-}
-</style>
+<style scoped></style>

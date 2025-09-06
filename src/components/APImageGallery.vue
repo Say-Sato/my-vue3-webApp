@@ -20,10 +20,18 @@ const truncatedTitle = (illust_title: string) =>
             :alt="truncatedTitle(post.illust_title)"
             class="card-image"
           />
-          <div class="label-container">
-            <div v-if="post.R18" class="blur-label">R18</div>
-            <div v-if="post.public" class="private-label">非公開</div>
+
+          <div class="ap-image-gallery-label-container">
+            <div v-if="post.R18" class="ap-image-gallery-blur-label">R18</div>
+            <div v-if="post.public" class="ap-image-gallery-private-label">
+              非公開
+            </div>
           </div>
+        </div>
+        <div class="card-body">
+          <h3 class="card-title">
+            {{ truncatedTitle(post.illust_title) }}
+          </h3>
         </div>
       </router-link>
     </div>
@@ -31,7 +39,11 @@ const truncatedTitle = (illust_title: string) =>
 </template>
 
 <style scoped>
-.label-container {
+.image-wrapper {
+  position: relative; /* ラベル配置の基準になる */
+}
+
+.ap-image-gallery-label-container {
   position: absolute;
   top: 8px;
   left: 8px;
@@ -39,7 +51,8 @@ const truncatedTitle = (illust_title: string) =>
   gap: 4px;
   pointer-events: none;
 }
-.blur-label {
+
+.ap-image-gallery-blur-label {
   background: rgba(220, 20, 60, 0.7); /* クリムゾン系の赤 */
   color: white;
   font-size: 12px;
@@ -47,7 +60,7 @@ const truncatedTitle = (illust_title: string) =>
   border-radius: 4px;
 }
 
-.private-label {
+.ap-image-gallery-private-label {
   background: rgba(0, 0, 0, 0.6);
   color: white;
   font-size: 12px;
@@ -63,11 +76,13 @@ const truncatedTitle = (illust_title: string) =>
 }
 
 .card {
-  position: relative; /* これ必須！ */
-}
-
-.image-wrapper {
-  position: relative; /* ラベルを画像に重ねたいならここにも付ける */
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
 }
 
 .card:hover {
@@ -95,7 +110,7 @@ a {
   text-decoration: none;
 }
 
-/* スマホ対応（1100px以下は2列表示） */
+/* スマホ対応（800px以下は2列表示） */
 @media screen and (max-width: 800px) {
   .gallery-container {
     grid-template-columns: repeat(2, 1fr);

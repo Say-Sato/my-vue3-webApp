@@ -30,12 +30,7 @@ const props = defineProps<{
       <p>mailaddress@example.com</p>
     </div>
     <div class="profile-actions">
-      <IconButton
-        label="通知オフ"
-        icon-class="fa-solid fa-bell-slash"
-        background-color="#bcbcbc"
-        textColor="white"
-      />
+      <IconButton label="通知オフ" icon-class="fa-solid fa-bell-slash" />
       <span v-if="id">
         <FollowButton :f_id="id ? Number(id) : 0" />
       </span>
@@ -78,29 +73,5 @@ const props = defineProps<{
   display: flex;
   flex-direction: row;
   gap: 8px;
-}
-
-.disabled-button {
-  background-color: #eee;
-  border: none;
-  color: #666;
-  padding: 4px 8px;
-  border-radius: 6px;
-  cursor: not-allowed;
-}
-
-.follow-button {
-  background-color: #ddd;
-  border: none;
-  padding: 4px 8px;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.icon-button {
-  background: none;
-  border: none;
-  font-size: 20px;
-  cursor: pointer;
 }
 </style>

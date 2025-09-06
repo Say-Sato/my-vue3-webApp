@@ -22,7 +22,7 @@ const copyUrl = async () => {
     <IconButton
       label=""
       icon-class="fa-regular fa-copy"
-      background-color="#bcbcbc"
+      backgroundColor="primary"
       textColor="white"
       @click="copyUrl"
     />

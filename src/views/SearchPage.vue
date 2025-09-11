@@ -90,41 +90,69 @@ watch(
 </script>
 
 <template>
-  <div class="container">
-    <SearchField />
-  </div>
-  <div v-if="posts.length > 0">
-    <!-- タグの表示 -->
-    <div class="post-item" v-if="posts.length > 0">
-      <SectionTitle
-        :title="
-          tagsName + 'の検索結果：' + `${posts.length}件` ||
-          'error:タグ読み取り失敗'
-        "
-      />
-    </div>
+  <div class="search-page">
+    <header class="search-header">
+      <SearchField />
+    </header>
 
-    <!-- 投稿データの表示 -->
-    <ImageGallery :posts="posts" />
-    <!-- posts 配列を渡す -->
-  </div>
-  <!-- データがなかった場合 -->
-  <div v-else>
-    <p>該当する検索結果はありません。</p>
+    <main class="search-results">
+      <div v-if="posts.length > 0">
+        <SectionTitle
+          :title="`${tagsName} の検索結果`"
+          :subtitle="`${posts.length}件見つかりました`"
+        />
+        <ImageGallery :posts="posts" />
+      </div>
+      <div v-else class="no-results">
+        <p>該当する検索結果はありません。</p>
+        <span>別のキーワードで試してみてください。</span>
+      </div>
+    </main>
   </div>
 </template>
 
 <style scoped>
-.title {
-  font-weight: 400;
-  font-size: 24px;
-  font-style: normal;
-  border-bottom: 2px solid #777;
-  padding-bottom: 10px;
+.search-page {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
 }
 
-.container {
+.search-header {
   display: flex;
-  padding-top: 10px;
+  justify-content: center;
+  margin-bottom: 2.5rem;
+}
+
+.search-results {
+  width: 100%;
+}
+
+.no-results {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 4rem 1rem;
+  color: #666;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+}
+
+.no-results p {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem;
+}
+
+.no-results span {
+  font-size: 1rem;
+}
+
+@media (min-width: 768px) {
+  .search-page {
+    padding: 3rem 2rem;
+  }
 }
 </style>

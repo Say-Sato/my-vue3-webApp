@@ -44,74 +44,81 @@ const submitSearch = () => {
 </script>
 
 <template>
-  <div class="search-bar">
+  <form class="search-field" @submit.prevent="submitSearch">
     <input
       v-model="inputText"
-      placeholder="検索ワード"
+      type="search"
+      placeholder="キーワードで検索"
       class="search-input"
-      @keyup.enter="submitSearch"
     />
-    <button @click="submitSearch" class="search-button">
+    <button type="submit" class="search-button">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         class="icon"
-        fill="none"
         viewBox="0 0 24 24"
+        fill="none"
         stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
       >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z"
-        />
+        <path d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z" />
       </svg>
+      <span>検索</span>
     </button>
-  </div>
+  </form>
 </template>
 
 <style scoped>
-.search-bar {
+.search-field {
   display: flex;
-  align-items: center;
   width: 100%;
-  max-width: 400px;
-  border: 1px solid #ccc;
+  max-width: 600px;
   border-radius: 9999px;
+  background-color: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   overflow: hidden;
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+.search-field:focus-within {
+  box-shadow: 0 4px 16px rgba(0, 123, 255, 0.2);
 }
 
 .search-input {
-  flex: 1;
-  padding: 8px 12px;
+  flex-grow: 1;
+  padding: 12px 20px;
   border: none;
-  font-size: 14px;
+  background-color: transparent;
+  font-size: 16px;
   outline: none;
+  color: #333;
 }
 
-.search-input:focus {
-  outline: none;
+.search-input::placeholder {
+  color: #999;
 }
 
 .search-button {
   display: flex;
   align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 100%;
+  gap: 8px;
+  padding: 0 24px;
   border: none;
-  border-left: 1px solid #ccc;
-  background: none;
+  background-color: #007bff;
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
   cursor: pointer;
-  color: #666;
+  transition: background-color 0.2s ease-in-out;
 }
 
 .search-button:hover {
-  color: #111;
+  background-color: #0056b3;
 }
 
 .icon {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
 }
 </style>

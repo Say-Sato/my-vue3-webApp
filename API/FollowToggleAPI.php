@@ -31,10 +31,12 @@ if (preg_match('#([^/]+\.php)/(\d+)/(\d+)/(delete|insert)$#', $requestUri, $matc
         $conditionStmt->execute();
 
         $conditionResult = $conditionStmt->fetch(PDO::FETCH_ASSOC);
-        if ($conditionResult && isset($conditionResult['exists_flag'])) {
-            $deveropFrag = (int)$conditionResult['exists_flag'];
+        if ($conditionResult && !empty($conditionResult['exists_flag'])) {
+            $FollowFrag = (int)$conditionResult['exists_flag'];
         } else {
-            $deveropFrag = 114514;
+            // エラーメッセージ
+            echo json_encode(["error" => "エラー: フォローされていないユーザーです。"], JSON_UNESCAPED_UNICODE);
+            die();
         }
 
         if ($action === 'delete') {
@@ -44,7 +46,7 @@ if (preg_match('#([^/]+\.php)/(\d+)/(\d+)/(delete|insert)$#', $requestUri, $matc
             $stmt->bindParam(':u_id', $user_id);
             $stmt->bindParam(':f_id', $follow_id);
             $stmt->execute();
-            $msg = "いいねを削除しました。follower_id: $user_id, followed_id: $follow_id, conditionResult: $deveropFrag";
+            $msg = "いいねを削除しました。follower_id: $user_id, followed_id: $follow_id, conditionResult: $FollowFrag";
         } elseif (intval($user_id) > 0 && intval($follow_id) > 0 && $action == 'insert') {
             // フォローが存在しない場合 → 登録
             $query = "INSERT IGNORE INTO follows (follower_id, followed_id) VALUES (:u_id, :f_id)";
@@ -52,7 +54,7 @@ if (preg_match('#([^/]+\.php)/(\d+)/(\d+)/(delete|insert)$#', $requestUri, $matc
             $stmt->bindParam(':u_id', $user_id);
             $stmt->bindParam(':f_id', $follow_id);
             $stmt->execute();
-            $msg = "いいねを登録しました。follower_id: $user_id, followed_id: $follow_id, conditionResult: $deveropFrag";
+            $msg = "いいねを登録しました。follower_id: $user_id, followed_id: $follow_id, conditionResult: $FollowFrag";
         } else {
             // エラーメッセージ
             echo json_encode(["error" => "エラー: 不正な入力。follower_id: $user_id, followed_id: $follow_id"], JSON_UNESCAPED_UNICODE);

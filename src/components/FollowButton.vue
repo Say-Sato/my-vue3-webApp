@@ -8,17 +8,17 @@ const props = defineProps<{
 }>()
 const isFollowed = ref(false)
 const isFetching = ref(true)
-const showFollow = ref(false)
 const responseData = ref<number[]>([])
 const followerNum = ref('')
 const followId = ref('')
 const userStore = useUserStore()
 
 // Piniaから ユニークなid を取得
-followerNum.value = userStore.id ?? 0
+followerNum.value = userStore.id ?? '0'
 
 const fetchLatestFollowStatus = async () => {
   try {
+    // FollowGetAPI.phpはf_idをbodyで受け取るので、この部分は変更しない
     const url = `https://yellowokapi2.sakura.ne.jp/Vue/api/FollowGetAPI.php/${followerNum.value}`
     console.log(`リクエストURL (fetchLatestFollowStatus): ${url}`)
 
@@ -62,16 +62,11 @@ const toggleFollow = async () => {
     const actionValue = isFollowed.value ? 'delete' : 'insert'
     console.log(`トグル処理: ${actionValue}`)
 
-    const likeurl = `https://yellowokapi2.sakura.ne.jp/Vue/api/FollowToggleAPI.php/${followId.value}/${actionValue}`
-    console.log(`リクエストURL (fetchLatestToggleStatus): ${likeurl}`)
+    const toggleUrl = `https://yellowokapi2.sakura.ne.jp/Vue/api/FollowToggleAPI.php/${followId.value}/${actionValue}`
+    console.log(`リクエストURL (toggleFollow): ${toggleUrl}`)
 
-    const response = await fetch(likeurl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ id: props.f_id }),
-    })
+    // APIはURLからパラメータを取得するため、bodyは不要
+    const response = await fetch(toggleUrl)
 
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`)
@@ -99,13 +94,9 @@ watch(
       followedVal > 0 &&
       followerNum.value !== ''
     ) {
-      if (Number(followerNum.value) !== followedVal) {
-        showFollow.value = true
-        followId.value = `${followerNum.value}/${followedVal}`
-        await fetchLatestFollowStatus()
-      } else {
-        showFollow.value = false
-      }
+      // APIのパスパラメータの順序: /follower_id/followed_id
+      followId.value = `${followerNum.value}/${followedVal}`
+      await fetchLatestFollowStatus()
     }
   },
   { immediate: true },
@@ -113,7 +104,8 @@ watch(
 
 onMounted(async () => {
   if (props.f_id > 0 && followerNum.value !== '') {
-    followId.value = `${props.f_id}/${followerNum.value}`
+    // APIのパスパラメータの順序: /follower_id/followed_id
+    followId.value = `${followerNum.value}/${props.f_id}`
     await fetchLatestFollowStatus()
     isFetching.value = false
   }
@@ -121,7 +113,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="liked-container" v-if="showFollow">
+  <div>
     <IconButton
       :label="isFollowed ? 'フォロー中' : 'フォロー'"
       :iconClass="

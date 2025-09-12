@@ -27,11 +27,12 @@ if (preg_match('#([^/]+\.php)/(\d+)/(\d+)/(delete|insert)$#', $requestUri, $matc
 
         $conditionResult = $conditionStmt->fetch(PDO::FETCH_ASSOC);
         if ($conditionResult && isset($conditionResult['exists_flag'])) {
-            $deveropFrag = (int)$conditionResult['exists_flag']; // 明示的にintにしときなさい♡
+            $FavoriteFrag = (int)$conditionResult['exists_flag']; // 明示的にintにしときなさい♡
         } else {
-            $deveropFrag = 114514;
+            // エラーメッセージ
+            echo json_encode(["error" => "エラー: 結果を取得できませんでした。"], JSON_UNESCAPED_UNICODE);
+            die();
         }
-
 
         if ($action === 'delete') {
             // いいねが存在する場合 → 削除
@@ -40,7 +41,7 @@ if (preg_match('#([^/]+\.php)/(\d+)/(\d+)/(delete|insert)$#', $requestUri, $matc
             $stmt->bindParam(':i_id', $i_id);
             $stmt->bindParam(':u_id', $u_id);
             $stmt->execute();
-            $msg = "いいねを削除しました。i_id: $i_id, u_id: $u_id, conditionResult: $deveropFrag";
+            $msg = "いいねを削除しました。i_id: $i_id, u_id: $u_id, conditionResult: $FavoriteFrag";
         } elseif (intval($i_id) > 0 && intval($u_id) > 0 && $action == 'insert') {
             // いいねが存在しない場合 → 登録
             $query = "INSERT IGNORE INTO favorite (i_id, u_id) VALUES (:i_id, :u_id)";
@@ -48,7 +49,7 @@ if (preg_match('#([^/]+\.php)/(\d+)/(\d+)/(delete|insert)$#', $requestUri, $matc
             $stmt->bindParam(':i_id', $i_id);
             $stmt->bindParam(':u_id', $u_id);
             $stmt->execute();
-            $msg = "いいねを登録しました。i_id: $i_id, u_id: $u_id, conditionResult: $deveropFrag";
+            $msg = "いいねを登録しました。i_id: $i_id, u_id: $u_id, conditionResult: $FavoriteFrag";
         } else {
             // エラーメッセージ
             echo json_encode(["error" => "エラー: 不正な入力。i_id: $i_id, u_id: $u_id"], JSON_UNESCAPED_UNICODE);

@@ -36,13 +36,12 @@ const fetchLatestNotifyStatus = async () => {
     }
 
     const responseJson = await response.json()
-    console.log('APIレスポンス (FollowGetAPI):', responseJson)
+    console.log('APIレスポンス (FollowNotifyGetAPI):', responseJson)
 
     if (responseJson.success) {
-      // NotifyFrag は 0 か 1 が返るので boolean に変換
-      isNotify.value = Number(responseJson.NotifyFrag) === 1
-
-      console.log('最新のフォロー通知状態 (isFollowed):', isNotify.value)
+      // NotifyFrag 0 → 通知オン(true), 1 → 通知オフ(false)
+      isNotify.value = Number(responseJson.NotifyFrag) === 0
+      console.log('最新のフォロー通知状態 (isNotify):', isNotify.value)
     }
   } catch (error) {
     console.error('Error fetching latest follow status:', error)
@@ -57,9 +56,9 @@ const toggleNotify = async () => {
 
   try {
     await fetchLatestNotifyStatus()
-    console.log('Before toggle, isFollowed:', isNotify.value)
+    console.log('Before toggle, isNotify:', isNotify.value)
 
-    const actionValue = isNotify.value ? 'delete' : 'insert'
+    const actionValue = isNotify.value ? 'insert' : 'delete'
     console.log(`トグル処理: ${actionValue}`)
 
     const Toggleurl = `https://yellowokapi2.sakura.ne.jp/Vue/api/NotifyToggleAPI.php/${followId.value}/${actionValue}`
@@ -78,9 +77,12 @@ const toggleNotify = async () => {
     }
 
     const responseJson = await response.json()
+    console.log('APIレスポンス (NotifyToggleAPI):', responseJson)
+
     if (responseJson.success) {
-      await fetchLatestNotifyStatus()
-      console.log('成功:', responseJson.success)
+      // status を見て最終状態を決定
+      isNotify.value = responseJson.status === '通知オン'
+      console.log('トグル後のフォロー通知状態 (isNotify):', isNotify.value)
     } else {
       console.error('エラー: ' + JSON.stringify(responseJson))
     }

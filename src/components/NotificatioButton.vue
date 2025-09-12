@@ -1,6 +1,6 @@
 <script setup lang="ts">
 //ProfileEditPage.vue
-import { ref, defineProps, watch, onMounted } from 'vue'
+import { ref, defineProps, watch } from 'vue'
 import { useUserStore } from '@/stores/user'
 import IconButton from '@/basics/IconButton.vue'
 
@@ -8,20 +8,19 @@ const props = defineProps<{
   n_id: number
 }>()
 
-const isFollowed = ref(false)
+const isNotify = ref(false)
 const isFetching = ref(true)
 const showFollow = ref(false)
-const responseData = ref<number[]>([])
-const followerNum = ref('')
+const userNum = ref('')
 const followId = ref('')
 const userStore = useUserStore()
 
 // Piniaから ユニークなid を取得
-followerNum.value = userStore.id ?? 0
+userNum.value = userStore.id ?? 0
 
-const fetchLatestFollowStatus = async () => {
+const fetchLatestNotifyStatus = async () => {
   try {
-    const url = `https://yellowokapi2.sakura.ne.jp/Vue/api/FollowNotifyGetAPI.php/${followerNum.value}`
+    const url = `https://yellowokapi2.sakura.ne.jp/Vue/api/FollowNotifyGetAPI.php/${followId.value}`
     console.log(`リクエストURL (fetchLatestFollowStatus): ${url}`)
 
     const response = await fetch(url, {
@@ -39,13 +38,12 @@ const fetchLatestFollowStatus = async () => {
     const responseJson = await response.json()
     console.log('APIレスポンス (FollowGetAPI):', responseJson)
 
-    responseData.value = Array.isArray(responseJson.followed_id)
-      ? responseJson.followed_id.map(Number) // 数値配列に変換
-      : []
+    if (responseJson.success) {
+      // NotifyFrag は 0 か 1 が返るので boolean に変換
+      isNotify.value = Number(responseJson.NotifyFrag) === 1
 
-    // 型を合わせたうえで includes 判定
-    isFollowed.value = responseData.value.includes(Number(props.n_id))
-    console.log('最新のフォロー状態 (isFollowed):', isFollowed.value)
+      console.log('最新のフォロー通知状態 (isFollowed):', isNotify.value)
+    }
   } catch (error) {
     console.error('Error fetching latest follow status:', error)
   }
@@ -58,16 +56,16 @@ const toggleNotify = async () => {
   isProcessing = true
 
   try {
-    await fetchLatestFollowStatus()
-    console.log('Before toggle, isFollowed:', isFollowed.value)
+    await fetchLatestNotifyStatus()
+    console.log('Before toggle, isFollowed:', isNotify.value)
 
-    const actionValue = isFollowed.value ? 'delete' : 'insert'
+    const actionValue = isNotify.value ? 'delete' : 'insert'
     console.log(`トグル処理: ${actionValue}`)
 
-    const likeurl = `https://yellowokapi2.sakura.ne.jp/Vue/api/FollowToggleAPI.php/${followId.value}/${actionValue}`
-    console.log(`リクエストURL (fetchLatestToggleStatus): ${likeurl}`)
+    const Toggleurl = `https://yellowokapi2.sakura.ne.jp/Vue/api/NotifyToggleAPI.php/${followId.value}/${actionValue}`
+    console.log(`リクエストURL (fetchLatestToggleStatus): ${Toggleurl}`)
 
-    const response = await fetch(likeurl, {
+    const response = await fetch(Toggleurl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -81,7 +79,7 @@ const toggleNotify = async () => {
 
     const responseJson = await response.json()
     if (responseJson.success) {
-      await fetchLatestFollowStatus()
+      await fetchLatestNotifyStatus()
       console.log('成功:', responseJson.success)
     } else {
       console.error('エラー: ' + JSON.stringify(responseJson))
@@ -95,35 +93,30 @@ const toggleNotify = async () => {
 
 watch(
   () => props.n_id,
-  async followedVal => {
-    if (
-      typeof followedVal === 'number' &&
-      followedVal > 0 &&
-      followerNum.value !== ''
-    ) {
-      if (Number(followerNum.value) !== followedVal) {
+  async newNId => {
+    isFetching.value = true
+    if (typeof newNId === 'number' && newNId > 0 && userNum.value) {
+      if (Number(userNum.value) !== newNId) {
         showFollow.value = true
-        followId.value = `${followerNum.value}/${followedVal}`
-        await fetchLatestFollowStatus()
+        followId.value = `${userNum.value}/${newNId}`
+        await fetchLatestNotifyStatus()
       } else {
         showFollow.value = false
       }
     }
+    isFetching.value = false
   },
   { immediate: true },
 )
-
-onMounted(async () => {
-  if (props.n_id > 0 && followerNum.value !== '') {
-    followId.value = `${props.n_id}/${followerNum.value}`
-    await fetchLatestFollowStatus()
-    isFetching.value = false
-  }
-})
 </script>
 
 <template>
-  <div><IconButton label="通知オフ" icon-class="fa-solid fa-bell-slash" /></div>
+  <div>
+    <IconButton
+      :label="isNotify ? '通知オフ' : '通知オン'"
+      :iconClass="isNotify ? 'fa-solid fa-bell-slash' : 'fa-solid fa-bell'"
+      :backgroundColor="isNotify ? 'primary' : 'secondary'"
+      @click="toggleNotify"
+    />
+  </div>
 </template>
-
-<style scoped></style>

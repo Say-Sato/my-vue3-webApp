@@ -2,7 +2,8 @@
 import { ref } from 'vue'
 import { useRoute } from 'vue-router'
 import FollowButton from '@/components/FollowButton.vue'
-import IconButton from '@/basics/IconButton.vue'
+
+import NotifyButton from '@/components/NotificatioButton.vue'
 import LinkCopy from '@/components/LinkCopy.vue'
 
 const route = useRoute()
@@ -30,7 +31,7 @@ const props = defineProps<{
       <p>mailaddress@example.com</p>
     </div>
     <div class="profile-actions">
-      <IconButton label="通知オフ" icon-class="fa-solid fa-bell-slash" />
+      <NotifyButton :n_id="id ? Number(id) : 0" />
       <span v-if="id">
         <FollowButton :f_id="id ? Number(id) : 0" />
       </span>

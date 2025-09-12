@@ -1,6 +1,6 @@
 <script setup lang="ts">
 //ProfileEditPage.vue
-import { ref, defineProps, watch } from 'vue'
+import { ref, defineProps, watch, onMounted } from 'vue'
 import { useUserStore } from '@/stores/user'
 import IconButton from '@/basics/IconButton.vue'
 
@@ -110,14 +110,24 @@ watch(
   },
   { immediate: true },
 )
+
+onMounted(async () => {
+  if (props.n_id > 0 && userNum.value !== '') {
+    followId.value = `${userNum.value}/${props.n_id}`
+    await fetchLatestNotifyStatus()
+    isFetching.value = false
+  }
+})
 </script>
 
 <template>
   <div>
     <IconButton
-      :label="isNotify ? '通知オフ' : '通知オン'"
-      :iconClass="isNotify ? 'fa-solid fa-bell-slash' : 'fa-solid fa-bell'"
-      :backgroundColor="isNotify ? 'primary' : 'secondary'"
+      :label="isNotify ? '通知オン' : '通知オフ'"
+      :iconClass="
+        isNotify ? 'fa-solid fa-bell-slash' : 'fa-solid fa-bell-slash'
+      "
+      :backgroundColor="isNotify ? 'secondary' : 'primary'"
       @click="toggleNotify"
     />
   </div>

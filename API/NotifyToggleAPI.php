@@ -39,7 +39,7 @@ if (preg_match('#([^/]+\.php)/(\d+)/(\d+)/(delete|insert)$#', $requestUri, $matc
         $conditionStmt->execute();
 
         $conditionResult = $conditionStmt->fetch(PDO::FETCH_ASSOC);
-        if ($conditionResult && !empty($conditionResult['follow_exists'])) {
+        if ($conditionResult && isset($conditionResult['follow_exists'])) {
             $FollowFrag = (int)$conditionResult['follow_exists'];
             $NotifyFrag = (int)$conditionResult['notify_blocked'];
         } else {
@@ -48,24 +48,20 @@ if (preg_match('#([^/]+\.php)/(\d+)/(\d+)/(delete|insert)$#', $requestUri, $matc
             die();
         }
 
-        if ((int)$NotifyFrag === 1 && $action === 'delete') {
+        if ($NotifyFrag === 1 && $action === 'delete') {
             $query = "DELETE FROM user_follow_notification_blocks WHERE user_id = :u_id AND target_user_id = :n_id";
             $stmt = $dbh->prepare($query);
             $stmt->bindParam(':u_id', $user_id);
             $stmt->bindParam(':n_id', $notify_id);
             $stmt->execute();
             $msg = "通知をオフにしました。user_id: $user_id, target_user_id: $notify_id, conditionResult: $FollowFrag";
-        } elseif ((int)$NotifyFrag === 0 && $action == 'insert') {
+        } elseif ($NotifyFrag === 0 && $action === 'insert') {
             $query = "INSERT INTO user_follow_notification_blocks (user_id, target_user_id) VALUES (:u_id, :n_id)";
             $stmt = $dbh->prepare($query);
             $stmt->bindParam(':u_id', $user_id);
             $stmt->bindParam(':n_id', $notify_id);
             $stmt->execute();
             $msg = "通知をオンにしました。user_id: $user_id, target_user_id: $notify_id, conditionResult: $FollowFrag";
-        } else {
-            // エラーメッセージ
-            echo json_encode(["error" => "エラー: 不正な入力。user_id: $user_id, target_user_id: $notify_id"], JSON_UNESCAPED_UNICODE);
-            die();
         }
 
         $dbh->commit(); // コミット（確定）
@@ -87,7 +83,7 @@ if (preg_match('#([^/]+\.php)/(\d+)/(\d+)/(delete|insert)$#', $requestUri, $matc
             $status = "通知オフ";
         }
 
-        echo json_encode(["success" => $msg, "status" => $status], JSON_UNESCAPED_UNICODE);
+        echo json_encode(["success" => true, "status" => $status], JSON_UNESCAPED_UNICODE);
         die();
     } catch (PDOException $e) {
         $dbh->rollBack(); // エラー発生時にロールバック

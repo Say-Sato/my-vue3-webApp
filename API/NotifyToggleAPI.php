@@ -98,7 +98,7 @@ if (preg_match('#([^/]+\.php)/(\d+)/(\d+)/(delete|insert)$#', $requestUri, $matc
     ], JSON_UNESCAPED_UNICODE);
     die();
 } else {
-    echo json_encode(["error" => "リクエストURLの形式が間違っています。"], JSON_UNESCAPED_UNICODE);
+    echo json_encode(["error" => "リクエストURLの形式が間違っています。", "requestUrl：" => $requestUri], JSON_UNESCAPED_UNICODE);
     die();
 }
 

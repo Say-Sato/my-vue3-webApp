@@ -1,35 +1,25 @@
 <script setup lang="ts">
-//ProfileEditPage.vue
 import { ref, defineProps, watch, onMounted } from 'vue'
-import { useUserStore } from '@/stores/user'
 import IconButton from '@/basics/IconButton.vue'
+import { useUserStore } from '@/stores/user'
 
 const props = defineProps<{
   n_id: number
 }>()
-
-const isNotify = ref(false)
+const isNotifyed = ref(false)
 const isFetching = ref(true)
-const showFollow = ref(false)
 const userNum = ref('')
-const followId = ref('')
+const NotifyId = ref('')
 const userStore = useUserStore()
 
 // Piniaから ユニークなid を取得
-userNum.value = userStore.id ?? 0
+userNum.value = userStore.id ?? '0'
 
 const fetchLatestNotifyStatus = async () => {
   try {
-    const url = `https://yellowokapi2.sakura.ne.jp/Vue/api/FollowNotifyGetAPI.php/${followId.value}`
-    console.log(`リクエストURL (fetchLatestFollowStatus): ${url}`)
+    const url = `https://yellowokapi2.sakura.ne.jp/Vue/api/FollowNotifyGetAPI.php/${NotifyId.value}`
 
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ id: props.n_id }),
-    })
+    const response = await fetch(url)
 
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`)
@@ -40,11 +30,11 @@ const fetchLatestNotifyStatus = async () => {
 
     if (responseJson.success) {
       // NotifyFrag 0 → 通知オン(true), 1 → 通知オフ(false)
-      isNotify.value = Number(responseJson.NotifyFrag) === 0
-      console.log('最新のフォロー通知状態 (isNotify):', isNotify.value)
+      isNotifyed.value = Number(responseJson.NotifyFrag) === 0
+      console.log('最新のフォロー通知状態 (isNotify):', isNotifyed.value)
     }
   } catch (error) {
-    console.error('Error fetching latest follow status:', error)
+    console.error('Error fetching latest notify status:', error)
   }
 }
 
@@ -55,34 +45,21 @@ const toggleNotify = async () => {
   isProcessing = true
 
   try {
-    await fetchLatestNotifyStatus()
-    console.log('Before toggle, isNotify:', isNotify.value)
+    // API仕様: 通知オン(isNotifyed:true)の時にブロックテーブルにレコードを追加(insert)して通知をオフにする
+    // 通知オフ(isNotifyed:false)の時にブロックテーブルからレコードを削除(delete)して通知をオンにする
+    const actionValue = isNotifyed.value ? 'insert' : 'delete'
 
-    const actionValue = isNotify.value ? 'insert' : 'delete'
-    console.log(`トグル処理: ${actionValue}`)
+    const notifyUrl = `https://yellowokapi2.sakura.ne.jp/Vue/api/NotifyToggleAPI.php/${NotifyId.value}/${actionValue}`
 
-    const Toggleurl = `https://yellowokapi2.sakura.ne.jp/Vue/api/NotifyToggleAPI.php/${followId.value}/${actionValue}`
-    console.log(`リクエストURL (fetchLatestToggleStatus): ${Toggleurl}`)
-
-    const response = await fetch(Toggleurl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ id: props.n_id }),
-    })
+    const response = await fetch(notifyUrl)
 
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`)
     }
 
     const responseJson = await response.json()
-    console.log('APIレスポンス (NotifyToggleAPI):', responseJson)
-
     if (responseJson.success) {
-      // status を見て最終状態を決定
-      isNotify.value = responseJson.status === '通知オン'
-      console.log('トグル後のフォロー通知状態 (isNotify):', isNotify.value)
+      await fetchLatestNotifyStatus()
     } else {
       console.error('エラー: ' + JSON.stringify(responseJson))
     }
@@ -95,25 +72,20 @@ const toggleNotify = async () => {
 
 watch(
   () => props.n_id,
-  async newNId => {
-    isFetching.value = true
-    if (typeof newNId === 'number' && newNId > 0 && userNum.value) {
-      if (Number(userNum.value) !== newNId) {
-        showFollow.value = true
-        followId.value = `${userNum.value}/${newNId}`
-        await fetchLatestNotifyStatus()
-      } else {
-        showFollow.value = false
-      }
+  async newVal => {
+    if (typeof newVal === 'number' && newVal > 0 && userNum.value !== '') {
+      // APIのパスパラメータの順序: /user_id/notify_id
+      NotifyId.value = `${userNum.value}/${newVal}`
+      await fetchLatestNotifyStatus()
     }
-    isFetching.value = false
   },
   { immediate: true },
 )
 
 onMounted(async () => {
   if (props.n_id > 0 && userNum.value !== '') {
-    followId.value = `${userNum.value}/${props.n_id}`
+    // APIのパスパラメータの順序: /user_id/notify_id
+    NotifyId.value = `${userNum.value}/${props.n_id}`
     await fetchLatestNotifyStatus()
     isFetching.value = false
   }
@@ -123,11 +95,9 @@ onMounted(async () => {
 <template>
   <div>
     <IconButton
-      :label="isNotify ? '通知オン' : '通知オフ'"
-      :iconClass="
-        isNotify ? 'fa-solid fa-bell-slash' : 'fa-solid fa-bell-slash'
-      "
-      :backgroundColor="isNotify ? 'secondary' : 'primary'"
+      :label="isNotifyed ? '通知オン' : '通知オフ'"
+      :iconClass="isNotifyed ? 'fa-solid fa-bell' : 'fa-solid fa-bell-slash'"
+      :backgroundColor="isNotifyed ? 'secondary' : 'primary'"
       @click="toggleNotify"
     />
   </div>

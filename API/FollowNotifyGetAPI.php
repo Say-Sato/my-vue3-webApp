@@ -10,7 +10,7 @@ if (preg_match('#([^/]+\.php)/(\d+)/(\d+)$#', $requestUri, $matches)) {
     $user_id = $matches[2];
     $notify_id = $matches[3];
 } else {
-    echo json_encode(["error" => "パラメータの値が不正です。"], JSON_UNESCAPED_UNICODE);
+    echo json_encode(["error" => "パラメータの値が不正です。", "requestUrl：" => $requestUri], JSON_UNESCAPED_UNICODE);
     die();
 }
 

@@ -22,6 +22,34 @@ try {
     exit;
 }
 
+// 前回登録から1分経っているか確認
+try {
+    $stmt = $pdo->prepare('SELECT created_at 
+                           FROM temporary_users 
+                           WHERE email = :email 
+                           ORDER BY created_at DESC 
+                           LIMIT 1');
+    $stmt->execute([':email' => $email]);
+    $last = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($last) {
+        $lastTime = strtotime($last['created_at']);
+        if (time() - $lastTime < 60) {
+            echo json_encode([
+                'success' => false,
+                'error' => '直前に登録しています。1分以上経ってから再度お試しください。'
+            ], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+    }
+} catch (PDOException $e) {
+    echo json_encode([
+        'success' => false,
+        'error' => '確認エラー: ' . $e->getMessage()
+    ], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
 // POSTデータ受け取り＆デコード
 $input = json_decode(file_get_contents('php://input'), true);
 $email = isset($input['email']) ? trim($input['email']) : '';
@@ -75,7 +103,7 @@ EOT;
     // メール送信
     if (mb_send_mail($email, $subject, $body, $fromHeader, "-f $fromEmail")) {
         $response['success'] = true;
-        $response['token'] = $token;
+        $response['message'] = '仮登録が完了しました。メールをご確認ください。';
     } else {
         $response['error'] = 'メール送信に失敗しました。';
     }

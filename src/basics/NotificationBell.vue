@@ -170,7 +170,7 @@ const formatMessage = (notification: Notification): string => {
 <style scoped>
 .notification-container {
   position: relative;
-  z-index: 1000;
+  z-index: 995;
 }
 
 .ellipse-wrapper {

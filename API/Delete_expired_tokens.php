@@ -1,6 +1,6 @@
 <?php
 //DB接続
-include('./BlogPDO.php');
+include('/home/yellowokapi2/www/Vue/api/BlogPDO.php');
 
 try {
     $pdo = new PDO($dsn, $user, $password);

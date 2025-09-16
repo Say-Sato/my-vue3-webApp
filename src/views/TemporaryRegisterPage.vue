@@ -23,6 +23,9 @@ const sendPreRegister = async () => {
   if (result.success) {
     email.value = ''
     router.push('/register/temporary-complete')
+  } else if (result.error) {
+    alert(result.error)
+    email.value = ''
   } else {
     alert('メール送信に失敗しました。')
     email.value = ''

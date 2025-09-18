@@ -1,9 +1,9 @@
-<!-- ArticleCatchPage 画像ギャラリー（1ファイル版） -->
+<!-- ArticleCatchPage マイページギャラリー -->
 <script setup lang="ts">
 import { defineProps } from 'vue'
-import type { Postvalidation } from '@/types/PostResponse'
+import type { Favorite } from '@/types/PostResponse'
 
-const props = defineProps<{ posts: Postvalidation[] }>()
+const props = defineProps<{ posts: Favorite[] }>()
 
 // タイトルを9文字で省略
 const truncatedTitle = (illust_title: string) =>

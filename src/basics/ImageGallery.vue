@@ -2,7 +2,16 @@
 <script setup lang="ts">
 import type { Favorite } from '@/types/PostResponse'
 
-const props = defineProps<{ posts: Favorite[] }>()
+const props = withDefaults(
+  defineProps<{
+    posts: Favorite[]
+    showLabel?: boolean
+  }>(),
+  {
+    posts: () => [], // デフォルトは空配列
+    showLabel: false, // デフォルト true
+  },
+)
 
 // タイトルを9文字で省略
 const truncatedTitle = (illust_title: string) =>
@@ -16,14 +25,22 @@ const fullProfilePhoto = (p_photo: string) =>
 <template>
   <div class="gallery-container">
     <div v-for="post in props.posts" :key="post.illust_id" class="card">
-      <router-link :to="`/posts/${post.illust_id}`">
-        <img
-          :src="post.thumbnail_url"
-          :alt="post.illust_title"
-          class="card-image"
-        />
-      </router-link>
+      <div class="image-wrapper">
+        <router-link :to="`/posts/${post.illust_id}`">
+          <img
+            :src="post.thumbnail_url"
+            :alt="post.illust_title"
+            class="card-image"
+          />
+        </router-link>
 
+        <div class="ap-image-gallery-label-container" v-if="showLabel">
+          <div v-if="post.R18" class="ap-image-gallery-blur-label">R18</div>
+          <div v-if="post.public" class="ap-image-gallery-private-label">
+            非公開
+          </div>
+        </div>
+      </div>
       <div class="card-body">
         <router-link :to="`/posts/${post.illust_id}`">
           <h3 class="card-title">
@@ -47,6 +64,35 @@ const fullProfilePhoto = (p_photo: string) =>
 </template>
 
 <style scoped>
+.image-wrapper {
+  position: relative; /* ラベル配置の基準になる */
+}
+
+.ap-image-gallery-label-container {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  display: flex;
+  gap: 4px;
+  pointer-events: none;
+}
+
+.ap-image-gallery-blur-label {
+  background: rgba(220, 20, 60, 0.7); /* クリムゾン系の赤 */
+  color: white;
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.ap-image-gallery-private-label {
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
 .gallery-container {
   display: grid;
   grid-template-columns: repeat(4, 1fr); /* デフォルトは4列 */

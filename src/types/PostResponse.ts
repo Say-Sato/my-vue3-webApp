@@ -64,15 +64,10 @@ export interface PostGallery extends PostResponse {
   R18: number
 }
 
-// PostGallery（PostResponse を拡張）
-export interface Postvalidation extends PostResponse {
-  R18: number
-  public: number
-}
-
-// FVImageGallery
+// ImageGallery
 export interface Favorite extends PostResponse {
   profile_id: number
   public: number
-  showProfile: boolean
+  R18?: number
+  showProfile?: boolean
 }

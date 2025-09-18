@@ -4,9 +4,9 @@ import SectionTitle from '@/basics/SectionTitle.vue'
 import ImageGallery from '../components/APImageGallery.vue'
 import PostProfile from '@/components/PostProfile.vue'
 import { useUserStore } from '@/stores/user'
-import type { Postvalidation } from '@/types/PostResponse'
+import type { Favorite } from '@/types/PostResponse'
 
-const posts = ref<Postvalidation[]>([])
+const posts = ref<Favorite[]>([])
 const userStore = useUserStore()
 const id = ref(userStore.id)
 

@@ -2,14 +2,20 @@
 import { defineProps } from 'vue'
 
 // props定義（そのまま）
-const props = defineProps<{
-  message: string
-  confirmText: string
-  cancelText: string
-  onConfirm: () => void
-  onCancel: () => void
-  isVisible: boolean
-}>()
+const props = withDefaults(
+  defineProps<{
+    message: string
+    confirmText?: string
+    cancelText?: string
+    onConfirm: () => void
+    onCancel: () => void
+    isVisible: boolean
+  }>(),
+  {
+    confirmText: '決定',
+    cancelText: 'キャンセル',
+  },
+)
 
 function handleCancel() {
   props.onCancel()

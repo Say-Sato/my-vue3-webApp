@@ -1,6 +1,8 @@
 <!-- UserPage etc. 汎用ギャラリー -->
 <script setup lang="ts">
+import { ref } from 'vue'
 import type { Favorite } from '@/types/PostResponse'
+import R18Modal from '@/components/Certificate18Modal.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -13,6 +15,9 @@ const props = withDefaults(
   },
 )
 
+// クリックで true にしたい変数
+const isOverlayClicked = ref(false)
+
 // タイトルを9文字で省略
 const truncatedTitle = (illust_title: string) =>
   illust_title.length > 9 ? illust_title.slice(0, 9) + '…' : illust_title
@@ -20,26 +25,45 @@ const truncatedTitle = (illust_title: string) =>
 // プロフィール写真のフルURL化
 const fullProfilePhoto = (p_photo: string) =>
   `http://yellowokapi2.sakura.ne.jp/Blog/index${p_photo}`
+
+const handleOverlayClick = () => {
+  isOverlayClicked.value = true
+}
+
+// 子から close イベントを受け取ったら false に戻す
+const handleClose = () => {
+  isOverlayClicked.value = false
+}
 </script>
 
 <template>
+  <R18Modal v-if="isOverlayClicked" @close="handleClose" />
   <div class="gallery-container">
     <div v-for="post in props.posts" :key="post.illust_id" class="card">
       <div class="image-wrapper">
-        <router-link :to="`/posts/${post.illust_id}`">
-          <!-- サムネイル -->
+        <router-link
+          v-if="!(post.R18 && !showLabel)"
+          :to="`/posts/${post.illust_id}`"
+        >
           <img
             :src="post.thumbnail_url"
             :alt="post.illust_title"
             class="card-image"
             :class="{ 'blurred-image': post.R18 && !showLabel }"
           />
+        </router-link>
 
+        <div v-else>
+          <img
+            :src="post.thumbnail_url"
+            :alt="post.illust_title"
+            class="card-image blurred-image"
+          />
           <!-- R18オーバーレイ -->
-          <div v-if="post.R18 && !showLabel" class="blur-overlay">
+          <div class="blur-overlay" @click="handleOverlayClick()">
             <span class="blur-text">閲覧注意</span>
           </div>
-        </router-link>
+        </div>
 
         <div class="ap-image-gallery-label-container" v-if="showLabel">
           <div v-if="post.R18" class="ap-image-gallery-blur-label">R18</div>
@@ -48,6 +72,7 @@ const fullProfilePhoto = (p_photo: string) =>
           </div>
         </div>
       </div>
+
       <div class="card-body">
         <router-link :to="`/posts/${post.illust_id}`">
           <h3 class="card-title">

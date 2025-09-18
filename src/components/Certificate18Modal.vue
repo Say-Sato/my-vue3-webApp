@@ -7,15 +7,16 @@ const isModal = ref(true)
 const msg = '年齢制限のある画像を表示しますか？'
 
 const emit = defineEmits<{
-  (e: 'close'): void
+  (e: 'confirm'): void
+  (e: 'cancel'): void
 }>()
 
 const enterModal = () => {
-  emit('close')
+  emit('confirm')
 }
 
 const cancelmodal = () => {
-  emit('close')
+  emit('cancel')
 }
 </script>
 

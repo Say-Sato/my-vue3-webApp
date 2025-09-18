@@ -1,6 +1,7 @@
 <!-- UserPage etc. 汎用ギャラリー -->
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import type { Favorite } from '@/types/PostResponse'
 import R18Modal from '@/components/Certificate18Modal.vue'
 
@@ -15,8 +16,9 @@ const props = withDefaults(
   },
 )
 
-// クリックで true にしたい変数
-const isOverlayClicked = ref(false)
+// クリックされた投稿のIDを保持する ref
+const clickedPostId = ref<number | null>(null)
+const router = useRouter()
 
 // タイトルを9文字で省略
 const truncatedTitle = (illust_title: string) =>
@@ -26,18 +28,26 @@ const truncatedTitle = (illust_title: string) =>
 const fullProfilePhoto = (p_photo: string) =>
   `http://yellowokapi2.sakura.ne.jp/Blog/index${p_photo}`
 
-const handleOverlayClick = () => {
-  isOverlayClicked.value = true
+const Certificate18 = (illust_id: number) => {
+  router.push({ path: `/posts/${illust_id}` })
 }
 
-// 子から close イベントを受け取ったら false に戻す
+const handleOverlayClick = (illust_id: number) => {
+  clickedPostId.value = illust_id
+}
+
+// モーダルを閉じる
 const handleClose = () => {
-  isOverlayClicked.value = false
+  clickedPostId.value = null
 }
 </script>
 
 <template>
-  <R18Modal v-if="isOverlayClicked" @close="handleClose" />
+  <R18Modal
+    v-if="clickedPostId !== null"
+    @confirm="Certificate18(clickedPostId!)"
+    @cancel="handleClose"
+  />
   <div class="gallery-container">
     <div v-for="post in props.posts" :key="post.illust_id" class="card">
       <div class="image-wrapper">
@@ -58,7 +68,7 @@ const handleClose = () => {
             :src="post.thumbnail_url"
             :alt="post.illust_title"
             class="card-image blurred-image"
-            @click="handleOverlayClick()"
+            @click="handleOverlayClick(post.illust_id)"
           />
           <!-- R18オーバーレイ -->
           <div class="blur-overlay">

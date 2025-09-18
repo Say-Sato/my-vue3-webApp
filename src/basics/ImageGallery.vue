@@ -27,11 +27,18 @@ const fullProfilePhoto = (p_photo: string) =>
     <div v-for="post in props.posts" :key="post.illust_id" class="card">
       <div class="image-wrapper">
         <router-link :to="`/posts/${post.illust_id}`">
+          <!-- サムネイル -->
           <img
             :src="post.thumbnail_url"
             :alt="post.illust_title"
             class="card-image"
+            :class="{ 'blurred-image': post.R18 && !showLabel }"
           />
+
+          <!-- R18オーバーレイ -->
+          <div v-if="post.R18 && !showLabel" class="blur-overlay">
+            <span class="blur-text">閲覧注意</span>
+          </div>
         </router-link>
 
         <div class="ap-image-gallery-label-container" v-if="showLabel">
@@ -91,6 +98,29 @@ const fullProfilePhoto = (p_photo: string) =>
   font-size: 12px;
   padding: 2px 6px;
   border-radius: 4px;
+}
+
+/* R18時のぼかし */
+.blurred-image {
+  filter: blur(12px);
+}
+
+/* オーバーレイ */
+.blur-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+}
+
+.blur-text {
+  color: #fff;
+  font-size: 18px;
+  font-weight: bold;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
 }
 
 .gallery-container {

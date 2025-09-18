@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import ImageGallery from '../components/MTPostList.vue'
+import ImageList from '../components/MTPostList.vue'
 import type { PostGallery } from '@/types/PostResponse'
 
 const posts = ref<PostGallery[]>([])
@@ -28,7 +28,7 @@ onMounted(fetchData)
   <div class="title">
     <h1>新着一覧</h1>
   </div>
-  <ImageGallery :posts="topFourPosts" />
+  <ImageList :posts="topFourPosts" />
 </template>
 
 <style scoped>

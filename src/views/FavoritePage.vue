@@ -2,7 +2,7 @@
 import { onMounted, ref } from 'vue'
 import { useUserStore } from '@/stores/user'
 import SectionTitle from '@/basics/SectionTitle.vue'
-import ImageGallery from '../components/FVImageGallery.vue'
+import ImageGallery from '@/basics/ImageGallery.vue'
 import type { Favorite } from '@/types/PostResponse'
 
 const userStore = useUserStore()

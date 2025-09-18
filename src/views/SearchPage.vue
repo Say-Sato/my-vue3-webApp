@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import ImageGallery from '../components/FVImageGallery.vue'
+import ImageGallery from '@/basics/ImageGallery.vue'
 import SectionTitle from '@/basics/SectionTitle.vue'
 import SearchField from '../components/SearchField.vue'
 import type { Favorite } from '@/types/PostResponse'

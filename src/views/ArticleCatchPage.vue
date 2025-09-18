@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import SectionTitle from '@/basics/SectionTitle.vue'
-import ImageGallery from '../components/APImageGallery.vue'
+import ImageGallery from '@/basics/ImageGallery.vue'
 import PostProfile from '@/components/PostProfile.vue'
 import { useUserStore } from '@/stores/user'
 import type { Favorite } from '@/types/PostResponse'
@@ -32,5 +32,5 @@ onMounted(fetchData)
     :profile_login_id="posts[0].profile_login_id"
   />
   <SectionTitle title="投稿一覧" />
-  <ImageGallery :posts="posts" />
+  <ImageGallery :posts="posts" :showLabel="true" />
 </template>

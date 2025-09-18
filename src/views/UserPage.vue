@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
-import ImageGallery from '../components/FVImageGallery.vue'
+import ImageGallery from '@/basics/ImageGallery.vue'
 import SectionTitle from '@/basics/SectionTitle.vue'
 import PostProfile from '@/components/PostProfile.vue'
 import type { Favorite } from '@/types/PostResponse'

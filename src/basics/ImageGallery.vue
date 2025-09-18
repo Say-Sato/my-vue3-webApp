@@ -58,9 +58,10 @@ const handleClose = () => {
             :src="post.thumbnail_url"
             :alt="post.illust_title"
             class="card-image blurred-image"
+            @click="handleOverlayClick()"
           />
           <!-- R18オーバーレイ -->
-          <div class="blur-overlay" @click="handleOverlayClick()">
+          <div class="blur-overlay">
             <span class="blur-text">閲覧注意</span>
           </div>
         </div>

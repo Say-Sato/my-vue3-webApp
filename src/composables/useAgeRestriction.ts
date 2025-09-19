@@ -31,7 +31,11 @@ export function useAgeRestriction() {
 
   const showR18Modal = (postId: number) => {
     clickedPostId.value = postId
-    showModal.value = true
+    if (userStore.certificate18) {
+      router.push({ path: `/posts/${postId}` })
+    } else {
+      showModal.value = true
+    }
   }
 
   const handleConfirm = () => {

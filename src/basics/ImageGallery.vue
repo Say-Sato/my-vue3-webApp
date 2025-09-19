@@ -2,7 +2,10 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useUserStore } from '@/stores/user'
 import type { Favorite } from '@/types/PostResponse'
+import { useAgeCheck } from '@/composables/useAgeCheck'
+const { isAdult } = useAgeCheck()
 import R18Modal from '@/components/Certificate18Modal.vue'
 
 const props = withDefaults(
@@ -19,6 +22,7 @@ const props = withDefaults(
 // クリックされた投稿のIDを保持する ref
 const clickedPostId = ref<number | null>(null)
 const router = useRouter()
+const userStore = useUserStore()
 
 // タイトルを9文字で省略
 const truncatedTitle = (illust_title: string) =>
@@ -29,9 +33,22 @@ const fullProfilePhoto = (p_photo: string) =>
   `http://yellowokapi2.sakura.ne.jp/Blog/index${p_photo}`
 
 const Certificate18 = (illust_id: number) => {
-  router.push({ path: `/posts/${illust_id}` })
+  if (userStore.birthDate) {
+    // 生年月日が入力されている
+    if (isAdult(userStore.birthDate)) {
+      // 満20歳を満たす
+      router.push({ path: `/posts/${illust_id}` })
+    } else {
+      handleClose()
+      alert(
+        'このコンテンツは20歳以上の方限定です。年齢条件を満たしていない場合は閲覧できません。',
+      )
+    }
+  } else {
+    handleClose()
+    alert('生年月日が未入力です。')
+  }
 }
-
 const handleOverlayClick = (illust_id: number) => {
   clickedPostId.value = illust_id
 }

@@ -1,12 +1,7 @@
 <!-- UserPage etc. 汎用ギャラリー -->
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { useUserStore } from '@/stores/user'
 import type { Favorite } from '@/types/PostResponse'
-import { useAgeCheck } from '@/composables/useAgeCheck'
-const { isAdult } = useAgeCheck()
-import R18Modal from '@/components/Certificate18Modal.vue'
+import R18AccessButton from '@/components/R18AccessButton.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -19,11 +14,6 @@ const props = withDefaults(
   },
 )
 
-// クリックされた投稿のIDを保持する ref
-const clickedPostId = ref<number | null>(null)
-const router = useRouter()
-const userStore = useUserStore()
-
 // タイトルを9文字で省略
 const truncatedTitle = (illust_title: string) =>
   illust_title.length > 9 ? illust_title.slice(0, 9) + '…' : illust_title
@@ -31,40 +21,9 @@ const truncatedTitle = (illust_title: string) =>
 // プロフィール写真のフルURL化
 const fullProfilePhoto = (p_photo: string) =>
   `http://yellowokapi2.sakura.ne.jp/Blog/index${p_photo}`
-
-const Certificate18 = (illust_id: number) => {
-  if (userStore.birthDate) {
-    // 生年月日が入力されている
-    if (isAdult(userStore.birthDate)) {
-      // 満20歳を満たす
-      router.push({ path: `/posts/${illust_id}` })
-    } else {
-      handleClose()
-      alert(
-        'このコンテンツは20歳以上の方限定です。年齢条件を満たしていない場合は閲覧できません。',
-      )
-    }
-  } else {
-    handleClose()
-    alert('生年月日が未入力です。')
-  }
-}
-const handleOverlayClick = (illust_id: number) => {
-  clickedPostId.value = illust_id
-}
-
-// モーダルを閉じる
-const handleClose = () => {
-  clickedPostId.value = null
-}
 </script>
 
 <template>
-  <R18Modal
-    v-if="clickedPostId !== null"
-    @confirm="Certificate18(clickedPostId!)"
-    @cancel="handleClose"
-  />
   <div class="gallery-container">
     <div v-for="post in props.posts" :key="post.illust_id" class="card">
       <div class="image-wrapper">
@@ -85,12 +44,8 @@ const handleClose = () => {
             :src="post.thumbnail_url"
             :alt="post.illust_title"
             class="card-image blurred-image"
-            @click="handleOverlayClick(post.illust_id)"
           />
-          <!-- R18オーバーレイ -->
-          <div class="blur-overlay">
-            <span class="blur-text">閲覧注意</span>
-          </div>
+          <R18AccessButton :post-id="post.illust_id" />
         </div>
 
         <div class="ap-image-gallery-label-container" v-if="showLabel">

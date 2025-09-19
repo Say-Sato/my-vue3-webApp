@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { defineProps } from 'vue'
 import type { PostGallery } from '@/types/PostResponse'
+import R18AccessButton from '@/components/R18AccessButton.vue'
 
 // props に images を含むように型定義
 const props = defineProps<{ posts: PostGallery[] }>()
@@ -9,21 +10,27 @@ const props = defineProps<{ posts: PostGallery[] }>()
 <template>
   <ul class="image-gallery">
     <li v-for="post in props.posts" :key="post.illust_id" class="image-item">
-      <router-link :to="`/posts/${post.illust_id}`">
-        <div class="box3">
-          <div class="image-wrapper">
+      <div class="box3">
+        <div class="image-wrapper">
+          <router-link v-if="!post.R18" :to="`/posts/${post.illust_id}`">
             <img
               :src="post.thumbnail_url"
               :alt="post.illust_title"
               class="image"
-              :class="{ blurred: post.R18 }"
+              :class="{ 'blurred-image': post.R18 }"
             />
-            <div v-if="post.R18" class="blur-overlay">
-              <span class="overlay-text">R18コンテンツ</span>
-            </div>
+          </router-link>
+
+          <div v-else>
+            <img
+              :src="post.thumbnail_url"
+              :alt="post.illust_title"
+              class="image blurred-image"
+            />
+            <R18AccessButton :post-id="post.illust_id" />
           </div>
         </div>
-      </router-link>
+      </div>
 
       <div class="p-container">
         <h3 class="image-title">
@@ -81,7 +88,7 @@ const props = defineProps<{ posts: PostGallery[] }>()
   transition: filter 0.3s ease;
 }
 
-.blurred {
+.blurred-image {
   filter: blur(8px);
 }
 

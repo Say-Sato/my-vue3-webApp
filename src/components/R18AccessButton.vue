@@ -2,11 +2,12 @@
 import Certificate18Modal from '@/components/Certificate18Modal.vue'
 import { useAgeRestriction } from '@/composables/useAgeRestriction'
 
-const props = defineProps<{ 
-    postId: number 
+const props = defineProps<{
+  postId: number
 }>()
 
-const { showModal, showR18Modal, handleConfirm, handleClose } = useAgeRestriction()
+const { showModal, showR18Modal, handleConfirm, handleClose } =
+  useAgeRestriction()
 </script>
 
 <template>
@@ -14,11 +15,13 @@ const { showModal, showR18Modal, handleConfirm, handleClose } = useAgeRestrictio
     <div class="blur-overlay" @click="showR18Modal(props.postId)">
       <span class="blur-text">閲覧注意</span>
     </div>
-    <Certificate18Modal
-      v-if="showModal"
-      @confirm="handleConfirm"
-      @cancel="handleClose"
-    />
+    <Teleport to="body">
+      <Certificate18Modal
+        v-if="showModal"
+        @confirm="handleConfirm"
+        @cancel="handleClose"
+      />
+    </Teleport>
   </div>
 </template>
 

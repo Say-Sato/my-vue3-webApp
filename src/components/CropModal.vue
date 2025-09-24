@@ -116,7 +116,10 @@ const handleCancel = () => {
   display: flex;
   justify-content: space-between; /* 左右に配置 */
   align-items: center; /* 高さ揃え */
+  width: 100%;
   margin-top: 40px;
+  padding: 0 100px;
+  box-sizing: border-box;
 }
 
 .confirm {

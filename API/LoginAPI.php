@@ -72,6 +72,8 @@ try {
                     "login_id" => $user['login_id'],
                     "name" => $user['name'],
                     "body" => $user['body'],
+                    "certificate18" => $user['certificate18'],
+                    "birthDate" => $user['birthDate'],
                     "profile_photo" => $user['profile_photo'],
                     "admin" => $user['admin']
                 ];

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 
-import CropModal from '@/basics/CropModal.vue'
+import CropModal from '@/components/CropModal.vue'
 
 // ✅ props: v-modelとしてFile[]を受け取る
 const props = defineProps<{

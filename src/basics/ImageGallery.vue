@@ -1,7 +1,18 @@
+<!-- UserPage etc. 汎用ギャラリー -->
 <script setup lang="ts">
 import type { Favorite } from '@/types/PostResponse'
+import R18AccessButton from '@/components/R18AccessButton.vue'
 
-const props = defineProps<{ posts: Favorite[] }>()
+const props = withDefaults(
+  defineProps<{
+    posts: Favorite[]
+    showLabel?: boolean
+  }>(),
+  {
+    posts: () => [], // デフォルトは空配列
+    showLabel: false, // デフォルト true
+  },
+)
 
 // タイトルを9文字で省略
 const truncatedTitle = (illust_title: string) =>
@@ -15,13 +26,35 @@ const fullProfilePhoto = (p_photo: string) =>
 <template>
   <div class="gallery-container">
     <div v-for="post in props.posts" :key="post.illust_id" class="card">
-      <router-link :to="`/posts/${post.illust_id}`">
-        <img
-          :src="post.thumbnail_url"
-          :alt="post.illust_title"
-          class="card-image"
-        />
-      </router-link>
+      <div class="image-wrapper">
+        <router-link
+          v-if="!(post.R18 && !showLabel)"
+          :to="`/posts/${post.illust_id}`"
+        >
+          <img
+            :src="post.thumbnail_url"
+            :alt="post.illust_title"
+            class="card-image"
+            :class="{ 'blurred-image': post.R18 && !showLabel }"
+          />
+        </router-link>
+
+        <div v-else>
+          <img
+            :src="post.thumbnail_url"
+            :alt="post.illust_title"
+            class="card-image blurred-image"
+          />
+          <R18AccessButton :post-id="post.illust_id" />
+        </div>
+
+        <div class="ap-image-gallery-label-container" v-if="showLabel">
+          <div v-if="post.R18" class="ap-image-gallery-blur-label">R18</div>
+          <div v-if="post.public" class="ap-image-gallery-private-label">
+            非公開
+          </div>
+        </div>
+      </div>
 
       <div class="card-body">
         <router-link :to="`/posts/${post.illust_id}`">
@@ -46,6 +79,58 @@ const fullProfilePhoto = (p_photo: string) =>
 </template>
 
 <style scoped>
+.image-wrapper {
+  position: relative; /* ラベル配置の基準になる */
+}
+
+.ap-image-gallery-label-container {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  display: flex;
+  gap: 4px;
+  pointer-events: none;
+}
+
+.ap-image-gallery-blur-label {
+  background: rgba(220, 20, 60, 0.7); /* クリムゾン系の赤 */
+  color: white;
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.ap-image-gallery-private-label {
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* R18時のぼかし */
+.blurred-image {
+  filter: blur(12px);
+}
+
+/* オーバーレイ */
+.blur-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+}
+
+.blur-text {
+  color: #fff;
+  font-size: 18px;
+  font-weight: bold;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
+}
+
 .gallery-container {
   display: grid;
   grid-template-columns: repeat(4, 1fr); /* デフォルトは4列 */

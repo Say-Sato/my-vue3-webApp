@@ -29,7 +29,7 @@ const fullProfilePhoto = (p_photo: string) =>
       <div class="image-wrapper">
         <router-link
           v-if="!(post.R18 && !showLabel)"
-          :to="`/posts/${post.illust_id}`"
+          :to="`/posts/edit/${post.illust_id}`"
         >
           <img
             :src="post.thumbnail_url"
@@ -57,7 +57,16 @@ const fullProfilePhoto = (p_photo: string) =>
       </div>
 
       <div class="card-body">
-        <router-link :to="`/posts/${post.illust_id}`">
+        <router-link
+          v-if="!(post.R18 && !showLabel)"
+          :to="`/posts/edit/${post.illust_id}`"
+        >
+          <h3 class="card-title">
+            {{ truncatedTitle(post.illust_title) }}
+          </h3></router-link
+        >
+
+        <router-link v-else :to="`/posts/${post.illust_id}`">
           <h3 class="card-title">
             {{ truncatedTitle(post.illust_title) }}
           </h3>

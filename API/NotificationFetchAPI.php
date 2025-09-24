@@ -8,20 +8,20 @@ try {
     //$lastChecked = '1970-01-01 00:00:00';
 
     // リクエストURIからIDを取得
-    /*$requestUri = $_SERVER['REQUEST_URI'];
+    $requestUri = $_SERVER['REQUEST_URI'];
     $userId = null;
 
     // URIが'/api/NotificationFetchAPI.php/id'形式の場合
     if (preg_match('/php\/(\d+)$/', $requestUri, $matches)) {
         $userId = urldecode($matches[1]);
-    }*/
+    }
 
-    if (!isset($_GET['user_id']) || empty($_GET['user_id'])) {
+    /*if (!isset($_GET['user_id']) || empty($_GET['user_id'])) {
         echo json_encode(["error" => "必要なパラメータがセットされていません。"], JSON_UNESCAPED_UNICODE);
         die();
     }
 
-    $userId = $_GET['user_id'];
+    $userId = $_GET['user_id'];*/
     $lastChecked = date('Y-m-d H:i:s', strtotime($_GET['last_checked'] ?? '1970-01-01 00:00:00'));
 
     // ユーザー設定取得
@@ -44,10 +44,20 @@ try {
     ";
 
     $sql_follows = "
-        SELECT 'follows' AS type, f.id, f.created_at, p.name AS actor, NULL AS target
+        SELECT 'follows' AS type, 
+            f.id, 
+            f.created_at, 
+            p.name AS actor, 
+            NULL AS target
         FROM follows f
-        JOIN profile p ON f.follower_id = p.id
-        WHERE f.followed_id = :user_id AND f.created_at > :last_checked
+        JOIN profile p 
+        ON f.follower_id = p.id
+        LEFT JOIN user_follow_notification_blocks ufb
+        ON ufb.target_user_id = f.followed_id
+        AND ufb.user_id = f.follower_id
+        WHERE f.followed_id = :user_id
+        AND f.created_at > :last_checked
+        AND ufb.user_id IS NULL;
     ";
 
     $sql_favorites = "

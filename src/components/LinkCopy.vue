@@ -18,20 +18,18 @@ const copyUrl = async () => {
 </script>
 
 <template>
-  <div class="container">
-    <IconButton
-      label=""
-      icon-class="fa-regular fa-copy"
-      background-color="#bcbcbc"
-      textColor="white"
-      @click="copyUrl"
-    />
+  <IconButton
+    label=""
+    iconClass="fa-regular fa-copy"
+    backgroundColor="primary"
+    textColor="white"
+    @click="copyUrl"
+  />
 
-    <!-- トースト通知 -->
-    <transition name="slide-fade">
-      <div v-if="showPopup" class="toast-popup">コピーしました！</div>
-    </transition>
-  </div>
+  <!-- トースト通知 -->
+  <transition name="slide-fade">
+    <div v-if="showPopup" class="toast-popup">コピーしました！</div>
+  </transition>
 </template>
 
 <style scoped>

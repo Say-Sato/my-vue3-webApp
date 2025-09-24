@@ -18,7 +18,16 @@ try {
     $dbh = new PDO($dsn, $user, $password);
 
     if ($id !== null) {
-        $query = "SELECT * FROM profile WHERE id = :id;";
+        $query = "SELECT p.*,
+             n.notify_comment AS n_comment,
+             n.notify_follow AS n_follow,
+             n.notify_favorite AS n_favorite,
+             n.notify_illust AS n_illust
+            FROM profile p
+            JOIN notification_settings n 
+            ON n.user_id = p.id
+            WHERE p.id = :id;
+            ";
         $stmt = $dbh->prepare($query);
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
         $stmt->execute();
@@ -50,7 +59,11 @@ try {
                 "profile_photo" => $row['profile_photo'],
                 "admin" => $row['admin'],
                 "birthDate" => $row['birthDate'],
-                "certificate18" => $row['certificate18']
+                "certificate18" => $row['certificate18'],
+                "n_comment" => $row['n_comment'],
+                "n_follow" => $row['n_follow'],
+                "n_favorite" => $row['n_favorite'],
+                "n_illust" => $row['n_illust']
             ];
 
             echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);

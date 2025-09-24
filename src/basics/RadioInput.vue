@@ -3,7 +3,7 @@ const props = defineProps<{
   id?: string
   className?: string
   name?: string
-  value?: string
+  value: string
   modelValue?: string
   label?: string
 }>()

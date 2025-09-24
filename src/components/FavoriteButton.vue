@@ -57,7 +57,7 @@ const toggleLike = async () => {
 
     const actionValue = isLiked.value ? 'delete' : 'insert'
 
-    const likeurl = `https://yellowokapi2.sakura.ne.jp/Vue/api/favoriteToggleAPI.php/${likeId.value}/${actionValue}`
+    const likeurl = `https://yellowokapi2.sakura.ne.jp/Vue/api/FavoriteToggleAPI.php/${likeId.value}/${actionValue}`
 
     const response = await fetch(likeurl, {
       method: 'POST',
@@ -105,18 +105,12 @@ onMounted(async () => {
 </script>
 
 <template>
-  <head>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
-    />
-  </head>
   <div class="liked-container">
     <IconButton
       :label="isLiked ? 'いいね済み' : 'いいね'"
       :iconClass="isLiked ? 'fa-solid fa-heart' : 'fa-regular fa-heart'"
       :color="isLiked ? 'white' : 'red'"
-      :backgroundColor="isLiked ? '#e5348c' : '#1e1e1e'"
+      :backgroundColor="isLiked ? 'favorite' : 'primary'"
       textColor="white"
       @click="toggleLike"
     />

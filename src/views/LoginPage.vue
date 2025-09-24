@@ -47,18 +47,13 @@ const fetchData = async () => {
       }
 
       // ログイン情報を localStorage に保存
-      userStore.login(
-        data.id,
-        data.name,
-        data.admin,
-        data.login_id,
-        '1970-01-01 00:00:00',
-      )
+      userStore.login(data)
       console.log('ユニークID:', userStore.id)
       console.log('ユーザー名:', userStore.login_id)
       console.log('ユーザー名:', userStore.name)
       console.log('管理者フラグ:', userStore.admin)
-      console.log('ログイン状態:', userStore.isLogin)
+      console.log('年齢制限:', userStore.certificate18)
+      console.log('生年月日:', userStore.birthDate)
       console.log(data.login_id)
       router.push({ path: `/home/${data.id}` })
     } else {

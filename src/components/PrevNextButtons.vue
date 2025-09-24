@@ -17,7 +17,7 @@ const props = defineProps<{
           <IconButton
             label="前の記事"
             icon-class="fa-solid fa-arrow-left"
-            background-color="#cccccc"
+            backgroundColor="secondary"
             textColor="white"
           />
         </router-link>
@@ -34,7 +34,7 @@ const props = defineProps<{
           <IconButton
             label="次の記事"
             icon-class="fa-solid fa-arrow-right"
-            background-color="#cccccc"
+            backgroundColor="secondary"
             textColor="white"
           />
         </router-link>

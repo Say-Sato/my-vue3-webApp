@@ -18,6 +18,7 @@ followerNum.value = userStore.id ?? '0'
 
 const fetchLatestFollowStatus = async () => {
   try {
+    // FollowGetAPI.phpはf_idをbodyで受け取るので、この部分は変更しない
     const url = `https://yellowokapi2.sakura.ne.jp/Vue/api/FollowGetAPI.php/${followerNum.value}`
     console.log(`リクエストURL (fetchLatestFollowStatus): ${url}`)
 
@@ -61,16 +62,11 @@ const toggleFollow = async () => {
     const actionValue = isFollowed.value ? 'delete' : 'insert'
     console.log(`トグル処理: ${actionValue}`)
 
-    const likeurl = `https://yellowokapi2.sakura.ne.jp/Vue/api/FollowToggleAPI.php/${followId.value}/${actionValue}`
-    console.log(`リクエストURL (fetchLatestToggleStatus): ${likeurl}`)
+    const toggleUrl = `https://yellowokapi2.sakura.ne.jp/Vue/api/FollowToggleAPI.php/${followId.value}/${actionValue}`
+    console.log(`リクエストURL (toggleFollow): ${toggleUrl}`)
 
-    const response = await fetch(likeurl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ id: props.f_id }),
-    })
+    // APIはURLからパラメータを取得するため、bodyは不要
+    const response = await fetch(toggleUrl)
 
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`)
@@ -98,6 +94,7 @@ watch(
       followedVal > 0 &&
       followerNum.value !== ''
     ) {
+      // APIのパスパラメータの順序: /follower_id/followed_id
       followId.value = `${followerNum.value}/${followedVal}`
       await fetchLatestFollowStatus()
     }
@@ -107,7 +104,8 @@ watch(
 
 onMounted(async () => {
   if (props.f_id > 0 && followerNum.value !== '') {
-    followId.value = `${props.f_id}/${followerNum.value}`
+    // APIのパスパラメータの順序: /follower_id/followed_id
+    followId.value = `${followerNum.value}/${props.f_id}`
     await fetchLatestFollowStatus()
     isFetching.value = false
   }
@@ -115,20 +113,14 @@ onMounted(async () => {
 </script>
 
 <template>
-  <head>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
-    />
-  </head>
-  <div class="liked-container">
+  <div>
     <IconButton
       :label="isFollowed ? 'フォロー中' : 'フォロー'"
       :iconClass="
         isFollowed ? 'fa-solid fa-user-check' : 'fa-solid fa-user-plus'
       "
       color="white"
-      :backgroundColor="isFollowed ? '#ccc' : '#1e1e1e'"
+      :backgroundColor="isFollowed ? 'secondary' : 'primary'"
       textColor="white"
       @click="toggleFollow"
     />

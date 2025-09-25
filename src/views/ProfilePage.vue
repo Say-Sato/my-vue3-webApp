@@ -160,7 +160,7 @@ const goToNotifyPage = () => {
         </div>
         <div class="profile-item">
           <label>年齢制限付きの画像</label>
-          <p>{{ Number(certificate18) ? '表示する' : '表示しない' }}</p>
+          <p>{{ Number(certificate18) ? '警告する' : '表示する' }}</p>
         </div>
         <div class="button-area">
           <IconButton label="編集する" @click="goToEditPage" />

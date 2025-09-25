@@ -204,19 +204,19 @@ const closeForm = () => {
     </div>
 
     <div class="profile-item">
-      <label>年齢制限ありの画像を表示する</label>
+      <label>年齢制限ありの画像を警告する</label>
       <RadioInput
         id="show"
         name="certificate18"
         value="1"
-        label="表示"
+        label="オン"
         v-model="localCertificate18"
       />
       <RadioInput
         id="hide"
         name="certificate18"
         value="0"
-        label="非表示"
+        label="オフ"
         v-model="localCertificate18"
       />
     </div>

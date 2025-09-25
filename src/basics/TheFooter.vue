@@ -1,6 +1,6 @@
 <template>
   <div>
-    <footer class="footer">&copy; 2025 aroe tahara</footer>
+    <footer class="footer">&copy; 2025 sato</footer>
   </div>
 </template>
 

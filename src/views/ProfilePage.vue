@@ -155,9 +155,9 @@ const goToNotifyPage = () => {
           <label>パスワード</label>
           <p>{{ password ? '●●●●●●' : '未設定' }}</p>
         </div>
-        <div class="profile-item">
+        <div class="profile-item" v-if="birthDate !== '未設定'">
           <label>年齢制限付きの画像</label>
-          <p>{{ Number(certificate18) ? '警告する' : '表示する' }}</p>
+          <p>{{ Number(certificate18) ? '表示する' : '警告する' }}</p>
         </div>
         <div class="button-area">
           <IconButton label="編集する" @click="goToEditPage" />

@@ -209,14 +209,14 @@ const closeForm = () => {
         id="show"
         name="certificate18"
         value="1"
-        label="オン"
+        label="オフ"
         v-model="localCertificate18"
       />
       <RadioInput
         id="hide"
         name="certificate18"
         value="0"
-        label="オフ"
+        label="オン"
         v-model="localCertificate18"
       />
     </div>

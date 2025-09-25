@@ -58,6 +58,7 @@ const colorClass = computed(() => {
   border-radius: 15px; /* 角を丸める */
   padding: 6px 12px 8px; /* 内側の余白を設定 */
   font-size: 14px; /* フォントサイズ */
+  min-width: 7em;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* ほんのり影をつける */
   transition:
     background-color 0.3s ease,

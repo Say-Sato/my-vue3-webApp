@@ -132,6 +132,24 @@ const handleSubmit = async () => {
       throw new Error(result.message || `HTTP ${response.status}`)
 
     alert('データが正常に送信されました')
+    // ✅ userStore に渡す用のオブジェクトを作成
+    userStore.editProfile({
+      name:
+        isEdited.value.userName && localUserName.value
+          ? localUserName.value
+          : userStore.name,
+
+      certificate18:
+        isEdited.value.certificate18 && localCertificate18.value !== undefined
+          ? Number(localCertificate18.value)
+          : userStore.certificate18,
+
+      birthDate:
+        isEdited.value.birthDate && localBirthDate.value
+          ? localBirthDate.value
+          : userStore.birthDate,
+    })
+
     emit('submit')
     emit('update:editProfile', false)
   } catch (err) {
@@ -186,19 +204,19 @@ const closeForm = () => {
     </div>
 
     <div class="profile-item">
-      <label>年齢制限ありの画像を表示する</label>
+      <label>年齢制限ありの画像を警告する</label>
       <RadioInput
         id="show"
         name="certificate18"
         value="1"
-        label="表示"
+        label="オン"
         v-model="localCertificate18"
       />
       <RadioInput
         id="hide"
         name="certificate18"
         value="0"
-        label="非表示"
+        label="オフ"
         v-model="localCertificate18"
       />
     </div>

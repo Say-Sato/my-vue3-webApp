@@ -35,9 +35,6 @@ try {
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($row) {
-            // 🔑 AESの鍵（16文字 → AES-128）
-            $key = 'are0421'; // 本番では.envに！
-
             // 🔐 パスワードを復号
             $encryptedHex = $row['password'];
             $encryptedBin = hex2bin($encryptedHex);
@@ -45,7 +42,7 @@ try {
             $decryptedPassword = openssl_decrypt(
                 $encryptedBin,
                 'AES-128-ECB',
-                $key,
+                $secretKey,
                 OPENSSL_RAW_DATA
             );
 

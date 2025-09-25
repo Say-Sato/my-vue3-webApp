@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import Hamburger from '@/components/HamburgerMenu.vue' // ハンバーガーメニュー
 import NotificationBell from '@/basics/NotificationBell.vue'
-import UserAvatar from '@/basics/UserAvatar.vue'
-//import SearchField from '@/components/SearchField.vue'
+//import UserAvatar from '@/basics/UserAvatar.vue'
 import { ref } from 'vue'
 import { useUserStore } from '@/stores/user'
 
@@ -26,7 +25,7 @@ if (!loginid.value) {
     </div>
     <div class="header__right">
       <NotificationBell />
-      <UserAvatar />
+      <!--<UserAvatar />-->
       <Hamburger />
     </div>
   </header>

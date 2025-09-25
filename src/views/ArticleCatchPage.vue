@@ -32,5 +32,20 @@ onMounted(fetchData)
     :profile_login_id="posts[0].profile_login_id"
   />
   <SectionTitle title="投稿一覧" />
-  <ImageGallery :posts="posts" :showLabel="true" />
+  <ImageGallery
+    v-if="posts.length > 1"
+    :posts="posts.slice(1)"
+    :showLabel="true"
+  />
+
+  <!-- 投稿がないとき -->
+  <p v-else class="no-posts">まだ投稿はありません</p>
 </template>
+<style scoped>
+.no-posts {
+  text-align: center;
+  color: #666;
+  font-size: 14px;
+  margin: 20px 0;
+}
+</style>

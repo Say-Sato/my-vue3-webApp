@@ -77,4 +77,10 @@ const props = defineProps<{
   flex-direction: row;
   gap: 8px;
 }
+
+@media screen and (max-width: 715px) {
+  .profile-actions {
+    flex-direction: column;
+  }
+}
 </style>

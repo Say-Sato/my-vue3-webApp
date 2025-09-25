@@ -1,12 +1,26 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useUserStore } from '@/stores/user'
 import IconButton from '@/basics/IconButton.vue'
 
 const showPopup = ref(false)
+const userStore = useUserStore()
+
+// コピー先のベースURL（ここを書き換える）
+const baseUrl = 'https://yellowokapi2.sakura.ne.jp/user-profile/'
+const id = ref('')
 
 const copyUrl = async () => {
   try {
-    await navigator.clipboard.writeText(window.location.href)
+    // 現在のURLの末尾の数字を正規表現で取得
+    const match = window.location.href.match(/(\d+)$/)
+
+    id.value = match?.[1] ?? userStore.id ?? '0'
+
+    const newUrl = `${baseUrl}${id.value}`
+
+    await navigator.clipboard.writeText(newUrl)
+
     showPopup.value = true
     setTimeout(() => {
       showPopup.value = false

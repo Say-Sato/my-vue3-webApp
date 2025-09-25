@@ -201,7 +201,7 @@ watch(
   color: #666;
   margin: 0;
   pointer-events: none; /* 他の操作を邪魔しない */
-  z-index: 10; /* 高いz-indexで前面に表示 */
+  z-index: 9; /* 高いz-indexで前面に表示 */
 }
 
 /* 画像0枚のとき中央にボタンを配置 */

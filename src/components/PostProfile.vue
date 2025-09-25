@@ -1,21 +1,30 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
+import { useUserStore } from '@/stores/user'
 import FollowButton from '@/components/FollowButton.vue'
-
 import NotifyButton from '@/components/NotificationButton.vue'
 import LinkCopy from '@/components/LinkCopy.vue'
-
-const route = useRoute()
-
-// id を数値化して整数チェック、そうじゃなければ null
-const id = ref(route.params.id?.[0] ?? null)
 
 const props = defineProps<{
   profile_photo?: string
   profile_name?: string
   profile_login_id?: string
 }>()
+
+const route = useRoute()
+const userStore = useUserStore()
+
+// id を数値化して整数チェック、そうじゃなければ null
+const id = ref(route.params.id?.[0] ?? null)
+
+const newId = computed(() => {
+  // userStore.id が string 型、props.profile_id が number 型なら型を揃える
+  const storeId = String(userStore.id ?? '0')
+  const profileId = String(id.value)
+
+  return storeId !== profileId ? storeId : null
+})
 </script>
 
 <template>
@@ -28,13 +37,12 @@ const props = defineProps<{
     <div class="profile-info">
       <h2>{{ props.profile_name }}</h2>
       <p>ID: {{ props.profile_login_id }}</p>
-      <p>mailaddress@example.com</p>
     </div>
     <div class="profile-actions">
-      <span v-if="id">
+      <span v-if="newId">
         <NotifyButton :n_id="Number(id)" />
       </span>
-      <span v-if="id">
+      <span v-if="newId">
         <FollowButton :f_id="Number(id)" />
       </span>
       <LinkCopy />

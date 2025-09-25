@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useUserStore } from '@/stores/user'
+import { useAgeCheck } from '@/composables/useAgeCheck'
 
 import TextInput from '@/basics/TextInput.vue'
 import RadioInput from '@/basics/RadioInput.vue'
@@ -23,6 +24,8 @@ const emit = defineEmits<{
   (e: 'update:editProfile', value: boolean): void
 }>()
 
+const { isAdult } = useAgeCheck()
+
 // ローカル状態
 const localUserName = ref('')
 const localPassword = ref('')
@@ -30,6 +33,7 @@ const localCertificate18 = ref('0')
 const localBody = ref('')
 const localBirthDate = ref('')
 const localProfilePhoto = ref<File[]>([])
+const isAdultFrag = ref(false)
 
 // フラグ（編集判定）
 const isEdited = ref({
@@ -88,7 +92,16 @@ watch(
 watch(localUserName, v => (isEdited.value.userName = v !== props.userName))
 watch(localPassword, v => (isEdited.value.password = v !== props.password))
 watch(localBody, v => (isEdited.value.body = v !== props.body))
-watch(localBirthDate, v => (isEdited.value.birthDate = v !== props.birthDate))
+watch(
+  localBirthDate,
+  v => {
+    // 編集されたかどうかのフラグ
+    isEdited.value.birthDate = v !== props.birthDate
+
+    isAdultFrag.value = isAdult(v)
+  },
+  { immediate: true },
+)
 watch(
   localCertificate18,
   v => (isEdited.value.certificate18 = v !== props.certificate18),
@@ -203,23 +216,24 @@ const closeForm = () => {
       />
     </div>
 
-    <div class="profile-item">
+    <div class="profile-item" v-if="birthDate !== '未設定' && isAdultFrag">
       <label>年齢制限ありの画像を警告する</label>
       <RadioInput
         id="show"
         name="certificate18"
         value="1"
-        label="オン"
+        label="オフ"
         v-model="localCertificate18"
       />
       <RadioInput
         id="hide"
         name="certificate18"
         value="0"
-        label="オフ"
+        label="オン"
         v-model="localCertificate18"
       />
     </div>
+
     <div class="submit-edit">
       <IconButton
         label="キャンセル"

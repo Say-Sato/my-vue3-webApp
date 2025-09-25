@@ -41,9 +41,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
     }
 
-    // 暗号鍵（本番では.envとかに置きなさいよ？）
-    $key = 'are0421'; // ← 16文字でAES-128、32文字でAES-256
-
     // 入力値の取得（nullチェックのみ行う）
     $inputData = [
         'profile_photo'      => isset($insertImage) ? $insertImage : null,
@@ -59,7 +56,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $encrypted = openssl_encrypt(
             $inputData['password'],
             'AES-128-ECB', // 暗号化方式（暗号・復号で一致してる必要あり）
-            $key,
+            $secretKey,
             OPENSSL_RAW_DATA
         );
         // バイナリ→16進文字列へ

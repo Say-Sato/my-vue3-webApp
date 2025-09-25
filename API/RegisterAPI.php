@@ -6,9 +6,6 @@ header('Content-Type: application/json; charset=UTF-8');
 //DB接続
 include('./BlogPDO.php');
 
-// DB接続情報（環境に応じて変更してね）
-define('SECRET_KEY', 'are0421'); // AESの鍵（セキュアに保管すべき！）
-
 // POSTデータ取得（JSON形式を処理するよう修正）
 $raw = file_get_contents('php://input');
 $data = json_decode($raw, true);
@@ -31,17 +28,32 @@ try {
     // DB接続
     $dbh = new PDO($dsn, $user, $password);
 
-    // SQL準備
-    $stmt = $dbh->prepare("
+    $SearchQuery = "SELECT COUNT(*) FROM profile WHERE login_id = :login_id";
+
+    $SearchStmt = $dbh->prepare($SearchQuery);
+    $SearchStmt->execute([
+        ':login_id' => $loginId
+    ]);
+
+    // カウントを取得
+    $count = $SearchStmt->fetchColumn();
+    if ($count >= 1) {
+        echo json_encode(['error' => 'このIDは既に使用されています。']);
+        exit;
+    }
+
+    $InsertQuery = "
     INSERT INTO profile (login_id, password, name)
     VALUES (:login_id, HEX(AES_ENCRYPT(:password, :secret_key)), :name)
-    ");
+    ";
+
+    $InsertStmt = $dbh->prepare($InsertQuery);
 
     // バインド＆実行
-    $stmt->execute([
+    $stInsertStmt->execute([
         ':login_id' => $loginId,
         ':password' => $userPassword,
-        ':secret_key' => SECRET_KEY,
+        ':secret_key' => $secretKey,
         ':name' => $loginId
     ]);
 

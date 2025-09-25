@@ -39,7 +39,7 @@ try {
         $password = isset($json['password']) ? $json['password'] : '';
 
         // クエリ
-        $query = "SELECT COUNT(*) FROM profile WHERE login_id = :login_id AND convert(AES_DECRYPT(UNHEX(password), 'are0421') USING utf8) = :password;";
+        $query = "SELECT COUNT(*) FROM profile WHERE login_id = :login_id AND convert(AES_DECRYPT(UNHEX(password), $secretKey) USING utf8) = :password;";
         $stmt = $dbh->prepare($query);
 
         // パラメータをバインド
@@ -54,7 +54,7 @@ try {
 
         if ($count == 1) {
             // IDとパスワードが一致した場合の処理
-            $query = "SELECT * FROM profile WHERE login_id = :login_id AND convert(AES_DECRYPT(UNHEX(password), 'are0421') USING utf8) = :password;";
+            $query = "SELECT * FROM profile WHERE login_id = :login_id AND convert(AES_DECRYPT(UNHEX(password), $secretKey) USING utf8) = :password;";
             $stmt = $dbh->prepare($query);
             $stmt->bindParam(':login_id', $login_id);
             $stmt->bindParam(':password', $password);

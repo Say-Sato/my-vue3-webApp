@@ -2,16 +2,23 @@
 import { defineStore } from 'pinia'
 import { useStorage } from '@vueuse/core'
 
-// ユーザー情報の型定義
-interface UserData {
-  id: string
+// 共通部分
+interface BaseUserData {
   name: string
-  admin: number
-  login_id: string
-  last_checked?: string
   certificate18: number
   birthDate: string
 }
+
+// ユーザー全体の型
+interface UserData extends BaseUserData {
+  id: string
+  admin: number
+  login_id: string
+  last_checked?: string
+}
+
+// プロフィール編集用
+type EditUserData = BaseUserData
 
 export const useUserStore = defineStore('user', () => {
   // state
@@ -35,6 +42,11 @@ export const useUserStore = defineStore('user', () => {
     birthDate.value = userData.birthDate
     isLogin.value = true
   }
+  function editProfile(editUserData: EditUserData) {
+    name.value = editUserData.name
+    certificate18.value = editUserData.certificate18
+    birthDate.value = editUserData.birthDate
+  }
 
   function logout() {
     id.value = ''
@@ -57,6 +69,7 @@ export const useUserStore = defineStore('user', () => {
     birthDate,
     isLogin,
     login,
+    editProfile,
     logout,
   }
 })

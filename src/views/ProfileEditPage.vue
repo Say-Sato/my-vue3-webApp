@@ -132,6 +132,24 @@ const handleSubmit = async () => {
       throw new Error(result.message || `HTTP ${response.status}`)
 
     alert('データが正常に送信されました')
+    // ✅ userStore に渡す用のオブジェクトを作成
+    userStore.editProfile({
+      name:
+        isEdited.value.userName && localUserName.value
+          ? localUserName.value
+          : userStore.name,
+
+      certificate18:
+        isEdited.value.certificate18 && localCertificate18.value !== undefined
+          ? Number(localCertificate18.value)
+          : userStore.certificate18,
+
+      birthDate:
+        isEdited.value.birthDate && localBirthDate.value
+          ? localBirthDate.value
+          : userStore.birthDate,
+    })
+
     emit('submit')
     emit('update:editProfile', false)
   } catch (err) {

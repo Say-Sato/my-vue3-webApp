@@ -50,7 +50,7 @@ try {
     $InsertStmt = $dbh->prepare($InsertQuery);
 
     // バインド＆実行
-    $stInsertStmt->execute([
+    $InsertStmt->execute([
         ':login_id' => $loginId,
         ':password' => $userPassword,
         ':secret_key' => $secretKey,

@@ -109,7 +109,7 @@ const submitFormData = async () => {
     const result = await response.json()
     console.log('APIの応答:', result)
     alert('データが正常に送信されました')
-    router.push({ path: `/article` })
+    router.push({ path: `/posts` })
   } catch (error) {
     console.error('エラーが発生しました:', error)
     alert('データの送信に失敗しました')

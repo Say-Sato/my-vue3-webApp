@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
-//import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import IconButton from '@/basics/IconButton.vue'
 import FormWrapper from '@/basics/FormWrapper.vue'
@@ -14,9 +13,7 @@ type notify = {
   illust: string
 }
 
-// ストアとルーターを初期化
 const userStore = useUserStore()
-//const router = useRouter()
 const userId = ref(userStore.id)
 
 // プロフィールデータを格納するリアクティブな変数
@@ -160,7 +157,7 @@ const goToNotifyPage = () => {
         </div>
         <div class="profile-item">
           <label>年齢制限付きの画像</label>
-          <p>{{ Number(certificate18) ? '表示する' : '表示しない' }}</p>
+          <p>{{ Number(certificate18) ? '警告する' : '表示する' }}</p>
         </div>
         <div class="button-area">
           <IconButton label="編集する" @click="goToEditPage" />

@@ -1,8 +1,7 @@
 <script setup lang="ts">
 // ArticlePage.vue
-//import { computed } from 'vue'
-import { defineProps } from 'vue'
-
+import { computed, defineProps } from 'vue'
+import { useUserStore } from '@/stores/user'
 import FollowButton from '@/components/FollowButton.vue'
 
 // ✅ propsを定義（nameとid）
@@ -13,10 +12,15 @@ const props = defineProps<{
   p_photo?: string
 }>()
 
-// ✅ props > store > fallback の順で表示名を決定
-/*const newId = computed(() => {
-  return userStore.id ?? '0'
-})*/
+const userStore = useUserStore()
+
+const newId = computed(() => {
+  // userStore.id が string 型、props.profile_id が number 型なら型を揃える
+  const storeId = String(userStore.id ?? '0')
+  const profileId = String(props.profile_id)
+
+  return storeId !== profileId ? storeId : null
+})
 </script>
 
 <template>
@@ -39,7 +43,9 @@ const props = defineProps<{
         <p class="userName">{{ props.name || 'unknown' }}</p>
         <p class="userId">ID: {{ props.profile_login_id || '****' }}</p>
       </div>
-      <FollowButton :f_id="props.profile_id" />
+      <span v-if="newId">
+        <FollowButton :f_id="props.profile_id" />
+      </span>
     </div>
   </div>
 </template>

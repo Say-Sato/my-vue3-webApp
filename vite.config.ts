@@ -5,7 +5,7 @@ import vue from '@vitejs/plugin-vue'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: '/', // ルート絶対パス指定に変更
+  base: '/my-vue3-webApp/', // ルート絶対パス指定に変更
   plugins: [vue()],
   resolve: {
     alias: {

@@ -41,14 +41,23 @@ onMounted(fetchData)
     />
 
     <!-- 投稿がないとき -->
-    <p v-else class="no-posts">まだ投稿はありません</p>
+    <div v-else class="no-posts-card">
+      <p>まだ投稿はありません。</p>
+    </div>
   </div>
 </template>
 <style scoped>
-.no-posts {
+.no-posts-card {
+  background-color: #f0f0f0;
+  border-radius: 8px;
+  padding: 40px 20px;
+  margin: 20px;
   text-align: center;
   color: #666;
-  font-size: 14px;
-  margin: 20px 0;
+}
+
+.no-posts-card p {
+  margin: 0;
+  font-size: 1.1rem;
 }
 </style>

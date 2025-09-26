@@ -72,9 +72,10 @@ const handleSubmit = async () => {
     const contentType = response.headers.get('Content-Type') || ''
     if (contentType.includes('application/json')) {
       const result = await response.json()
-      console.log('送信成功:', result)
-      alert('データが正常に送信されました')
-      router.push({ path: `/${formUserId.value}` })
+      if (result) {
+        alert('データが正常に送信されました')
+      }
+      router.push({ path: `/home/${formUserId.value}` })
     } else {
       console.log('レスポンスがJSONではありません。')
     }

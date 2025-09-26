@@ -71,3 +71,8 @@ export interface Favorite extends PostResponse {
   R18?: number
   showProfile?: boolean
 }
+
+// ImageGallery
+export interface MyPage extends Favorite {
+  only_profile: boolean
+}

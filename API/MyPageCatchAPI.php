@@ -67,14 +67,44 @@ if ($id !== null) {
                     "profile_name"      => $row['profile_name'],
                     "profile_photo"     => $row['profile_photo'],
                     "thumbnail_url"     => $row['thumbnail_url'],
+                    "only_profile"      => false, // 判別フラグ
                 ];
             }
         } else {
-            // IDが見つからない場合
-            http_response_code(404);
-            echo json_encode(["error" => "ユーザーID:{$id}のデータが見つかりません。"], JSON_UNESCAPED_UNICODE);
-            die();
+            // プロフィールのみ取得
+            $profileQuery = "SELECT 
+                login_id AS profile_login_id,
+                name AS profile_name,
+                profile_photo
+                FROM profile
+                WHERE id = :id
+                LIMIT 1;";
+            $stmt = $dbh->prepare($profileQuery);
+            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+            $stmt->execute();
+
+            $profile = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($profile) {
+                $data[] = [
+                    "illust_id"         => null,
+                    "illust_title"      => null,
+                    "illust_body"       => null,
+                    "public"            => null,
+                    "R18"               => null,
+                    "profile_id"        => $id,
+                    "profile_login_id"  => $profile['profile_login_id'],
+                    "profile_name"      => $profile['profile_name'],
+                    "profile_photo"     => $profile['profile_photo'],
+                    "thumbnail_url"     => null,
+                    "only_profile"      => true, // フラグで判別できる！
+                ];
+            } else {
+                http_response_code(404);
+                echo json_encode(["error" => "ユーザーID:{$id}のプロフィールが見つかりません。"], JSON_UNESCAPED_UNICODE);
+                die();
+            }
         }
+
 
         // JSON形式で返す
         header('Content-Type: application/json');

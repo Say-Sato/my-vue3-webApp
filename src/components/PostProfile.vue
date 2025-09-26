@@ -6,24 +6,33 @@ import FollowButton from '@/components/FollowButton.vue'
 import NotifyButton from '@/components/NotificationButton.vue'
 import LinkCopy from '@/components/LinkCopy.vue'
 
-const props = defineProps<{
-  profile_photo?: string
-  profile_name?: string
-  profile_login_id?: string
-}>()
+const props = withDefaults(
+  defineProps<{
+    profile_photo?: string
+    profile_name?: string
+    profile_id?: number
+    profile_login_id?: string
+    only_profile?: boolean
+  }>(),
+  {
+    only_profile: false,
+  },
+)
 
 const route = useRoute()
 const userStore = useUserStore()
 
 // id を数値化して整数チェック、そうじゃなければ null
-const id = ref(route.params.id?.[0] ?? null)
+const id = ref(route.params.id?.[0] ?? props.profile_id)
 
 const newId = computed(() => {
-  // userStore.id が string 型、props.profile_id が number 型なら型を揃える
-  const storeId = String(userStore.id ?? '0')
-  const profileId = String(id.value)
+  if (id.value) {
+    const storeId = String(userStore.id ?? '0')
+    const profileId = String(id.value)
 
-  return storeId !== profileId ? storeId : null
+    return storeId !== profileId ? storeId : null
+  }
+  return null
 })
 </script>
 
@@ -39,10 +48,10 @@ const newId = computed(() => {
       <p>ID: {{ props.profile_login_id }}</p>
     </div>
     <div class="profile-actions">
-      <span v-if="newId">
+      <span v-if="newId && !only_profile">
         <NotifyButton :n_id="Number(id)" />
       </span>
-      <span v-if="newId">
+      <span v-if="newId && !only_profile">
         <FollowButton :f_id="Number(id)" />
       </span>
       <LinkCopy />

@@ -4,9 +4,9 @@ import SectionTitle from '@/basics/SectionTitle.vue'
 import ImageGallery from '@/basics/ImageGallery.vue'
 import PostProfile from '@/components/PostProfile.vue'
 import { useUserStore } from '@/stores/user'
-import type { Favorite } from '@/types/PostResponse'
+import type { MyPage } from '@/types/PostResponse'
 
-const posts = ref<Favorite[]>([])
+const posts = ref<MyPage[]>([])
 const userStore = useUserStore()
 const id = ref(userStore.id)
 
@@ -25,21 +25,24 @@ onMounted(fetchData)
 </script>
 
 <template>
-  <PostProfile
-    v-if="posts.length > 0"
-    :profile_photo="posts[0].profile_photo"
-    :profile_name="posts[0].profile_name"
-    :profile_login_id="posts[0].profile_login_id"
-  />
-  <SectionTitle title="投稿一覧" />
-  <ImageGallery
-    v-if="posts.length > 1"
-    :posts="posts.slice(1)"
-    :showLabel="true"
-  />
+  <div v-if="posts.length > 0">
+    <PostProfile
+      :profile_photo="posts[0].profile_photo"
+      :profile_name="posts[0].profile_name"
+      :profile_id="posts[0].profile_id"
+      :profile_login_id="posts[0].profile_login_id"
+      :only_profile="posts[0].only_profile"
+    />
+    <SectionTitle title="投稿一覧" />
+    <ImageGallery
+      v-if="!posts[0].only_profile"
+      :posts="posts"
+      :showLabel="true"
+    />
 
-  <!-- 投稿がないとき -->
-  <p v-else class="no-posts">まだ投稿はありません</p>
+    <!-- 投稿がないとき -->
+    <p v-else class="no-posts">まだ投稿はありません</p>
+  </div>
 </template>
 <style scoped>
 .no-posts {
